@@ -23,3 +23,11 @@
 hs_err_pid*
 demo/src/.DS_Store
 demo/src/main/.DS_Store
+.DS_Store
+demo/src/main/java/.DS_Store
+demo/target/classes/.DS_Store
+demo/src/main/java/cecs429/.DS_Store
+demo/src/main/java/.DS_Store
+demo/target/classes/.DS_Store
+demo/src/main/java/cecs429/.DS_Store
+demo/src/main/java/.DS_Store
