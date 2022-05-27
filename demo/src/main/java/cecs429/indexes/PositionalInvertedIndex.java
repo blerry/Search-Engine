@@ -47,10 +47,10 @@ public class PositionalInvertedIndex implements Index{
         //if exists it could already contain id in list
         if(map.containsKey(term)){
             if(exists.get(exists.size()-1).getDocumentId() != docId){ //if not the last document 
-                List<Posting> list = getPostings(term);
-                ArrayList<Integer> postList = new ArrayList<>(); //position list
+                List<Posting> list = getPostings(term); //posting list
+                ArrayList<Integer> posList = new ArrayList<>(); //position list
                 posList.add(position);
-                list.add(new Posting(docId,postList));
+                list.add(new Posting(docId,posList));
                 map.put(term,list);
             }
             else{

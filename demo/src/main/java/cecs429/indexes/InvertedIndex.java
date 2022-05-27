@@ -49,7 +49,7 @@ public class InvertedIndex implements Index{
         if(map.containsKey(term)){
             if(exists.get(exists.size()-1).getDocumentId() != docId){ //if not the last document 
                 List<Posting> list = getPostings(term);
-                list.add(new Posting(docId));
+                list.add(new Posting(docId,new ArrayList<Integer>()));
                 map.put(term,list);
             }
             else{
@@ -63,7 +63,7 @@ public class InvertedIndex implements Index{
             List<Posting> list = new ArrayList<Posting>();
 			//ArrayList<Integer> posList = new ArrayList<Integer>();
 			//posList.add(position);
-			list.add(new Posting(docId));
+			list.add(new Posting(docId, new ArrayList<Integer>()));
 			map.put(term, list);
         }
     }

@@ -1,6 +1,7 @@
 package cecs429.indexes;
 
 import java.util.ArrayList;
+import java.util.Collections;
 
 /**
  * A Posting encapulates a document ID associated with a search query component.
@@ -20,7 +21,7 @@ public class Posting { //Posting consists of document if with a list of position
 	public ArrayList<Integer> getPostions(){ //return positions of Posting
 		return mPositions;
 	}
-	public void addPostion(int position){ //add a position to positions to the posting, sort
+	public void addPosition(int position){ //add a position to positions to the posting, sort
 		mPositions.add(position);
 		Collections.sort(mPositions);
 	}

@@ -4,14 +4,14 @@ import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.indexes.Index;
-import cecs429.indexes.InvertedIndex;
+import cecs429.indexes.PositionalInvertedIndex;
 import cecs429.indexes.Posting;
 import cecs429.text.BasicTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashSet;
+//import java.util.HashSet;
 import java.util.Scanner;
     
 public class PositionalInvertedIndexIndexer {
@@ -46,7 +46,7 @@ public class PositionalInvertedIndexIndexer {
                 //get 1 token at a time
                 //System.out.println(token);
                 String term = processor.processToken(token);
-                index.addTerm(term,d.getId()); //required for matrix because must know 
+                index.addTerm(term,d.getId(),position); //required for matrix because must know 
                 position++;
                 }
                 try{

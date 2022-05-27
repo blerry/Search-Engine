@@ -43,7 +43,7 @@ public class TermDocumentIndex implements Index {
 		int givenTerm = Collections.binarySearch(mVocabulary,term);
 		for(int docID = 1; docID < mMatrix.length; docID++){
 			if(mMatrix[givenTerm][docID] ==true){
-				Posting post = new Posting(docID);
+				Posting post = new Posting(docID,new ArrayList<Integer>());
 				results.add(post);
 			}
 		}
