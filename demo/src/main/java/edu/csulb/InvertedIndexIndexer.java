@@ -16,8 +16,8 @@ public class InvertedIndexIndexer {
 	
 	public static void main(String[] args) {
 		// Create a DocumentCorpus to load .txt documents from the project directory.
-		//DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/Search-Engine/demo/src/main/java/all-nps-sites-extracted").toAbsolutePath(), ".txt");
-		DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/all-nps-sites-extracted").toAbsolutePath(), ".txt");
+		DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/Search-Engine/demo/src/main/java/all-nps-sites-extracted").toAbsolutePath(), ".txt");
+		//DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/all-nps-sites-extracted").toAbsolutePath(), ".txt");
 		// Index the documents of the corpus.
 		long startTime = System.nanoTime();
 		Index index = indexCorpus(corpus);
