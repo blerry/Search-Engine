@@ -21,6 +21,7 @@ public class TermDocumentIndexer {
 		Scanner scan = new Scanner(System.in);
 		// We aren't ready to use a full query parser; for now, we'll only support single-term queries.
 		//String query = "whale"; // hard-coded search for "whale"
+		System.out.println("Enter a term: ");
 		String query = scan.nextLine();
 		for (Posting p : index.getPostings(query)) {
 			System.out.println("Document " + corpus.getDocument(p.getDocumentId()).getTitle());
