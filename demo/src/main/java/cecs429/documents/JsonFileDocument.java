@@ -26,16 +26,16 @@ public class JsonFileDocument implements FileDocument{
 	public Reader getContent() {
 		Reader reader;
 		Reader Sreader;
+		//Gson gson = new Gson();
 		try {
 			reader = new FileReader(jFilePath.toString());
 			JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
 			Sreader = new StringReader(jsonObject.get("body").getAsString());
 			return Sreader;
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		return null;
+		return null;//no file found
 	}
 
 	@Override
@@ -46,7 +46,6 @@ public class JsonFileDocument implements FileDocument{
 			JsonObject jsonObject = new JsonParser().parse(reader).getAsJsonObject();
 			jTitle = jsonObject.get("title").getAsString();
 		} catch (FileNotFoundException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		return jTitle;
