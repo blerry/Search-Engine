@@ -1,12 +1,27 @@
 package cecs429.text;
 
+import org.tartarus.snowball.ext.englishStemmer;
+
 import java.util.ArrayList;
 
 public class AdvancedTokenProcessor implements TokenProcessor{
+    
     @Override
     public ArrayList<String> processToken(String token){
+        englishStemmer stemmer = new englishStemmer();
         ArrayList<String> list = new ArrayList<String>();
         token = token.replaceAll("^\\W+|\\W+$", ""); //start-end delete non-alphanum characters
+        token = token.replaceAll("\"", ""); //replaces quotes
+        token = token.replaceAll("'", "").toLowerCase();//remove,apostrophes, then lowercase 
+        
+        if (token.contains("-")){
+            String[] tokenList = token.split("-");//in hyphens add term, split by hyphen and full word without
+            for(String s: tokenList){ //loop tokenslist hyphens
+                if(s.length()>0) list.add(processToken(s).get(0));//recusively add modified token 
+            }
+            token.replaceAll("-", ""); //replace hyphens 
+        }
+        
         return list;
     }
 }
