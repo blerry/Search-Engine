@@ -6,13 +6,14 @@ import cecs429.documents.DocumentCorpus;
 import cecs429.indexes.Index;
 import cecs429.indexes.TermDocumentIndex;
 import cecs429.indexes.Posting;
-import cecs429.text.BasicTokenProcessor;
+//import cecs429.text.BasicTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 import java.nio.file.Paths;
 import java.util.HashSet;
 import java.util.Scanner;
-
+//DOESNT WORK UNLESS TOKEN INFERFACE CHANGED
 public class TermDocumentIndexer {
+	/*
 	public static void main(String[] args) {
 		// Create a DocumentCorpus to load .txt documents from the project directory.
 		DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/MobyDick10Chapters").toAbsolutePath(), ".txt");
@@ -32,6 +33,7 @@ public class TermDocumentIndexer {
 	
 	private static Index indexCorpus(DocumentCorpus corpus) {
 		HashSet<String> vocabulary = new HashSet<>();
+		
 		BasicTokenProcessor processor = new BasicTokenProcessor();
 		
 		// First, build the vocabulary hash set.
@@ -65,4 +67,5 @@ public class TermDocumentIndexer {
 		// THEN, do the loop again! But instead of inserting into the HashSet, add terms to the index with addPosting.
 	
 	}
+	*/
 }

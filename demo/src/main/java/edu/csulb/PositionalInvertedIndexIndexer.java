@@ -6,11 +6,12 @@ import cecs429.documents.DocumentCorpus;
 import cecs429.indexes.Index;
 import cecs429.indexes.PositionalInvertedIndex;
 import cecs429.indexes.Posting;
-import cecs429.text.BasicTokenProcessor;
+import cecs429.text.AdvancedTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 
 import java.io.IOException;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 //import java.util.HashSet;
 import java.util.Scanner;
     
@@ -37,17 +38,23 @@ public class PositionalInvertedIndexIndexer {
         }
         private static Index indexCorpus(DocumentCorpus corpus) {
             //HashSet<String> vocabulary = new HashSet<>();
-            BasicTokenProcessor processor = new BasicTokenProcessor();	
+            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
             PositionalInvertedIndex  index = new PositionalInvertedIndex();
+            ArrayList<String> wordList = new ArrayList<String>();
             int position = 0;
             for (Document d : corpus.getDocuments()) {
                 EnglishTokenStream stream = new EnglishTokenStream(d.getContent());
                 for(String token : stream.getTokens()){
-                //get 1 token at a time
-                //System.out.println(token);
-                String term = processor.processToken(token);
-                index.addTerm(term,d.getId(),position); //required for matrix because must know 
-                position++;
+                    //get 1 token at a time
+                    //System.out.println(token);
+                    //String term = processor.processToken(token);
+                    wordList = processor.processToken(token);
+                    for(String s:wordList){
+                        if(s.length()>0){
+                            index.addTerm(s,d.getId(),position); //required for matrix because must know 
+                            position++;
+                        }
+                    }
                 }
                 try{
                     stream.close(); //close stream

@@ -21,7 +21,13 @@ public class AdvancedTokenProcessor implements TokenProcessor{
             }
             token.replaceAll("-", ""); //replace hyphens 
         }
-        
+        list.add(token);//finally add modified token
+        for(int i = 0; i < list.size(); i++){ //stem tokens in list
+            stemmer.setCurrent(list.get(i)); //curr stem
+            stemmer.stem(); //stem process
+            list.set(i,stemmer.getCurrent()); //set i in list to stemmed
+            list.set(i,list.get(i)); //update
+        }
         return list;
     }
 }
