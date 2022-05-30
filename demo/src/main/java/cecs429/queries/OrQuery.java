@@ -1,6 +1,5 @@
 package cecs429.queries;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -12,35 +11,18 @@ import cecs429.indexes.Posting;
  */
 public class OrQuery implements QueryComponent {
 	// The components of the Or query.
-	private List<QueryComponent> mComponents;//the children
-	private boolean isPos;
-
-	//public OrQuery(List<QueryComponent> components) {
-	public OrQuery(Iterable<QueryComponent> components){
-		isPos = true;
-		mComponents = (List<QueryComponent>) components;
+	private List<QueryComponent> mComponents;
+	
+	public OrQuery(List<QueryComponent> components) {
+		mComponents = components;
 	}
 	
 	@Override
 	public List<Posting> getPostings(Index index) {
-		List<Posting> result = new ArrayList<Posting>();//post list
-		result = mComponents.get(0).getPostings(index);//Set posting list to first element
-		List<Posting> currList = new ArrayList<Posting>();
+		List<Posting> result = null;
+		
 		// TODO: program the merge for an OrQuery, by gathering the postings of the composed QueryComponents and
 		// unioning the resulting postings.
-		for(int i = 1; i< mComponents.size(); i++){
-			List<Posting> tempList = new ArrayList<Posting>();
-			currList = mComponents.get(i).getPostings(index);
-			int a =0, b=0;//counts
-			Posting pA = result.get(a);
-			Posting pB = result.get(b);
-			int docA = pA.getDocumentId();
-			int docB = pB.getDocumentId();
-
-			while(a<result.size() && b < currList.size()){
-				
-			}
-		}
 		
 		return result;
 	}

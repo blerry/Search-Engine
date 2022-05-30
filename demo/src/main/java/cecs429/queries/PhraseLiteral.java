@@ -40,8 +40,8 @@ public class PhraseLiteral implements QueryComponent {
 	public List<Posting> getPostings(Index index) {
 		//Retrieve the postings for the individual terms in the phrase,
 		// and positional merge them together.
-		List<Posting> results = new ArrayList<Posting>();//post list
-		results = mTerms.get(0).getPostings(index); //post list is 1st element
+		List<Posting> pList = new ArrayList<Posting>();
+		pList = mTerms.get(0).getPostings(index); //plist is 1st element
 		
 		List<Posting> currList = new ArrayList<Posting>();//only for current Postings
 
@@ -52,14 +52,14 @@ public class PhraseLiteral implements QueryComponent {
 			//currList will be used to find a match with other term
 			currList = mTerms.get(i).getPostings(index);//Find postings for current index
 			int a = 0, b = 0;//counts
-			Posting pA = results.get(a); 
+			Posting pA = pList.get(a); 
 			Posting pB = currList.get(b);
 			int docA = pA.getDocumentId();
 			int docB =  pB.getDocumentId();
 
-			while(a< results.size() && b <currList.size()){//Loop through both lists
+			while(a< pList.size() && b <currList.size()){//Loop through both lists
 				//We are looking for a match by moving both a and b
-				pA = results.get(a);
+				pA = pList.get(a);
 				pB = currList.get(b);
 				docA = pA.getDocumentId();
 				docB = pB.getDocumentId();
@@ -105,9 +105,9 @@ public class PhraseLiteral implements QueryComponent {
 					else b++;
 				}
 			}//end loop
-			results =tempList; //update the list for phrase for search
+			pList =tempList; //update the list for phrase for search
 		}
-		return results;
+		return pList;
 	}
 	
 	@Override
