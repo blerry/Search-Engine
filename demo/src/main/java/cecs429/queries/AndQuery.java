@@ -31,4 +31,11 @@ public class AndQuery implements QueryComponent {
 		return
 		 String.join(" ", mComponents.stream().map(c -> c.toString()).collect(Collectors.toList()));
 	}
+	@Override
+	public boolean isPositive() {
+		return true;
+	}
+	public void setNegative() {
+		//isPos = false;
+	}
 }

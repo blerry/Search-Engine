@@ -34,4 +34,11 @@ public class OrQuery implements QueryComponent {
 		 String.join(" + ", mComponents.stream().map(c -> c.toString()).collect(Collectors.toList()))
 		 + " )";
 	}
+	@Override
+	public boolean isPositive() {
+		return true;
+	}
+	public void setNegative() {
+		//isPos = false;
+	}
 }
