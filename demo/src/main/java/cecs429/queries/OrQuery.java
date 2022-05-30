@@ -4,6 +4,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.lang.model.util.ElementScanner14;
+import javax.xml.transform.Templates;
+
 import cecs429.indexes.Index;
 import cecs429.indexes.Posting;
 
@@ -38,10 +41,67 @@ public class OrQuery implements QueryComponent {
 			int docB = pB.getDocumentId();
 
 			while(a<result.size() && b < currList.size()){
-				
+				// curList do not exceed their size
+				pA = result.get(a); 
+				pB = currList.get(b);											
+				docA = pA.getDocumentId(); // docA = the "A" count docid in the postings list																						// for pList
+				docB = pB.getDocumentId(); // docB = the "B" count docid in the postings list																// for curList
+				Posting lastPosting = null;
+				if(!(tempList.isEmpty())) {
+					lastPosting = tempList.get(tempList.size()-1);
+				}
+				if (docA == docB) { // if docIDs match add both to posting list
+					tempList.add(pA);
+					lastPosting = tempList.get(tempList.size()-1);
+					for(int position: pB.getPostions()){
+						lastPosting.addPosition(position);
+					}
+					//increment counters
+					a++;
+					b++;
+				}
+				else if(docA < docB){//if Doc A id is less than B add postings from result to temp list
+					if(tempList.isEmpty())
+						tempList.add(pA);
+					else if (lastPosting.getDocumentId() == docA){
+						 for(int position: pA.getPostions()){
+							 lastPosting.addPosition(position);
+						 }
+					}
+					else
+						tempList.add(pA);
+					a++;
+				} else if(docB < docA){//id Doc B id is less than A add postings from result to temp list
+					if(tempList.isEmpty()){
+						tempList.add(pB);
+					}
+					else if(lastPosting.getDocumentId() == docB){
+						for(int position: pB.getPostions()){
+							lastPosting.addPosition(position);
+						}
+					}
+					else{
+						tempList.add(pB);
+					}
+					b++;
+				}
+			} // end of loop
+													
+			//once broken out of the loop add the remaining postings from the list if is positive(flag)
+			if (a == result.size() && docB == currList.size()) { 
 			}
+			else if(a == result.size()){
+				for (int j = b; j < currList.size(); j++) {
+					tempList.add(currList.get(j));
+				}
+			}
+			else if (b == currList.size()) {
+				for (int j = a; j < result.size(); j++) {
+					tempList.add(result.get(j));
+				}
+			}	
+			result = tempList;				
 		}
-		
 		return result;
 	}
 	
