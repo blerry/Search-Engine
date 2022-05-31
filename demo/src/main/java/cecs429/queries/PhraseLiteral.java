@@ -122,11 +122,5 @@ public class PhraseLiteral implements QueryComponent {
 		//return "\"" + String.join(" ", mTerms) + "\"";
 		return "";
 	}
-	@Override
-	public boolean isPositive() {
-		return isPos;
-	}
-	public void setNegative() {
-		isPos = false;
-	}
+	
 }

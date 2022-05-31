@@ -39,82 +39,33 @@ public class AndQuery implements QueryComponent {
 			int docA;
 			int docB;
 			Posting lastPosting = null;
-			
-			if (mComponents.get(0).isPositive() == false && i == 1 || mComponents.get(i).isPositive() == false) { // if the first or current element is negative
-				
+				//perform regular AND operation
+			while (a < result.size() && b < currList.size()) {
+
 				pA = result.get(a); // current posting in post List
 				pB = currList.get(b); // current posting in current List
-																												 
-				docA = pA.getDocumentId(); // docID counter for post List
-				docB = pB.getDocumentId(); // docID counter for current List
-
-				//last posting in tempList
-				while (a < result.size() && b < currList.size()) { // while both the counters for both pList and
-																			// curList do not exceed their size
-					pA = result.get(a); 
-					pB = currList.get(b);
+				docA = pA.getDocumentId(); //id of doc a
+				docB = pB.getDocumentId(); // id of doc b
 					
-					docA = pA.getDocumentId(); // docA = the "A" count docid in the postings list
-																	// for pList
-					docB = pB.getDocumentId(); // docB = the "B" count docid in the postings list
-																	// for curList
-					if (docA == docB) { // if docIDs match increment the counts but dont add either because we are
-												// performing an AND NOT
+				if (docA == docB) { // if docIDs match iterate through pos lists
+					tempList.add(pA); //  temporarily add posting
+					lastPosting = tempList.get(tempList.size() - 1); // get last posting
+					for (int pos : pB.getPostions()) {
+						lastPosting.addPosition(pos); //add the positions
+					}
+					a++;
+					b++;//increment counts a,b
+				} 
+				else {// if no match increment the min of the 2
+					if (docA <= docB) {
 						a++;
+					}
+					else{ 
 						b++;
-					} // end of if
-					else {// if docIDs do not match increment the smaller of the two
-						if (docA < docB) { // add the posting from pList if it is positive
-							if (mComponents.get(0).isPositive()) {
-								tempList.add(pA);
-							}
-							a++;
-						} else if (docB < docA) { // add the posting from curList if it is positive
-							if (mComponents.get(i).isPositive()) {
-								tempList.add(pB);
-							}
-							b++;
 						}
-					} 
-				} // end of loop
-				
-				//once broken out of the loop add the remaining postings from the list if is positive(flag)
-				if (a == result.size() && mComponents.get(i).isPositive() && docB != currList.size()) { 
-					for (int j = b; j < currList.size(); j++) {
-						tempList.add(currList.get(j));
-					}
-				} else if (b == currList.size() && mComponents.get(0).isPositive() && docA != result.size()) {
-					for (int j = a; j < result.size(); j++) {
-						tempList.add(result.get(j));
-					}
-				}
-			} else {
-				//perform regular AND operation
-				while (a < result.size() && b < currList.size()) {
-
-					pA = result.get(a); // current posting in post List
-					pB = currList.get(b); // current posting in current List
-					docA = pA.getDocumentId(); //id of doc a
-					docB = pB.getDocumentId(); // id of doc b
-					
-					if (docA == docB) { // if docIDs match iterate through pos lists
-						tempList.add(pA); //  temporarily add posting
-						lastPosting = tempList.get(tempList.size() - 1); // get last posting
-						for (int pos : pB.getPostions()) {
-							lastPosting.addPosition(pos); //add the positions
-						}
-
-						a++;
-						b++;//increment counts a,b
-					} 
-					else {// if no match increment the min of the 2
-						if (docA <= docB) 
-							a++;
-						 else 
-							b++;
 					}
 				} // end of loop
-			}
+			//}
 			result = tempList; // set post List to tempList
 		} // end of loop
 		return result;
@@ -125,11 +76,5 @@ public class AndQuery implements QueryComponent {
 		return
 		 String.join(" ", mComponents.stream().map(c -> c.toString()).collect(Collectors.toList()));
 	}
-	@Override
-	public boolean isPositive() {
-		return true;
-	}
-	public void setNegative() {
-		//isPos = false;
-	}
+	
 }

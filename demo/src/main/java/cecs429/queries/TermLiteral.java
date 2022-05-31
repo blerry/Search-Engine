@@ -34,12 +34,6 @@ public class TermLiteral implements QueryComponent {
 		return mTerm;
 	}
 
-	@Override
-	public boolean isPositive(){
-		return isPos;
-	}
-	@Override
-	public void setNegative(){
-		isPos = false;
-	}
+
+
 }

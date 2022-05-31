@@ -12,7 +12,7 @@ import cecs429.text.EnglishTokenStream;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.net.StandardProtocolFamily;
+//import java.net.StandardProtocolFamily;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,7 +27,8 @@ public class PositionalInvertedIndexIndexer {
 		String s = scan.nextLine();
         //Path
         //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
-        //"/Users/berry/Desktop/CECS429/mlb-articles-4000"
+        //"/Users/berry/Desktop/CECS429/mlb-articles-4000/1"
+        // /Users/berry/Desktop/CECS429/testCorpus
         //scan.close();
         // Create a DocumentCorpus to load .txt documents from the project directory.
         DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
@@ -38,7 +39,7 @@ public class PositionalInvertedIndexIndexer {
         long endTime = System.nanoTime();
         long totalTime = endTime - startTime;
         System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
-        System.out.println("Enter search query: ");
+        System.out.print("Enter search query: ");
         //String query = "whale"; // hard-coded search for "whale"
             String query = scan.nextLine();
         //
@@ -79,6 +80,7 @@ public class PositionalInvertedIndexIndexer {
                 System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
                 break;
             default:
+                System.out.print("Enter other query if any: ");
                 query += scan.nextLine(); //The query becomes the the line entered
                 BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
                 int docCount = 0; //doc counter
