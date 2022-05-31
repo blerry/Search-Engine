@@ -79,12 +79,15 @@ public class PhraseLiteral implements QueryComponent {
 						if(posB.get(p2) == posA.get(p1)+i){
 							//if Position B = Position A + i, Then there are many
 							//So we add Posting A to TempList Postings
-							if(tempList.isEmpty())
+							if(tempList.isEmpty()){
 								tempList.add(pA);
-							else if(lastPosting.getDocumentId()==docA)//if already in tempList we add the position of Doc Id
+							}
+							else if(lastPosting.getDocumentId()==docA){//if already in tempList we add the position of Doc Id
 								lastPosting.addPosition(a);
-							else 
+							}
+							else{ 
 								tempList.add(pA);//otherwise add Posting A
+							}
 								p1++;//Posting A position incremented
 								p2++;//Posting B
 						}
@@ -101,8 +104,12 @@ public class PhraseLiteral implements QueryComponent {
 				}//end match check (if)
 				//If not match increment minimum of counts
 				else{
-					if(docA<=docB) a++;
-					else b++;
+					if(docA<=docB){
+						 a++;
+					}
+					else{ 
+						b++;
+					}
 				}
 			}//end loop
 			results =tempList; //update the list for phrase for search

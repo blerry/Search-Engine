@@ -27,7 +27,7 @@ public class PositionalInvertedIndexIndexer {
 		String s = scan.nextLine();
         //Path
         //"/Users/berry/Desktop/CECS429/Search-Engine/demo/src/main/java/all-nps-sites-extracted"
-        scan.close();
+        //scan.close();
         // Create a DocumentCorpus to load .txt documents from the project directory.
         DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
         //DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/all-nps-sites-extracted").toAbsolutePath(), ".txt");

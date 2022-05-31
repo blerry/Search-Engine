@@ -17,7 +17,9 @@ public class AdvancedTokenProcessor implements TokenProcessor{
         if (token.contains("-")){
             String[] tokenList = token.split("-");//in hyphens add term, split by hyphen and full word without
             for(String s: tokenList){ //loop tokenslist hyphens
-                if(s.length()>0) list.add(processToken(s).get(0));//recusively add modified token 
+                if(s.length()>0){
+                     list.add(processToken(s).get(0));//recusively add modified token 
+                }
             }
             token.replaceAll("-", ""); //replace hyphens 
         }

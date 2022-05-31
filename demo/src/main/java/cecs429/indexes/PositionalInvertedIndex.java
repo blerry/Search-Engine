@@ -31,13 +31,24 @@ public class PositionalInvertedIndex implements Index{
         Set<String> keys = map.keySet();//not really a list, sort arraylist then return it
         List<String> vocabulary = new ArrayList<String>();
         for(String s: keys){
-            vocabulary.add(s);
+            //if(isStringAlphabetic(s)){
+                vocabulary.add(s);
+                //Sort alphabetically
+            //vocabulary.add(s);
+           // }
         }
         Collections.sort(vocabulary);
         return Collections.unmodifiableList(vocabulary);
         //return null;
     }
-
+    public boolean isStringAlphabetic(String s){
+        for(int i = 0; i < s.length(); i++){
+            if(!Character.isLetter(s.charAt(i))){
+                return false;
+            };
+        }
+        return true;
+    }
     public void addTerm(String term, int docId, int position){
         //someone gives me "hello, docID 5"
         List<Posting> exists = map.get(term);//exists is posting list
