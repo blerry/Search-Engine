@@ -26,7 +26,8 @@ public class PositionalInvertedIndexIndexer {
 		System.out.println("What is the path of the directory you would like to index: ");
 		String s = scan.nextLine();
         //Path
-        //"/Users/berry/Desktop/CECS429/Search-Engine/demo/src/main/java/all-nps-sites-extracted"
+        //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
+        //"/Users/berry/Desktop/CECS429/mlb-articles-4000"
         //scan.close();
         // Create a DocumentCorpus to load .txt documents from the project directory.
         DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
