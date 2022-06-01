@@ -119,7 +119,7 @@ public class PositionalInvertedIndexIndexer {
             //HashSet<String> vocabulary = new HashSet<>();
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
             PositionalInvertedIndex  index = new PositionalInvertedIndex();
-            ArrayList<String> wordList = new ArrayList<String>();
+            List<String> wordList = new ArrayList<String>();
             int position = 0;
             for (Document d : corpus.getDocuments()) {
                 EnglishTokenStream stream = new EnglishTokenStream(d.getContent());
@@ -128,12 +128,9 @@ public class PositionalInvertedIndexIndexer {
                     //System.out.println(token);
                     //String term = processor.processToken(token);
                     wordList = processor.processToken(token);
-                    for(String s:wordList){
-                        if(s.length()>0){
-                            index.addTerm(s,d.getId(),position); //required for matrix because must know 
+                            index.addTerm(wordList,d.getId(),position,d.getTitle()); //required for matrix because must know 
                             position++;
-                        }
-                    }
+
                 }
                 try{
                     stream.close(); //close stream

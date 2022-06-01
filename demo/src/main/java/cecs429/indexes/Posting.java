@@ -8,13 +8,19 @@ import java.util.Collections;
  */
 public class Posting { //Posting consists of document if with a list of positions
 	private int mDocumentId;
+	private String mDocumentTitle;
 	private ArrayList<Integer> mPositions; 
 	
 	public Posting(int documentId, ArrayList<Integer> position) {
 		mDocumentId = documentId;
 		mPositions = position;
 	}
-	
+	public Posting(int documentId, String title) {
+
+		mDocumentId = documentId;
+		mDocumentTitle = title;
+		mPositions = new ArrayList<>();
+	}
 	public int getDocumentId() {
 		return mDocumentId;
 	}

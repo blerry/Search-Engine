@@ -50,36 +50,50 @@ public class PositionalInvertedIndex implements Index{
         }
         return true;
     }
-    public void addTerm(String term, int docId, int position){
-        //someone gives me "hello, docID 5"
-        List<Posting> exists = map.get(term);//exists is posting list
-        //exists.add(new Posting(docId)); //mutable list in HasMap is same List
-        //Check if it exists first, if a term shows up more than once dont add it again
-        // Hello -> 1 could show up 12 times.
-        //if exists it could already contain id in list
-        if(map.containsKey(term)){
-            if(exists.get(exists.size()-1).getDocumentId() != docId){ //if not the last document 
-                List<Posting> list = getPostings(term); //posting list
-                ArrayList<Integer> posList = new ArrayList<>(); //position list
-                posList.add(position);
-                list.add(new Posting(docId,posList));
-                map.put(term,list);
-            }
-            else{
-                List<Posting> list = getPostings(term);
-                    Posting p = list.get(list.size() - 1);
-                    p.addPosition(position);
-            }
+    public void addTerm(List<String> terms, int id, int position, String title) {
 
-        }
-        else{
-            List<Posting> list = new ArrayList<Posting>();
-			ArrayList<Integer> posList = new ArrayList<Integer>();
-			posList.add(position);
-			list.add(new Posting(docId,posList));
-			map.put(term, list);
-        }
-    }
+		for (String term : terms) {//iterate through every term given
+
+			List<Posting> postings = map.get(term);//find list of postings for the term
+
+			//postings don't exist for term
+			if (postings == null) {
+
+				postings = createPosting(id, position, title);//create a new posting with docid, position
+				this.map.put(term, postings);//add new posting and term to index
+
+			} else {//build from existing posting list
+
+				//previous document id within the postings list
+				int prevDocId = postings.get(postings.size()-1).getDocumentId();
+				//this document hasn't been recorded yet
+				if (id > prevDocId) {
+					Posting posting = new Posting(id, title);//add the new document id to the list
+					posting.addPosition(position);
+					postings.add(posting);//update postings with new posting
+				//this document exists, add new position
+				} else if (id == prevDocId) {
+					postings.get(postings.size()-1).addPosition(position);//update postings with new position
+				}
+
+			}
+
+		}
+
+	}
+    /**
+	 * Create a new posting list object for the index
+	 * @param id document id associated with the new posting
+	 * @param position term position to store in the new posting
+	 * @return a new posting list object
+	 */
+	private List<Posting> createPosting(int id, int position,String title) {
+		List<Posting> postings = new ArrayList<>();
+		Posting posting = new Posting(id, title);//create a new posting
+		posting.addPosition(position);
+		postings.add(posting);
+		return postings;
+	}
     @Override
 	public List<Posting> getPostingsPositions(String token) {
 		//process token for valid characters
