@@ -20,7 +20,10 @@ public class PositionalInvertedIndex implements Index{
         //return list of postings in index
         //KEY might not exist
         if(map.containsKey(term)){
-            return map.get(term);
+            //process token for valid characters
+			AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
+			String stemmed = processor.stemToken(term);
+			return map.get(stemmed);
         }
         else{
             return new ArrayList<Posting>();//return empty list if no posting
@@ -50,7 +53,7 @@ public class PositionalInvertedIndex implements Index{
         }
         return true;
     }
-    public void addTerm(List<String> terms, int id, int position, String title) {
+    public void addTerm(List<String> terms, int id, int position) {
 
 		for (String term : terms) {//iterate through every term given
 
@@ -59,8 +62,8 @@ public class PositionalInvertedIndex implements Index{
 			//postings don't exist for term
 			if (postings == null) {
 
-				postings = createPosting(id, position, title);//create a new posting with docid, position
-				this.map.put(term, postings);//add new posting and term to index
+				postings = createPosting(id, position);//create a new posting with docid, position
+				map.put(term, postings);//add new posting and term to index
 
 			} else {//build from existing posting list
 
@@ -68,7 +71,7 @@ public class PositionalInvertedIndex implements Index{
 				int prevDocId = postings.get(postings.size()-1).getDocumentId();
 				//this document hasn't been recorded yet
 				if (id > prevDocId) {
-					Posting posting = new Posting(id, title);//add the new document id to the list
+					Posting posting = new Posting(id);//add the new document id to the list
 					posting.addPosition(position);
 					postings.add(posting);//update postings with new posting
 				//this document exists, add new position
@@ -87,9 +90,9 @@ public class PositionalInvertedIndex implements Index{
 	 * @param position term position to store in the new posting
 	 * @return a new posting list object
 	 */
-	private List<Posting> createPosting(int id, int position,String title) {
+	private List<Posting> createPosting(int id, int position) {
 		List<Posting> postings = new ArrayList<>();
-		Posting posting = new Posting(id, title);//create a new posting
+		Posting posting = new Posting(id);//create a new posting
 		posting.addPosition(position);
 		postings.add(posting);
 		return postings;
@@ -98,7 +101,7 @@ public class PositionalInvertedIndex implements Index{
 	public List<Posting> getPostingsPositions(String token) {
 		//process token for valid characters
 		AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
-		String stemmed = AdvancedTokenProcessor.stemToken(token);
-		return this.map.get(stemmed);//index
+		String stemmed = processor.stemToken(token);
+		return map.get(stemmed);//index
 	}
 }

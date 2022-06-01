@@ -8,17 +8,15 @@ import java.util.Collections;
  */
 public class Posting { //Posting consists of document if with a list of positions
 	private int mDocumentId;
-	private String mDocumentTitle;
 	private ArrayList<Integer> mPositions; 
 	
 	public Posting(int documentId, ArrayList<Integer> position) {
 		mDocumentId = documentId;
 		mPositions = position;
 	}
-	public Posting(int documentId, String title) {
+	public Posting(int documentId) {
 
 		mDocumentId = documentId;
-		mDocumentTitle = title;
 		mPositions = new ArrayList<>();
 	}
 	public int getDocumentId() {
@@ -28,7 +26,9 @@ public class Posting { //Posting consists of document if with a list of position
 		return mPositions;
 	}
 	public void addPosition(int position){ //add a position to positions to the posting, sort
-		mPositions.add(position);
-		Collections.sort(mPositions);
+		//if(!mPositions.contains(position)){//if position doesnt already exist
+			mPositions.add(position);
+			Collections.sort(mPositions);
+			//}
 	}
 }

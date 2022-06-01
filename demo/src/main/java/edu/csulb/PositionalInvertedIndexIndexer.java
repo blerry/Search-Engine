@@ -22,6 +22,7 @@ import java.util.Scanner;
 public class PositionalInvertedIndexIndexer {
         
     public static void main(String[] args) throws IOException {
+        Index index;
         Scanner scan = new Scanner(System.in);
 		System.out.println("What is the path of the directory you would like to index: ");
 		String s = scan.nextLine();
@@ -32,13 +33,7 @@ public class PositionalInvertedIndexIndexer {
         //scan.close();
         // Create a DocumentCorpus to load .txt documents from the project directory.
         DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
-        //DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/all-nps-sites-extracted").toAbsolutePath(), ".txt");
-        // Index the documents of the corpus.
-        long startTime = System.nanoTime();
-        Index index = indexCorpus(corpus);
-        long endTime = System.nanoTime();
-        long totalTime = endTime - startTime;
-        System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
+        index = buildIndex(corpus, s);
         System.out.print("Enter search query: ");
         //String query = "whale"; // hard-coded search for "whale"
         String query = scan.nextLine();
@@ -87,7 +82,7 @@ public class PositionalInvertedIndexIndexer {
                 //Get document contents the user wants
                 System.out.println("Enter Document ID number to view contents or -1 to continue: ");
                 int docID = scan.nextInt();
-                if(docID>0){
+                if(docID>=0){
                     //Get contents of Document user asked for
                     BufferedReader bufferedReader = new BufferedReader(corpus.getDocument(docID).getContent());
                     StringBuilder stringBuilder = new StringBuilder();
@@ -113,13 +108,6 @@ public class PositionalInvertedIndexIndexer {
             long endTime = System.nanoTime();
             long totalTime = endTime - startTime;
             // Create a DocumentCorpus to load .txt documents from the project directory.
-            corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(path).toAbsolutePath(), ".txt");
-            //DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/all-nps-sites-extracted").toAbsolutePath(), ".txt");
-            // Index the documents of the corpus.
-            startTime = System.nanoTime(); //time
-            index = indexCorpus(corpus); // index the corpus
-            endTime = System.nanoTime();
-            totalTime = endTime - startTime; //total time
             System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
             return index;
         }
@@ -127,17 +115,19 @@ public class PositionalInvertedIndexIndexer {
             //HashSet<String> vocabulary = new HashSet<>();
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
             PositionalInvertedIndex  index = new PositionalInvertedIndex();
+            // Get all the documents in the corpus by calling GetDocuments().
+            Iterable<Document> documents = corpus.getDocuments();
             List<String> wordList = new ArrayList<String>();
             int position = 0;
-            for (Document d : corpus.getDocuments()) {
+            for (Document d : documents) {
                 EnglishTokenStream stream = new EnglishTokenStream(d.getContent());
-                for(String token : stream.getTokens()){
-                    //get 1 token at a time
-                    //System.out.println(token);
-                    //String term = processor.processToken(token);
+                Iterable<String> tokens = stream.getTokens();//convert read data into tokens
+                for(String token : tokens){
+                    //String term = processor.processToken(token); //get 1 token at a time
                     wordList = processor.processToken(token);
-                            index.addTerm(wordList,d.getId(),position,d.getTitle()); //required for matrix because must know 
-                            position++;
+                    //for (int i = 0; i < words.size(); i++) {
+                    index.addTerm(wordList,d.getId(),position); //required because must know 
+                    position++;
                 }
                 try{
                     stream.close(); //close stream
