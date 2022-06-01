@@ -69,16 +69,8 @@ public class PositionalInvertedIndexIndexer {
                 System.out.println("Total vocabular words: "+ vocabList.size());
                 break;
             case "index":
-                // Create a DocumentCorpus to load .txt documents from the project directory.
-                corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
-                //DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/all-nps-sites-extracted").toAbsolutePath(), ".txt");
-                // Index the documents of the corpus.
-                startTime = System.nanoTime(); //time
-                index = indexCorpus(corpus); // index the corpus
-                endTime = System.nanoTime();
-                totalTime = endTime - startTime; //total time
-                System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
-                break;
+                index = buildIndex(corpus,s);
+                
             default:
                 System.out.print("Enter optional query to AND: ");
                 query += scan.nextLine(); //The query becomes the the line entered
@@ -115,6 +107,22 @@ public class PositionalInvertedIndexIndexer {
             // }
             scan.close();
         }
+        public static Index buildIndex(DocumentCorpus corpus, String path){
+            long startTime = System.nanoTime();
+            Index index = indexCorpus(corpus);
+            long endTime = System.nanoTime();
+            long totalTime = endTime - startTime;
+            // Create a DocumentCorpus to load .txt documents from the project directory.
+            corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(path).toAbsolutePath(), ".txt");
+            //DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/all-nps-sites-extracted").toAbsolutePath(), ".txt");
+            // Index the documents of the corpus.
+            startTime = System.nanoTime(); //time
+            index = indexCorpus(corpus); // index the corpus
+            endTime = System.nanoTime();
+            totalTime = endTime - startTime; //total time
+            System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
+            return index;
+        }
         private static Index indexCorpus(DocumentCorpus corpus) {
             //HashSet<String> vocabulary = new HashSet<>();
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
@@ -130,7 +138,6 @@ public class PositionalInvertedIndexIndexer {
                     wordList = processor.processToken(token);
                             index.addTerm(wordList,d.getId(),position,d.getTitle()); //required for matrix because must know 
                             position++;
-
                 }
                 try{
                     stream.close(); //close stream

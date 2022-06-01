@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <title>Search Engine</title>
+</head>
+<body>
+
+<div class="m-4" style="top: 10px; left: 10px;">
+    <div style="position: absolute">
+        <div id="search">
+            Query:
+            <input id="queryInput"type="text" name="search-txt" value="" autocomplete="off"/>
+
+            <button id="searchButton" >SEARCH</button>
+            <div>
+                <input type="checkbox" id="ranked-search" name="ranked-search" value="Ranked Query" > Ranked Query </input>
+                <input type="checkbox" id="test-throughput" name="test-throughput" value="Test Throughput" > Test Speed </input>
+            </div>
+        </div>
+        <div id="search-contents" style=" font-size: 12px;height: 750px; overflow-x: scroll;"></div>
+    </div>
+</div>
+
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+<script>
+    // javascript functions
+
+    // search button, submit queries to be outputted in iframe (tables) using jQuery
+    $(function() {
+        $("#searchButton").on("click", function(evt) {
+            let queryValue = document.getElementById("queryInput").value;
+            if(queryValue == ""){
+                alert("query cannot be empty")
+            } else {
+                if(document.getElementById("ranked-search").checked == false) {
+                    $.post("/search", {queryValue: queryValue}, function(result){
+                        $(result).prependTo($("#search-contents"));
+                    });
+                } else if(document.getElementById("ranked-search").checked && document.getElementById("test-throughput").checked) {
+                    $.post("/ranked-search-test", {queryValue: queryValue}, function(result){
+                        $(result).prependTo($("#search-contents"));
+                    });
+                } else {
+                    $.post("/ranked-search", {queryValue: queryValue}, function(result){
+                        $(result).prependTo($("#search-contents"));
+                    });
+                }
+
+            }
+        })
+    })
+    // document selecter button, click document title button to print out document contents by sending a post to "/document" using jQuery
+    function docClicked(id) {
+        $.post("/document", {docValue: id}, function(result){
+            $(result).prependTo($("#search-contents"));
+        });
+    };
+
+    function suggestedQueryClicked(value) {
+        let queryValue = document.getElementById("spelling-correction-btn").innerHTML;
+        console.log(queryValue);
+        $.post("/ranked-search", {queryValue: queryValue}, function(result){
+            $(result).prependTo($("#search-contents"));
+        });
+    }
+
+</script>
+
+</body>
+</html>

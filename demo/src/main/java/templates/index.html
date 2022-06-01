@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+
+    <title>Search Engine</title>
+</head>
+<body>
+
+<div id="maindiv" style="position: fixed; top: 10px; left: 10px; overflow-x:scroll; height: 85%; width:45%; ">
+    <div id="dir">
+        <p>Enter Directory of Corpus to Index:</p>
+        <input id="directoryInput"type="text" name="button1" value="" autocomplete="off"/>
+
+        <button id="submitButton" class="btn btn-secondary">SUBMIT</button>
+    </div>
+    <div id="diskIndex">
+        <button id="buildDiskIndex">Build Disk Index</button>
+    </div>
+</div>
+
+<div style="position: fixed; bottom: 10px; right: 10px;">
+    <button id="startSearchButton" class="btn btn-primary">Start Search</button>
+</div>
+
+<div id="SQueries" style="display: none; position: fixed; bottom: 10px; left: 10px;">
+    <p>Special Queries:</p>
+    <input id="squeryInput"type="text" name="squery" value="" autocomplete="off"/>
+    <button id="squeryButton">SUBMIT</button>
+
+</div>
+
+<iframe id="searchFrame" style="display: none; resize: both; overflow: hidden; position: fixed; bottom: 20px; right: 10px; width: 50%; height: 90%; border: solid 1px #333333; " src="/search"></iframe>
+
+<!-- Optional JavaScript -->
+<!-- jQuery first, then Popper.js, then Bootstrap JS -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
+
+<script>
+    // javascript functions
+    // start search button function, will hide button and open iframe for search queries
+    $(function() {
+        $("#startSearchButton").on("click", function(evt){
+            $("#startSearchButton").hide();
+            $("#searchFrame").show();
+        });
+    });
+    // choose directory function, sets directory and indexes all files, will show special queries
+    $(function() {
+        $("#submitButton").on("click", function(evt){
+            let directoryValue = document.getElementById("directoryInput").value;
+            //console.log(directoryValue);
+            if(directoryValue == "") {
+                alert("Directory cannot be empty");
+            } else {
+                $.post("/", {directoryValue: directoryValue}, function(result){
+                    $(result).prependTo($("#maindiv"));
+                });
+                $("#submitButton").hide();
+                $("#dir").hide();
+                $("#diskIndex").hide();
+                $("#SQueries").show();
+            }
+        });
+    });
+    //build index from disk storage button
+    $(function() {
+        $("#buildDiskIndex").on("click", function(evt) {
+            let directoryValue = document.getElementById("directoryInput").value;
+            if(directoryValue == "") {
+                alert("Directory cannot be empty");
+            } else {
+                $.post("/buildindex", {directoryValue: directoryValue}, function(result) {
+                    $(result).prependTo($("#maindiv"));
+                });
+                $("#submitButton").hide();
+                $("#dir").hide();
+                $("#diskIndex").hide();
+                $("#SQueries").show();
+            }
+        });
+    });
+    // special queries button, input special query and it will output in the #maindiv
+    $(function() {
+        $("#squeryButton").on("click", function(evt){
+            let squeryValue = document.getElementById("squeryInput").value;
+            console.log(squeryValue);
+            if(squeryValue.charAt(0) === ':') {
+                $.post("/squery", {squeryValue: squeryValue}, function(result){
+                    $(result).prependTo($("#maindiv"));
+                });
+            } else {
+                alert("special query must start with :")
+            }
+            });
+        });
+</script>
+
+</body>
+</html>

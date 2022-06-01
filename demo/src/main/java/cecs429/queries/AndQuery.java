@@ -15,7 +15,7 @@ public class AndQuery implements QueryComponent {
 
 	
 	public AndQuery(List<QueryComponent> components) {
-		mComponents = components;
+		mComponents = new ArrayList<QueryComponent>(components);
 	}
 	@Override
 	public List<Posting> getPostingsPositions(Index index) {
@@ -31,46 +31,64 @@ public class AndQuery implements QueryComponent {
 		List<Posting> result = new ArrayList<Posting>();
 		result =mComponents.get(0).getPostings(index); // set pList to first element
 
-		List<Posting> currList = new ArrayList<Posting>(); // current list of postings for the query
+		if (mComponents.size() < 2) {//should be impossible to reach for and query
+			System.out.println("How did you get in the And Query?");
+		} {//if you only have to merge 2 postings
 
-		for (int i = 1; i < mComponents.size(); i++) {
-			List<Posting> tempList = new ArrayList<Posting>(); // templist to hold the merge between pList and curList
-			currList = mComponents.get(i).getPostings(index);
-			int a = 0, b = 0;
-			Posting pA;
-			Posting pB;
-			int docA;
-			int docB;
-			Posting lastPosting = null;
-				//perform regular AND operation
-			while (a < result.size() && b < currList.size()) {
+			//verify the both terms appear at least in one document
+			if (mComponents.get(0).getPostings(index) != null &&
+					mComponents.get(1).getPostings(index) != null) {
+				//merge two postings together into result
+				result = andMergePosting(mComponents.get(0).getPostings(index), mComponents.get(1).getPostings(index));
+			}
 
-				pA = result.get(a); // current posting in post List
-				pB = currList.get(b); // current posting in current List
-				docA = pA.getDocumentId(); //id of doc a
-				docB = pB.getDocumentId(); // id of doc b
-					
-				if (docA == docB) { // if docIDs match iterate through pos lists
-					tempList.add(pA); //  temporarily add posting
-					lastPosting = tempList.get(tempList.size() - 1); // get last posting
-					for (int pos : pB.getPostions()) {
-						lastPosting.addPosition(pos); //add the positions
-					}
-					a++;
-					b++;//increment counts a,b
-				} 
-				else {// if no match increment the min of the 2
-					if (docA <= docB) {
-						a++;
-					}
-					else{ 
-						b++;
-						}
-					}
-				} // end of loop
-			//}
-			result = tempList; // set post List to tempList
-		} // end of loop
+			//iterate through the rest of the postings
+			for (int i = 2; i < mComponents.size(); i++) {
+
+				//verify the next posting appears in at least 1 document
+				if (mComponents.get(i).getPostings(index) != null) {
+					//merge previous result postings with new term postings
+					result = andMergePosting(mComponents.get(i).getPostings(index), result);
+				}
+
+			}
+
+		}
+
+		return result;
+	}
+
+	/**
+	 * merge two postings lists together based on the ANDing the document id's
+	 * @param firstPostings first list of postings
+	 * @param secondPostings second list of postings
+	 * @return merged list of postings after ANDing the two postings together
+	 */
+	private List<Posting> andMergePosting(List<Posting> firstPostings, List<Posting> secondPostings) {
+
+		List<Posting> result = new ArrayList<Posting>();
+
+		//starting indices for both postings lists
+		int i = 0;
+		int j = 0;
+
+		//iterate through both postings lists, end when one list has no more elements
+		while (i < firstPostings.size() && j < secondPostings.size()) {
+
+			//both lists have this document
+			if (firstPostings.get(i).getDocumentId() == secondPostings.get(j).getDocumentId()) {
+				result.add(firstPostings.get(i));//include it in merged list
+				i++;//iterate through in both lists
+				j++;
+			//first list docid is less than second lists docid
+			} else if (firstPostings.get(i).getDocumentId() < secondPostings.get(j).getDocumentId()) {
+				i++;//iterate first list
+			} else {// second list docid is less than first lists docid
+				j++;//iterate second list
+			}
+
+		}
+
 		return result;
 	}
 	
