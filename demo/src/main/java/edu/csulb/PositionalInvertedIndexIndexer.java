@@ -41,7 +41,7 @@ public class PositionalInvertedIndexIndexer {
         System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
         System.out.print("Enter search query: ");
         //String query = "whale"; // hard-coded search for "whale"
-            String query = scan.nextLine();
+        String query = scan.nextLine();
         //
         // MENU
         //
@@ -72,8 +72,8 @@ public class PositionalInvertedIndexIndexer {
                 index = buildIndex(corpus,s);
                 
             default:
-                System.out.print("Enter optional query to AND: ");
-                query += scan.nextLine(); //The query becomes the the line entered
+                //System.out.print("Enter optional query to AND: ");
+                //query += scan.nextLine(); //The query becomes the the line entered
                 BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
                 int docCount = 0; //doc counter
                 //get the postings of the query after parsing  using index
