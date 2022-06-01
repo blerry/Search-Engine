@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.ArrayList;
 import java.util.Set;
 import java.util.Collections;
+import cecs429.text.AdvancedTokenProcessor;
 
 public class PositionalInvertedIndex implements Index{
     /**
@@ -79,5 +80,11 @@ public class PositionalInvertedIndex implements Index{
 			map.put(term, list);
         }
     }
-
+    @Override
+	public List<Posting> getPostingsPositions(String token) {
+		//process token for valid characters
+		AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
+		String stemmed = AdvancedTokenProcessor.stemToken(token);
+		return this.map.get(stemmed);//index
+	}
 }

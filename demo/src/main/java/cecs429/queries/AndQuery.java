@@ -12,11 +12,14 @@ import cecs429.indexes.Posting;
  */
 public class AndQuery implements QueryComponent {
 	private List<QueryComponent> mComponents;
-	private boolean isPos;
+
 	
 	public AndQuery(List<QueryComponent> components) {
-		isPos = true;
 		mComponents = components;
+	}
+	@Override
+	public List<Posting> getPostingsPositions(Index index) {
+		return getPostings(index);
 	}
 	
 	@Override

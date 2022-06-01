@@ -15,16 +15,14 @@ public class PhraseLiteral implements QueryComponent {
 	// The list of individual terms in the phrase. Changed to Query
 	//private List<String> mTerms = new ArrayList<>();
 	private List<QueryComponent> mTerms = new ArrayList<>();
-	private boolean isPos;
 	/**
 	 * Constructs a PhraseLiteral with the given individual phrase terms.
 	 */
 	//public PhraseLiteral(List<String> terms)
 	public PhraseLiteral(List<QueryComponent> terms) {
-		isPos = true; //flag true
-		for(QueryComponent q:terms){ //Look through terms and add to children list (mterms)
-			mTerms.add(q);
-		}
+		mTerms.addAll(terms);
+		//for(QueryComponent q:terms){ //Look through terms and add to children list (mterms)
+			//mTerms.add(q);}
 		//mTerms.addAll(terms);
 	}
 	
@@ -38,83 +36,132 @@ public class PhraseLiteral implements QueryComponent {
 	
 	@Override
 	public List<Posting> getPostings(Index index) {
-		//Retrieve the postings for the individual terms in the phrase,
+		return getPostingsPositions(index);
+	}
+
+	@Override
+	public List<Posting> getPostingsPositions(Index index) {
+		List<Posting> result = new ArrayList<>();
+		// Done: program this method. Retrieve the postings for the individual terms in the phrase,
 		// and positional merge them together.
-		List<Posting> results = new ArrayList<Posting>();//post list
-		results = mTerms.get(0).getPostings(index); //post list is 1st element
-		
-		List<Posting> currList = new ArrayList<Posting>();//only for current Postings
+		int distance = 1;//maintain the distance required between phrases
 
-		//For loop + while + while loop
-		for(int i = 1; i<mTerms.size(); i++){
-			//using a and b as pointers for matching literals
-			List<Posting> tempList = new ArrayList<Posting>();
-			//currList will be used to find a match with other term
-			currList = mTerms.get(i).getPostings(index);//Find postings for current index
-			int a = 0, b = 0;//counts
-			Posting pA = results.get(a); 
-			Posting pB = currList.get(b);
-			int docA = pA.getDocumentId();
-			int docB =  pB.getDocumentId();
+		if (mTerms.size() < 2) {//one child denotes a term literal
+			if (mTerms.get(0) != null) {
+				result = mTerms.get(0).getPostingsPositions(index);
+			}
+		} else  {//multiple terms to merge
 
-			while(a< results.size() && b <currList.size()){//Loop through both lists
-				//We are looking for a match by moving both a and b
-				pA = results.get(a);
-				pB = currList.get(b);
-				docA = pA.getDocumentId();
-				docB = pB.getDocumentId();
+			//verify that both terms appear at least in one document
+			if (mTerms.get(0).getPostingsPositions(index) != null &&
+				mTerms.get(1).getPostingsPositions(index) != null) {
 
-				if(docA == docB){//iterate postings if match
-					int p1 = 0; //position 1
-					int p2 = 0; // 2
-					//Find positions
-					ArrayList<Integer> posA = pA.getPostions();
-					ArrayList<Integer> posB = pB.getPostions();
-					Posting lastPosting = null;
+				//merge the first 2 terms postings together
+				result = andMergePosting(mTerms.get(0).getPostingsPositions(index),
+						mTerms.get(1).getPostingsPositions(index), distance);
 
-					while(p1 < posA.size() && p2 < posB.size()){
-						if(!(tempList.isEmpty())){ //base case
-							lastPosting = tempList.get(tempList.size()-1);
-						}
-						if(posB.get(p2) == posA.get(p1)+i){
-							//if Position B = Position A + i, Then there are many
-							//So we add Posting A to TempList Postings
-							if(tempList.isEmpty()){
-								tempList.add(pA);
-							}
-							else if(lastPosting.getDocumentId()==docA){//if already in tempList we add the position of Doc Id
-								lastPosting.addPosition(a);
-							}
-							else{ 
-								tempList.add(pA);//otherwise add Posting A
-							}
-								p1++;//Posting A position incremented
-								p2++;//Posting B
-						}
-						//Increase the min of the 2 positions if not equal
-						else if(posA.get(p1) <= posB.get(p2)){
-							p1++;
-						}
-						else{
-							p2++;
-						}
-					}
-					a++;//continue the counting
-					b++;
-				}//end match check (if)
-				//If not match increment minimum of counts
-				else{
-					if(docA<=docB){
-						 a++;
-					}
-					else{ 
-						b++;
-					}
+			}
+
+			//if there are more terms in the phrase, iterate through the rest of the term postings
+			for (int i = 2; i < mTerms.size(); i++) {
+
+				distance++;//increase the distance between terms
+				//verify the next posting appears in at least 1 document
+				if (mTerms.get(i).getPostingsPositions(index) != null) {
+					//merge previous result postings with new term postings
+					result = andMergePosting(result, mTerms.get(i).getPostingsPositions(index), distance);
 				}
-			}//end loop
-			results =tempList; //update the list for phrase for search
+
+			}
+
 		}
-		return results;
+
+		return result;
+	}
+
+	/**
+	 * merge two postings lists together based on the ANDing the document id's, and that the first term is some
+	 * distance before the second term
+	 * @param firstPostings first list of postings
+	 * @param secondPostings second list of postings
+	 * @param distance positional space between the two terms
+	 * @return merged list of postings after ANDing the two postings together
+	 */
+	private List<Posting> andMergePosting(List<Posting> firstPostings, List<Posting> secondPostings, int distance) {
+
+		List<Posting> result = new ArrayList<Posting>();
+
+		//starting indices for both postings lists
+		int i = 0;
+		int j = 0;
+
+		//iterate through both postings lists, end when one list has no more elements
+		while (i < firstPostings.size() && j < secondPostings.size()) {
+
+			//both lists have this document
+			if (firstPostings.get(i).getDocumentId() == secondPostings.get(j).getDocumentId()) {
+				//gather the positions of the phrase terms
+				Posting newPosting = positionalMergePosting(firstPostings.get(i), secondPostings.get(j), distance);
+				if (newPosting != null) {//if the phrase actually exists
+					result.add(newPosting);//include it in merged list
+				}
+				i++;//iterate through in both lists
+				j++;
+				//first list docid is less than second lists docid
+			} else if (firstPostings.get(i).getDocumentId() < secondPostings.get(j).getDocumentId()) {
+				i++;//iterate first list
+			} else {// second list docid is less than first lists docid
+				j++;//iterate second list
+			}
+
+		}
+
+		return result;
+
+	}
+
+	/**
+	 * determine whether the first posting is some positional distance away from the second posting
+	 * @param firstPosting doc id should match second term
+	 * @param secondPosting doc id should match first term
+	 * @param distance positional space between both terms
+	 * @return valid postings based on positional distance
+	 */
+	private Posting positionalMergePosting(Posting firstPosting, Posting secondPosting, int distance) {
+
+		Posting posting = null;//postings that are considered a phrase
+
+		//positional indices
+		int a = 0;
+		int b = 0;
+
+		//iterate through position list of both terms, until one runs out
+		while (a < firstPosting.getPostions().size() &&
+				b < secondPosting.getPostions().size()) {
+
+			//check the different terms are in sequence
+			//terms are in sequence
+			if (firstPosting.getPostions().get(a) == (secondPosting.getPostions().get(b) - distance)) {
+				if (posting == null) {
+					posting = new Posting(firstPosting.getDocumentId(), firstPosting.getPostions());
+					posting.addPosition(firstPosting.getPostions().get(a));
+				} else {
+					posting.addPosition(firstPosting.getPostions().get(a));
+				}
+				a++;
+				b++;
+				//first term is before the second
+			} else if (firstPosting.getPostions().get(a) < (secondPosting.getPostions().get(b) - distance)) {
+				a++;
+				//second term is before the first
+			} else {
+				b++;
+			}
+
+		}
+
+		return posting;
+
 	}
 	
 	@Override

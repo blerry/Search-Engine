@@ -1,3 +1,4 @@
+/*
 package cecs429.indexes;
 
 import java.util.List;
@@ -7,11 +8,6 @@ import java.util.Set;
 import java.util.Collections;
 
 public class InvertedIndex implements Index{
-    /**
-	 * Constructs an empty index with with given vocabulary set and corpus size.
-	 * @param vocabulary a collection of all terms in the corpus vocabulary.
-	 * @param corpuseSize the number of documents in the corpus.
-	 */
     private HashMap<String, List<Posting>>map = new HashMap<String, List<Posting>>();
 
     @Override
@@ -67,5 +63,5 @@ public class InvertedIndex implements Index{
 			map.put(term, list);
         }
     }
-
 }
+*/

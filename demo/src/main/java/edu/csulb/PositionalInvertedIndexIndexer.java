@@ -80,7 +80,7 @@ public class PositionalInvertedIndexIndexer {
                 System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
                 break;
             default:
-                System.out.print("Enter other query if any: ");
+                System.out.print("Enter optional query to AND: ");
                 query += scan.nextLine(); //The query becomes the the line entered
                 BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
                 int docCount = 0; //doc counter
@@ -113,6 +113,7 @@ public class PositionalInvertedIndexIndexer {
             // for (Posting p : index.getPostings(query)) {
             //     System.out.println("Document " + corpus.getDocument(p.getDocumentId()).getTitle());
             // }
+            scan.close();
         }
         private static Index indexCorpus(DocumentCorpus corpus) {
             //HashSet<String> vocabulary = new HashSet<>();

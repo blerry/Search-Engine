@@ -32,4 +32,22 @@ public class AdvancedTokenProcessor implements TokenProcessor{
         }
         return list;
     }
+    /**
+     * stem a single token using the Porter2stemmer method
+     * @param token the token to be stemmed
+     * @return the stemmed token
+     */
+    public static String stemToken(String token) {
+
+        String stemmedTerm = "";
+
+        englishStemmer stemmer = new englishStemmer();
+        stemmer.setCurrent(token);
+        if (stemmer.stem()) {
+            stemmedTerm = stemmer.getCurrent();
+        }
+
+        return stemmedTerm;
+
+    }
 }

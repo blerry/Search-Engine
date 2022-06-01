@@ -1,3 +1,4 @@
+/*
 package edu.csulb;
 
 import cecs429.documents.DirectoryCorpus;
@@ -13,7 +14,7 @@ import java.util.HashSet;
 import java.util.Scanner;
 //DOESNT WORK UNLESS TOKEN INFERFACE CHANGED
 public class InvertedIndexIndexer {
-/*	
+
 	public static void main(String[] args) {
 		// Create a DocumentCorpus to load .txt documents from the project directory.
 		DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get("/Users/berry/Desktop/CECS429/Search-Engine/demo/src/main/java/all-nps-sites-extracted").toAbsolutePath(), ".txt");
@@ -53,5 +54,5 @@ public class InvertedIndexIndexer {
 		return index;
 
 	}
-	*/
 }
+*/

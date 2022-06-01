@@ -1,5 +1,5 @@
 package edu.csulb;
-
+/*
 import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
@@ -13,7 +13,6 @@ import java.util.HashSet;
 import java.util.Scanner;
 //DOESNT WORK UNLESS TOKEN INFERFACE CHANGED
 public class TermDocumentIndexer {
-	/*
 	public static void main(String[] args) {
 		// Create a DocumentCorpus to load .txt documents from the project directory.
 		DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get("/Users/berry/Desktop/CECS429/SearchEngineProject/MobyDick10Chapters").toAbsolutePath(), ".txt");
@@ -67,5 +66,6 @@ public class TermDocumentIndexer {
 		// THEN, do the loop again! But instead of inserting into the HashSet, add terms to the index with addPosting.
 	
 	}
-	*/
+
 }
+*/
