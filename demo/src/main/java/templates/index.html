@@ -19,9 +19,7 @@
 
         <button id="submitButton" class="btn btn-secondary">SUBMIT</button>
     </div>
-    <div id="diskIndex">
-        <button id="buildDiskIndex">Build Disk Index</button>
-    </div>
+   
 </div>
 
 <div style="position: fixed; bottom: 10px; right: 10px;">
@@ -70,23 +68,7 @@
             }
         });
     });
-    //build index from disk storage button
-    $(function() {
-        $("#buildDiskIndex").on("click", function(evt) {
-            let directoryValue = document.getElementById("directoryInput").value;
-            if(directoryValue == "") {
-                alert("Directory cannot be empty");
-            } else {
-                $.post("/buildindex", {directoryValue: directoryValue}, function(result) {
-                    $(result).prependTo($("#maindiv"));
-                });
-                $("#submitButton").hide();
-                $("#dir").hide();
-                $("#diskIndex").hide();
-                $("#SQueries").show();
-            }
-        });
-    });
+    
     // special queries button, input special query and it will output in the #maindiv
     $(function() {
         $("#squeryButton").on("click", function(evt){

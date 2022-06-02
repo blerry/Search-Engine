@@ -43,12 +43,14 @@ public class App
         });
         // posts directory, builds index
         Spark.post("/", (request, response) -> {
-            DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(dir).toAbsolutePath(), ".txt");
             dir = request.queryParams("directoryValue");
+            System.out.println(dir);
+            corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(dir).toAbsolutePath(), ".txt");
             long startTime = System.nanoTime();
-            index = PositionalInvertedIndexIndexer.buildIndex(corpus, dir);
-            long totalTime = System.nanoTime() - startTime;//Timer
-            return "<div style=\"font-size: 12px; position:\">Files Indexed From: " + dir + " </br>Time to Index: " + totalTime +  " seconds</div></br>";
+            index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
+            long endTime = System.nanoTime();
+            long totalTime = endTime - startTime;//Timer
+            return "<div style=\"font-size: 12px; position:\">Files Indexed From: " + dir + " </br>Time to Index: " + totalTime / 1000000000 +  " seconds</div></br>";
         });
         // posts query values based on query inputs from client (outputs as html table)
         Spark.post("/search", (request, response) -> {

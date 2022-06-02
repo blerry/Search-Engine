@@ -12,11 +12,9 @@ import cecs429.text.EnglishTokenStream;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-//import java.net.StandardProtocolFamily;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.HashSet;
 import java.util.Scanner;
     
 public class PositionalInvertedIndexIndexer {
@@ -28,6 +26,7 @@ public class PositionalInvertedIndexIndexer {
 		String s = scan.nextLine();
         //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
         // /Users/berry/Desktop/CECS429/testCorpus
+        // /Users/berry/Desktop/cor
         // Create a DocumentCorpus to load .txt documents from the project directory.
         DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
         index = buildIndex(corpus, s);
@@ -106,7 +105,7 @@ public class PositionalInvertedIndexIndexer {
                     "    </tr>\n" +
                     postingsRows.toString() +
                     "</table>";
-            return "";
+            return result;
         }
         //Boolean search
         public static List<Posting> search(String query,DocumentCorpus corpus, Index index){
@@ -149,7 +148,7 @@ public class PositionalInvertedIndexIndexer {
             System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
             return index;
         }
-        private static Index indexCorpus(DocumentCorpus corpus) {
+        public static Index indexCorpus(DocumentCorpus corpus) {
             //HashSet<String> vocabulary = new HashSet<>();
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
             PositionalInvertedIndex  index = new PositionalInvertedIndex();
