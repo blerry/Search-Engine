@@ -26,28 +26,38 @@ public class PositionalInvertedIndexIndexer {
         Scanner scan = new Scanner(System.in);
 		System.out.println("What is the path of the directory you would like to index: ");
 		String s = scan.nextLine();
+        //scanner.close();
+        
         //Path
         //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
+        //"New Bedford Whaling National"
         //"/Users/berry/Desktop/CECS429/mlb-articles-4000/1"
         // /Users/berry/Desktop/CECS429/testCorpus
         //scan.close();
         // Create a DocumentCorpus to load .txt documents from the project directory.
         DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
         index = buildIndex(corpus, s);
-        System.out.print("Enter search query: ");
-        //String query = "whale"; // hard-coded search for "whale"
-        String query = scan.nextLine();
+       // System.out.print("Enter search query: ");
+       // String query = "";
+        while (true){
+        //scan = new Scanner(System.in);
+        System.out.println("Enter search query: ");
+        String query = "whale"; // hard-coded search for "whale"
+        query = scan.nextLine();
         //
         // MENU
         //
         switch(query){
             case "q":
-                System.out.println("Shut down...");
-                scan.close();
-                return;//end program 
+                 System.out.println("Shut down...");
+                 scan.close();
+                 return;//end program 
             case "stem":
                 AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
-                System.out.println(processor.processToken(scan.next()));
+                System.out.print("Enter word:");
+                System.out.print(processor.processToken(scan.next()));
+                System.out.println();
+                scan.nextLine();
                 break;
             case "vocab":
                 List<String> vocabList = index.getVocabulary(); //make a temp vocab list from vocab
@@ -61,14 +71,21 @@ public class PositionalInvertedIndexIndexer {
                         System.out.println(vocabList.get(i));//output  the list if less than 100 words
                     }
                 }
-                System.out.println("Total vocabular words: "+ vocabList.size());
+                System.out.println("Total vocabulary words: "+ vocabList.size());
                 break;
             case "index":
                 index = buildIndex(corpus,s);
-                
+                break;
             default:
+                search(query,corpus,index);
+                System.out.println("Enter Document ID number to view contents or -1 to continue: ");
+                int docID = scan.nextInt();
+                scan.nextLine();
+                openDocument(docID,corpus);
+
                 //System.out.print("Enter optional query to AND: ");
                 //query += scan.nextLine(); //The query becomes the the line entered
+                /*
                 BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
                 int docCount = 0; //doc counter
                 //get the postings of the query after parsing  using index
@@ -82,6 +99,7 @@ public class PositionalInvertedIndexIndexer {
                 //Get document contents the user wants
                 System.out.println("Enter Document ID number to view contents or -1 to continue: ");
                 int docID = scan.nextInt();
+                scan.nextLine();//consume the linebreak and once to read the next line
                 if(docID>=0){
                     //Get contents of Document user asked for
                     BufferedReader bufferedReader = new BufferedReader(corpus.getDocument(docID).getContent());
@@ -94,13 +112,50 @@ public class PositionalInvertedIndexIndexer {
                     String str = stringBuilder.toString(); //the string results
                     System.out.println(str); //display
                     bufferedReader.close(); //close reader
-                }
-                break;
-        }
+                    */
+                    break;
+            }
+
             // for (Posting p : index.getPostings(query)) {
             //     System.out.println("Document " + corpus.getDocument(p.getDocumentId()).getTitle());
             // }
-            scan.close();
+            //scan.close();
+            }//end while
+            //scan2.close();
+        }
+        //Move this to another class later on
+        public String webSearch(String query,DocumentCorpus corpus, Index index){
+            return "";
+        }
+
+        public static void search(String query,DocumentCorpus corpus, Index index){
+            BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
+                int docCount = 0; //doc counter
+                //get the postings of the query after parsing  using index
+                for(Posting p: parser.parseQuery(query).getPostings(index)){
+                    System.out.println(p.getDocumentId() + ". " + corpus.getDocument(p.getDocumentId()).getTitle());
+                    docCount++;
+                    System.out.println(p.getPostions());
+                }
+                System.out.println("Number of Documents: " + docCount);
+            }
+        public static void openDocument(int docID, DocumentCorpus corpus) throws IOException{
+                //Get document contents the user wants
+                if(docID>=0){
+                    //Get contents of Document user asked for
+                    BufferedReader bufferedReader = new BufferedReader(corpus.getDocument(docID).getContent());
+                    StringBuilder stringBuilder = new StringBuilder();
+                    String line;
+                    //use bufferedReader to read each single character in line
+					while ((line = bufferedReader.readLine()) != null) {
+						stringBuilder.append(line); //building the string
+					}
+                    String str = stringBuilder.toString(); //the string results
+                    System.out.println(str); //display
+                    bufferedReader.close(); //close reader
+                    //break;
+                }
+            //return query;
         }
         public static Index buildIndex(DocumentCorpus corpus, String path){
             long startTime = System.nanoTime();
@@ -119,7 +174,9 @@ public class PositionalInvertedIndexIndexer {
             Iterable<Document> documents = corpus.getDocuments();
             List<String> wordList = new ArrayList<String>();
             int position = 0;
+            int docCount = 0;
             for (Document d : documents) {
+                docCount++;
                 EnglishTokenStream stream = new EnglishTokenStream(d.getContent());
                 Iterable<String> tokens = stream.getTokens();//convert read data into tokens
                 for(String token : tokens){
@@ -136,6 +193,7 @@ public class PositionalInvertedIndexIndexer {
                     }
             position = 0; //reset position
             }
+            System.out.println("Number of Documents: " + docCount);
             return index;
         }
     }

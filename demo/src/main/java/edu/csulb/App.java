@@ -2,13 +2,14 @@ package edu.csulb;
 
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
+import cecs429.documents.DirectoryCorpus;
 import cecs429.indexes.*;
 import edu.csulb.PositionalInvertedIndexIndexer; 
 
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
-
+import java.nio.file.Paths;
 import java.io.IOException;
 import java.io.Reader;
 import java.util.*;
@@ -23,7 +24,7 @@ import static java.util.stream.Collectors.joining;
 public class App 
 {
     private static PositionalInvertedIndexIndexer indexer = new PositionalInvertedIndexIndexer();
-    private static PositionalInvertedIndex index = null;
+    private static Index index = null;
     private static String dir = "";
     private static DocumentCorpus corpus = null;
 
@@ -42,13 +43,40 @@ public class App
         });
         // posts directory, builds index
         Spark.post("/", (request, response) -> {
+            DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(dir).toAbsolutePath(), ".txt");
             dir = request.queryParams("directoryValue");
-            //index = indexer.in
-            double buildTime = 0.0;
-            return "<div style=\"font-size: 12px; position:\">Files Indexed From: " + dir + " </br>Time to Index: " + buildTime +  " seconds</div></br>";
+            long startTime = System.nanoTime();
+            index = PositionalInvertedIndexIndexer.buildIndex(corpus, dir);
+            long totalTime = System.nanoTime() - startTime;//Timer
+            return "<div style=\"font-size: 12px; position:\">Files Indexed From: " + dir + " </br>Time to Index: " + totalTime +  " seconds</div></br>";
         });
+        // posts query values based on query inputs from client (outputs as html table)
+        Spark.post("/search", (request, response) -> {
 
+            String queryValue = request.queryParams("queryValue");
+            return indexer.webSearch(queryValue, corpus, index);
+        });
+        // posts document contents as a div
 
+        Spark.post("/document", (request, response) -> {
+            String docid = request.queryParams("docValue");
+            int id = Integer.parseInt(docid);
+            //corpus is index request directory ;
+            corpus.getDocuments(); //this line is needed or else corpus has mDocuments = null ???
+            Document doc = corpus.getDocument(id);
+            Reader reader = doc.getContent();
+            StringBuilder content = new StringBuilder();
+            int readerCharValue;
+            try {
+                while ((readerCharValue = reader.read()) != -1) {//read each char from the reader
+                    content.append((char)readerCharValue);//convert the value to a char, add to builder
+                }
+            } catch (IOException ioe) {
+                ioe.printStackTrace();
+            }
+            return "</br><div style=\"\"> " + content.toString() + " </div></br>";
+        });
+        
         Spark.post("/squery", (request, response) -> {
             String squeryValue = request.queryParams("squeryValue");
             String stemmedTerm="";

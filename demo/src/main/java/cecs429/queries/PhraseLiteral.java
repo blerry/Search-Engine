@@ -3,7 +3,7 @@ package cecs429.queries;
 import java.util.ArrayList;
 //import java.util.Arrays;
 import java.util.List;
-
+import java.util.stream.Collectors;
 import cecs429.indexes.Index;
 import cecs429.indexes.Posting;
 //import cecs429.queries.QueryComponent;
@@ -57,7 +57,7 @@ public class PhraseLiteral implements QueryComponent {
 				mTerms.get(1).getPostingsPositions(index) != null) {
 
 				//merge the first 2 terms postings together
-				result = andMergePosting(mTerms.get(0).getPostingsPositions(index),
+				result = andMerge(mTerms.get(0).getPostingsPositions(index),
 						mTerms.get(1).getPostingsPositions(index), distance);
 
 			}
@@ -69,7 +69,7 @@ public class PhraseLiteral implements QueryComponent {
 				//verify the next posting appears in at least 1 document
 				if (mTerms.get(i).getPostingsPositions(index) != null) {
 					//merge previous result postings with new term postings
-					result = andMergePosting(result, mTerms.get(i).getPostingsPositions(index), distance);
+					result = andMerge(result, mTerms.get(i).getPostingsPositions(index), distance);
 				}
 
 			}
@@ -87,7 +87,9 @@ public class PhraseLiteral implements QueryComponent {
 	 * @param distance positional space between the two terms
 	 * @return merged list of postings after ANDing the two postings together
 	 */
-	private List<Posting> andMergePosting(List<Posting> firstPostings, List<Posting> secondPostings, int distance) {
+
+	 //O(logn)
+	private List<Posting> andMerge(List<Posting> firstPostings, List<Posting> secondPostings, int distance) {
 
 		List<Posting> result = new ArrayList<Posting>();
 
@@ -163,11 +165,12 @@ public class PhraseLiteral implements QueryComponent {
 		return posting;
 
 	}
-	
+	//Important for dinstinguishing phrases in string
 	@Override
 	public String toString() {
+		return String.join(" ", mTerms.stream().map(c -> c.toString()).collect(Collectors.toList()));
 		//return "\"" + String.join(" ", mTerms) + "\"";
-		return "";
+		//return "";
 	}
 	
 }
