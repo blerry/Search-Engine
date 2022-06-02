@@ -125,19 +125,46 @@ public class PositionalInvertedIndexIndexer {
         }
         //Move this to another class later on
         public String webSearch(String query,DocumentCorpus corpus, Index index){
+            List<Posting> postings = search(query, corpus, index);//Run Boolean Search
+            StringBuilder postingsRows = new StringBuilder();
+            String result = "";
+            for (Posting post : postings) {//include document titles for each returned posting
+
+            String title = corpus.getDocument(post.getDocumentId()).getTitle();
+            String row = "    <tr>\n" +
+                        "        <td>"+post.getDocumentId()+"</td>\n" +
+                        "        <td><button id=\"" + post.getDocumentId() + "\" onClick=\"docClicked(this.id)\" >"+title+"</button></td>\n" +
+                        "        <td>"+post.getPostions()+"</td>\n" +
+                        "    </tr>\n";
+                postingsRows.append(row);
+
+            }
+
+            result = "<div><b>Query: </b>" + query +
+                    "<div>Total Documents: " + postings.size() + "</div></div></br>" +
+                    "<table style=\"width:100%\">\n" +
+                    "    <tr>\n" +
+                    "        <th>Document ID</th>\n" +
+                    "        <th>Document Title</th>\n" +
+                    "        <th>Positions</th>\n" +
+                    "    </tr>\n" +
+                    postingsRows.toString() +
+                    "</table>";
             return "";
         }
-
-        public static void search(String query,DocumentCorpus corpus, Index index){
+        //Boolean search
+        public static List<Posting> search(String query,DocumentCorpus corpus, Index index){
             BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
+            List<Posting> postings = parser.parseQuery(query).getPostings(index);
                 int docCount = 0; //doc counter
                 //get the postings of the query after parsing  using index
-                for(Posting p: parser.parseQuery(query).getPostings(index)){
+                for(Posting p: postings){
                     System.out.println(p.getDocumentId() + ". " + corpus.getDocument(p.getDocumentId()).getTitle());
                     docCount++;
                     System.out.println(p.getPostions());
                 }
                 System.out.println("Number of Documents: " + docCount);
+                return postings;
             }
         public static void openDocument(int docID, DocumentCorpus corpus) throws IOException{
                 //Get document contents the user wants
