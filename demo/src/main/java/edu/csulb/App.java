@@ -87,10 +87,11 @@ public class App
                 System.exit(-1);
                 return "";
             } else if (squeryValue.length() >= 5 && squeryValue.substring(1, 5).equals("stem")) {
-                //stemmedTerm = indexer.userSQueryStem(squeryValue);
-                System.out.printf("%s stemmed to: %s", squeryValue.substring(6), stemmedTerm);
+                stemmedTerm = indexer.stemWord(squeryValue.substring(6));
+                //squeryValue = squeryValue.substring(6);
+                System.out.printf("%s stemmed to: %s", "", stemmedTerm);
                 System.out.println();
-                return "</br><div style=\"font-size: 12px;\">"+ squeryValue + " stemmed to: " + stemmedTerm + "</div></br>";
+                return "</br><div style=\"font-size: 12px;\">"+ squeryValue.substring(6) + " stemmed to: " + stemmedTerm + "</div></br>";
                 //build a new index from the given directory
             } else if (squeryValue.length() >= 6 && squeryValue.substring(1, 6).equals("index")) {
                 System.out.println("Resetting the directory...");//re-build an in-memory index

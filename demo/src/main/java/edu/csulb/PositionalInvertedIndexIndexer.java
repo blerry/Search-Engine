@@ -47,7 +47,9 @@ public class PositionalInvertedIndexIndexer {
             case "stem":
                 AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
                 System.out.print("Enter word:");
+                //ArrayList<String> word = processor.processToken(scan.next());
                 System.out.print(processor.processToken(scan.next()));
+                //System.out.println(word.get(1));
                 System.out.println();
                 scan.nextLine();
                 break;
@@ -147,6 +149,10 @@ public class PositionalInvertedIndexIndexer {
             // Create a DocumentCorpus to load .txt documents from the project directory.
             System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
             return index;
+        }
+        public String stemWord(String word){
+            ArrayList<String> stemmedWord = new AdvancedTokenProcessor().processToken(word);
+            return stemmedWord.get(0);
         }
         public static Index indexCorpus(DocumentCorpus corpus) {
             //HashSet<String> vocabulary = new HashSet<>();
