@@ -29,10 +29,61 @@
 
 </div>
 
-<iframe id="searchFrame" style="display: none; resize: both; overflow: hidden; position: fixed; bottom: 20px; right: 10px; width: 50%; height: 90%; border: solid 1px #333333; " src="/search"></iframe>
+<iframe id="searchFrame" style="display: none; resize: both; overflow: hidden; position: fixed; bottom: 20px; right: 10px; width: 50%; height: 90%; border: solid 1px #333333; "></iframe>
+<div class="searchBox" style="background-color: white; top: 10px; left: 10px;">
+    <div style="position: absolute">
+        <div id="search">
+            Query:
+            <input id="queryInput"type="text" name="search-txt" value="" autocomplete="off"/>
 
+            <button id="searchButton" >SEARCH</button>
+        </div>
+        <div id="search-contents" style=" font-size: 12px;height: 750px; overflow-x: scroll;"></div>
+    </div>
+</div>
 <!-- JavaScript -->
 <script src="main.js"></script>
+<!-- jQuery  -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
 
+<script>
+    // javascript functions
+
+    // search button, submit queries to be outputted in iframe (tables) using jQuery
+    $(function() {
+        $("#searchButton").on("click", function(evt) {
+            let queryValue = document.getElementById("queryInput").value;
+            if(queryValue == ""){
+                alert("query cannot be empty")
+            } 
+            else if(queryValue.charAt(0) === ":"){
+                specialQuerySearch(queryValue);
+            }
+            else {
+                    $.post("/search", {queryValue: queryValue}, function(result){
+                        $(result).prependTo($("#search-contents"));
+                    });
+             
+            }
+        })
+    })
+    // document selecter button, click document title button to print out document contents by sending a post to "/document" using jQuery
+    function docClicked(id) {
+        $.post("/document", {docValue: id}, function(result){
+            $(result).prependTo($("#search-contents"));
+        });
+    };
+
+
+    // special queries button, input special query and it will output in the #maindiv
+   
+    function specialQuerySearch(queryValue) {
+            console.log(queryValue);
+                $.post("/squery", {queryValue: queryValue}, function(result){
+                    $(result).prependTo($("#search-contents"));
+                });
+    }
+
+</script>
 </body>
 </html>

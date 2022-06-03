@@ -1,6 +1,14 @@
 .maindiv{
     background-image: url("1.png");
 }
+
 p{
-    color:white;
+    color:white !important;
+}
+.startSearchButton{
+    margin: 300px auto;
+}
+#search-box{
+    background-color: darkgray;
+
 }
