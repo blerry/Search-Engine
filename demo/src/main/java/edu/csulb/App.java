@@ -45,7 +45,7 @@ public class App
         Spark.post("/", (request, response) -> {
             dir = request.queryParams("directoryValue");
             System.out.println(dir);
-            corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(dir).toAbsolutePath(), ".txt");
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
             long startTime = System.nanoTime();
             index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
             long endTime = System.nanoTime();

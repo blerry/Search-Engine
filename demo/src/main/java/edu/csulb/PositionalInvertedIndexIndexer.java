@@ -28,7 +28,7 @@ public class PositionalInvertedIndexIndexer {
         // /Users/berry/Desktop/CECS429/testCorpus
         // /Users/berry/Desktop/cor
         // Create a DocumentCorpus to load .txt documents from the project directory.
-        DocumentCorpus corpus = DirectoryCorpus.loadJsonDirectory(Paths.get(s).toAbsolutePath(), ".txt");
+        DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get(s).toAbsolutePath());
         index = buildIndex(corpus, s);
 
         /**************************************
