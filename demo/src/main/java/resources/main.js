@@ -3,16 +3,16 @@ console.log("RUNNING MAIN");
 
     document.getElementById("submitButton").addEventListener("click", function(evt){
     let directoryValue = document.getElementById("directoryInput").value;
-            
+    document.getElementById("loadingText").style.display = "";       
     if(directoryValue == "") {
         alert("Directory cannot be empty");
         } else {
                 document.getElementById("submitButton").style.display = "none";
                 document.getElementById("dir").style.display = "none";
-                //document.getElementById("diskIndex").style.display = "none";
-                document.getElementById("loadingText").style.display = "";
                 $.post("/", {directoryValue: directoryValue}, function(result){
                     $(result).prependTo($("#maindiv"));
+                    document.getElementById("loadingText").style.display = "none";
+                    document.getElementById("searchDiv").style.display="";
                 });
                 /*
                 var httpRequest = new XMLHttpRequest()

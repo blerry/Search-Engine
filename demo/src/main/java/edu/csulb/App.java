@@ -46,7 +46,7 @@ public class App
             index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
             long endTime = System.nanoTime();
             long totalTime = endTime - startTime;//Timer
-            return "<div style=\"font-size: 12px; position:\">Files Indexed From: " + dir + " </br>Time to Index: " + totalTime / 1000000000 +  " seconds</div></br>";
+            return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br>Time to Index: " + totalTime / 1000000000 +  " seconds</div></br>";
         });
         // posts query values based on query inputs from client (outputs as html table)
         Spark.post("/search", (request, response) -> {
@@ -72,7 +72,7 @@ public class App
             } catch (IOException ioe) {
                 ioe.printStackTrace();
             }
-            return "</br><div style=\"\"> " + content.toString() + " </div></br>";
+            return "</br><div style=margin:10px 15px;\"\"> " + content.toString() + " </div></br>";
         });
         
         Spark.post("/squery", (request, response) -> {
