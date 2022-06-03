@@ -14,10 +14,11 @@
 
 <div id="maindiv" style="position: fixed; overflow-x:scroll; height: 100vh; width: 100vw; background-image: url('1.png');">
     <div id="dir" style="margin:200px auto; width:25vw;">
-        <p>Enter Directory of Corpus to Index:</p>
+        <p style="color:white">Enter Directory of Corpus to Index:</p>
         <input id="directoryInput"type="text" name="button1" value="" autocomplete="off"/>
 
         <button id="submitButton" class="btn btn-secondary">SUBMIT</button>
+        <p id="loadingText" style="color:white; display: none;">Loading.....</p>
     </div>
    
 </div>
@@ -26,11 +27,6 @@
     <button id="startSearchButton" class="btn btn-primary">Start Search</button>
 </div>
 
-<div id="SQueries" style="display: none; position: fixed; bottom: 10px; left: 10px;">
-    <p>Special Queries:</p>
-    <input id="squeryInput"type="text" name="squery" value="" autocomplete="off"/>
-    <button id="squeryButton">SUBMIT</button>
-
 </div>
 
 <iframe id="searchFrame" style="display: none; resize: both; overflow: hidden; position: fixed; bottom: 20px; right: 10px; width: 50%; height: 90%; border: solid 1px #333333; " src="/search"></iframe>
@@ -38,7 +34,6 @@
 <!-- Optional JavaScript -->
 <!-- jQuery first, then Popper.js, then Bootstrap JS -->
 <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js" integrity="sha384-9/reFTGAW83EW2RDu2S0VKaIzap3H66lZH81PoYlFhbGU+6BZp6G7niu735Sk7lN" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
 
 <script>
@@ -58,31 +53,18 @@
             if(directoryValue == "") {
                 alert("Directory cannot be empty");
             } else {
-                $.post("/", {directoryValue: directoryValue}, function(result){
-                    $(result).prependTo($("#maindiv"));
-                });
                 $("#submitButton").hide();
                 $("#dir").hide();
                 $("#diskIndex").hide();
-                $("#SQueries").show();
+                $("#loadingText").show();
+                $.post("/", {directoryValue: directoryValue}, function(result){
+                    $(result).prependTo($("#maindiv"));
+                });
+                $("#loadingText").hide();
             }
         });
     });
     
-    // special queries button, input special query and it will output in the #maindiv
-    $(function() {
-        $("#squeryButton").on("click", function(evt){
-            let squeryValue = document.getElementById("squeryInput").value;
-            console.log(squeryValue);
-            if(squeryValue.charAt(0) === ':') {
-                $.post("/squery", {squeryValue: squeryValue}, function(result){
-                    $(result).prependTo($("#maindiv"));
-                });
-            } else {
-                alert("special query must start with :")
-            }
-            });
-        });
 </script>
 
 </body>
