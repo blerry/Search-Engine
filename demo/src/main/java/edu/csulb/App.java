@@ -30,7 +30,7 @@ public class App
 
     public static void main( String[] args )
     {
-        Spark.staticFileLocation("template");
+        Spark.staticFileLocation("resources");
         System.out.println("http://localhost:4567/");
         Spark.get("/", (req, res) -> {
             HashMap<String, Object> model =  new HashMap<>();
@@ -97,7 +97,7 @@ public class App
                 System.out.println("Resetting the directory...");//re-build an in-memory index
                 dir = squeryValue.substring(7);
                 double buildTime = 0.0; 
-                return "<div style=\"font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ buildTime +  " seconds</div>";
+                return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ buildTime +  " seconds</div>";
                 //print the first 1000 terms in the vocabulary
             } else if (squeryValue.length() == 6 && squeryValue.substring(1, 6).equals("vocab")) {
                 List<String> vocabList = index.getVocabulary();//gather vocab list from any index

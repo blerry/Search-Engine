@@ -5,8 +5,8 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-    <!-- Bootstrap CSS -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" integrity="sha384-JcKb8q3iqJ61gNV9KGb8thSsNjpSL0n8PARn9HuZOnIxN0hoP+VmmDGMN5t9UJ0Z" crossorigin="anonymous">
+    <!-- styles -->
+    <link rel="stylesheet" href="styles.css" />
 
     <title>Search Engine</title>
 </head>
@@ -31,41 +31,8 @@
 
 <iframe id="searchFrame" style="display: none; resize: both; overflow: hidden; position: fixed; bottom: 20px; right: 10px; width: 50%; height: 90%; border: solid 1px #333333; " src="/search"></iframe>
 
-<!-- Optional JavaScript -->
-<!-- jQuery first, then Popper.js, then Bootstrap JS -->
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js" integrity="sha384-B4gt1jrGC7Jh4AgTPSdUtOBvfO8shuf57BaghqFfPlYxofvL8/KUEfYiJOMMV+rV" crossorigin="anonymous"></script>
-
-<script>
-    // javascript functions
-    // start search button function, will hide button and open iframe for search queries
-    $(function() {
-        $("#startSearchButton").on("click", function(evt){
-            $("#startSearchButton").hide();
-            $("#searchFrame").show();
-        });
-    });
-    // choose directory function, sets directory and indexes all files, will show special queries
-    $(function() {
-        $("#submitButton").on("click", function(evt){
-            let directoryValue = document.getElementById("directoryInput").value;
-            //console.log(directoryValue);
-            if(directoryValue == "") {
-                alert("Directory cannot be empty");
-            } else {
-                $("#submitButton").hide();
-                $("#dir").hide();
-                $("#diskIndex").hide();
-                $("#loadingText").show();
-                $.post("/", {directoryValue: directoryValue}, function(result){
-                    $(result).prependTo($("#maindiv"));
-                });
-                $("#loadingText").hide();
-            }
-        });
-    });
-    
-</script>
+<!-- JavaScript -->
+<script src="main.js"></script>
 
 </body>
 </html>
