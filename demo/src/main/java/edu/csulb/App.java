@@ -30,16 +30,12 @@ public class App
 
     public static void main( String[] args )
     {
+        Spark.port(4000);
         Spark.staticFileLocation("resources");
-        System.out.println("http://localhost:4567/");
+        System.out.println("http://localhost:4000/");
         Spark.get("/", (req, res) -> {
             HashMap<String, Object> model =  new HashMap<>();
             return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));
-        });
-        // creates thymeleaf template for search-window.html at /search
-        Spark.get("/search", (req, res) -> {
-            HashMap<String, Object> model = new HashMap<>();
-            return new ThymeleafTemplateEngine().render(new ModelAndView(model, "search-window"));
         });
         // posts directory, builds index
         Spark.post("/", (request, response) -> {
