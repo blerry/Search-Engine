@@ -46,7 +46,7 @@ public class App
             index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
             long endTime = System.nanoTime();
             long totalTime = endTime - startTime;//Timer
-            return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br>Time to Index: " + totalTime / 1000000000 +  " seconds</div></br>";
+            return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
         });
         // posts query values based on query inputs from client (outputs as html table)
         Spark.post("/search", (request, response) -> {
@@ -92,8 +92,12 @@ public class App
             } else if (squeryValue.length() >= 6 && squeryValue.substring(1, 6).equals("index")) {
                 System.out.println("Resetting the directory...");//re-build an in-memory index
                 dir = squeryValue.substring(7);
-                double buildTime = 0.0; 
-                return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ buildTime +  " seconds</div>";
+                corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
+                long startTime = System.nanoTime();
+                index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
+                long endTime = System.nanoTime();
+                long totalTime = endTime - startTime;//Timer
+                return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ totalTime +  " seconds</div>";
                 //print the first 1000 terms in the vocabulary
             } else if (squeryValue.length() == 6 && squeryValue.substring(1, 6).equals("vocab")) {
                 List<String> vocabList = index.getVocabulary();//gather vocab list from any index

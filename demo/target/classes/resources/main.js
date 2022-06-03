@@ -1,6 +1,6 @@
 console.log("RUNNING MAIN");
     document.addEventListener("DOMContentLoaded", () => { });
-
+    document.getElementById("loadingText").style.display = "none";
     document.getElementById("submitButton").addEventListener("click", function(evt){
     let directoryValue = document.getElementById("directoryInput").value;
     document.getElementById("loadingText").style.display = "";       
