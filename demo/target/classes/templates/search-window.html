@@ -38,7 +38,11 @@
             let queryValue = document.getElementById("queryInput").value;
             if(queryValue == ""){
                 alert("query cannot be empty")
-            } else {
+            } 
+            else if(queryValue.charAt(0) === ":"){
+                specialQuerySearch(queryValue);
+            }
+            else {
                     $.post("/search", {queryValue: queryValue}, function(result){
                         $(result).prependTo($("#search-contents"));
                     });
@@ -60,7 +64,13 @@
             $(result).prependTo($("#search-contents"));
         });
     }
-
+    function specialQuerySearch(queryValue) {
+            console.log(queryValue);
+                $.post("/squery", {queryValue: queryValue}, function(result){
+                    $(result).prependTo($("#search-contents"));
+                });
+    }
+     
 </script>
 
 </body>

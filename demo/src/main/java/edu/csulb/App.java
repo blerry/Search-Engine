@@ -30,7 +30,7 @@ public class App
 
     public static void main( String[] args )
     {
-        Spark.staticFileLocation("public_html");
+        Spark.staticFileLocation("template");
         System.out.println("http://localhost:4567/");
         Spark.get("/", (req, res) -> {
             HashMap<String, Object> model =  new HashMap<>();
@@ -80,7 +80,7 @@ public class App
         });
         
         Spark.post("/squery", (request, response) -> {
-            String squeryValue = request.queryParams("squeryValue");
+            String squeryValue = request.queryParams("queryValue");
             String stemmedTerm="";
             if (squeryValue.length() == 2 && squeryValue.substring(1, 2).equals("q")) {
                 System.out.println("\nEnding program...");
