@@ -31,37 +31,36 @@ public class App
     public static void main( String[] args )
     {
         Spark.port(4000); //http://localhost:4000/
-        Spark.staticFileLocation("resources");
-        Spark.get("/", (req, res) -> {
-            HashMap<String, Object> model =  new HashMap<>();
-            return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));
+        Spark.staticFileLocation("resources"); //folder for web files
+        Spark.get("/", (req, res) -> { //path to http get request from
+            HashMap<String, Object> model =  new HashMap<>(); //model for page
+            return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));//get index.html
         });
-        // posts directory, builds index
-        Spark.post("/", (request, response) -> {
-            dir = request.queryParams("directory");
-            System.out.println(dir);
-            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
+        // posting the directory from web to index
+        Spark.post("/", (request, response) -> {//same / path
+            dir = request.queryParams("directory"); //value from post
+            System.out.println(dir); 
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
             long startTime = System.nanoTime();
-            index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
-            long endTime = System.nanoTime();
+            index = PositionalInvertedIndexIndexer.indexCorpus(corpus); //index the corpus with method
+            long endTime = System.nanoTime(); 
             long totalTime = endTime - startTime;//Timer
             return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
         });
-        // posts query values based on query inputs from client (outputs as html table)
+        //path /search to differ from / post path
         Spark.post("/search", (request, response) -> {
-            
-            String query = request.queryParams("query");
-            return indexer.webSearch(query, corpus, index);
+            String query = request.queryParams("query");//get query from web
+            return indexer.webSearch(query, corpus, index); //do a web search this time with query from indexer
         });
         // posts document contents as a div
 
         Spark.post("/document", (request, response) -> {
-            String docid = request.queryParams("docId");
+            String docid = request.queryParams("docId");//get doc id from web
             int id = Integer.parseInt(docid);
             //corpus is index request directory ;
             corpus.getDocuments(); //this line is needed or else corpus has mDocuments = null ???
             Document doc = corpus.getDocument(id);
-            Reader reader = doc.getContent();
+            Reader reader = doc.getContent();//get content
             StringBuilder content = new StringBuilder();
             int readerCharValue;
             try {
@@ -74,6 +73,7 @@ public class App
             return "</br><div style=margin:10px 15px;\"\"> " + content.toString() + " </div></br>";
         });
         
+        //similar functionality to query except for special queries
         Spark.post("/squery", (request, response) -> {
             String squery = request.queryParams("query");
             String stemmedTerm="";

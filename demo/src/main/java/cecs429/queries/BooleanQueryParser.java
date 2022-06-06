@@ -183,35 +183,6 @@ public class BooleanQueryParser {
 		else {
 			lengthOut = nextSpace - startIndex;
 		}
-		// if(subquery.charAt(startIndex) == '\"') { // phrase literal
-			
-		// 	++startIndex; //increment start index to skip first quote
-		// 	int nextQuote = subquery.indexOf('\"', startIndex); //find the end quote
-		// 	List<QueryComponent> queryList = new ArrayList<QueryComponent>(); //create a query list
-		// 	String literal = subquery.substring(startIndex, nextQuote); //create a substring for the words inside the quotes
-			
-		// 	String[] TermList = literal.split(" "); // split the words on spaces
-		// 	for(String s: TermList) { //for each term add the word to a queryList and make a separate term for each of them
-		// 		queryList.add(new TermLiteral(s));
-		// 	}
-			
-		// 	return new Literal(new StringBounds(startIndex, nextQuote),new PhraseLiteral(queryList)); //return a new literal taking in a PhraseLiteral
-		// }
-		// else if(subquery.charAt(startIndex) == '-') { // NOT operator
-			
-		// 	// not query
-		// }
-		// else {
-		// // Locate the next space to find the end of this literal.
-		// int nextSpace = subquery.indexOf(' ', startIndex);
-		// 	if (nextSpace < 0) {
-		// 	// No more literals in this subquery.
-		// 	lengthOut = subLength - startIndex;
-		// 	}
-		// 	else {
-		// 		lengthOut = nextSpace - startIndex;
-		// 	}
-		// }
 		
 		// This is a term literal containing a single term.
 		return new Literal(new StringBounds(startIndex, lengthOut),new TermLiteral(subquery.substring(startIndex, startIndex + lengthOut)));

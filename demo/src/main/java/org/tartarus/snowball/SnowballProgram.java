@@ -237,10 +237,10 @@ public class SnowballProgram {
 		    res = resobj.toString().equals("true");
 		} catch (InvocationTargetException e) {
 		    res = false;
-		    // FIXME - debug message
+		    //  - debug message
 		} catch (IllegalAccessException e) {
 		    res = false;
-		    // FIXME - debug message
+		    //  - debug message
 		}
 		cursor = c + w.s_size;
 		if (res) return w.result;

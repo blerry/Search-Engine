@@ -23,7 +23,7 @@ public class InvertedIndex implements Index{
     }
     @Override
     public List<String> getVocabulary(){
-        //TODO Auto-generated method stub
+        // Auto-generated method stub
         //return lists of strings in vocabulary the keys of Hasmap
         Set<String> keys = map.keySet();//not really a list, sort arraylist then return it
         List<String> vocabulary = new ArrayList<String>();

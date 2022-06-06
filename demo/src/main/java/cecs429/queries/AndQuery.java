@@ -26,7 +26,7 @@ public class AndQuery implements QueryComponent {
 	public List<Posting> getPostings(Index index) {
 		//List<Posting> result = null;
 		
-		// TODO: program the merge for an AndQuery, by gathering the postings of the composed QueryComponents and
+		//program the merge for an AndQuery, by gathering the postings of the composed QueryComponents and
 		// intersecting the resulting postings.
 		List<Posting> result = new ArrayList<Posting>();
 		result =mComponents.get(0).getPostings(index); // set pList to first element

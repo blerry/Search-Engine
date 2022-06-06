@@ -42,7 +42,7 @@ public class TermDocumentIndex implements Index {
 				results.add(post);
 			}
 		}
-		// TODO: implement this method.
+		//: implement this method.
 		// Binary search the mVocabulary array for the given term.
 		// Walk down the mMatrix row for the term and collect the document IDs (column indices)
 		// of the "true" entries.
