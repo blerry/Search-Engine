@@ -2,6 +2,7 @@
     document.addEventListener("DOMContentLoaded", () => { //on window load
         document.getElementById("searchDiv").style.display="none"; 
         document.getElementById("searchButton").addEventListener("click", function(evt) {//on click
+            document.getElementById("search-contents").innerHTML = "";
             document.getElementById("search-contents").style.display="";//show contents
             let query = document.getElementById("query").value;//get query input
             if(query == ""){ // no empty search
@@ -27,9 +28,9 @@
 
 
     // special query function
-    function specialQuerySearch(squery) {
-            console.log(squery);//debug
-                $.post("/squery", {squery: squery}, function(result){//post to server
+    function specialQuerySearch(query) {
+            console.log(query);//debug
+                $.post("/squery", {query: query}, function(result){//post to server
                     $(result).prependTo($("#search-contents"));//show results
                 });
     }

@@ -49,7 +49,7 @@ public class App
         });
         // posts query values based on query inputs from client (outputs as html table)
         Spark.post("/search", (request, response) -> {
-
+            
             String query = request.queryParams("query");
             return indexer.webSearch(query, corpus, index);
         });
