@@ -30,16 +30,15 @@ public class App
 
     public static void main( String[] args )
     {
-        Spark.port(4000);
+        Spark.port(4000); //http://localhost:4000/
         Spark.staticFileLocation("resources");
-        System.out.println("http://localhost:4000/");
         Spark.get("/", (req, res) -> {
             HashMap<String, Object> model =  new HashMap<>();
             return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));
         });
         // posts directory, builds index
         Spark.post("/", (request, response) -> {
-            dir = request.queryParams("directoryValue");
+            dir = request.queryParams("directory");
             System.out.println(dir);
             corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
             long startTime = System.nanoTime();
@@ -51,13 +50,13 @@ public class App
         // posts query values based on query inputs from client (outputs as html table)
         Spark.post("/search", (request, response) -> {
 
-            String queryValue = request.queryParams("queryValue");
-            return indexer.webSearch(queryValue, corpus, index);
+            String query = request.queryParams("query");
+            return indexer.webSearch(query, corpus, index);
         });
         // posts document contents as a div
 
         Spark.post("/document", (request, response) -> {
-            String docid = request.queryParams("docValue");
+            String docid = request.queryParams("docId");
             int id = Integer.parseInt(docid);
             //corpus is index request directory ;
             corpus.getDocuments(); //this line is needed or else corpus has mDocuments = null ???
@@ -76,22 +75,22 @@ public class App
         });
         
         Spark.post("/squery", (request, response) -> {
-            String squeryValue = request.queryParams("queryValue");
+            String squery = request.queryParams("query");
             String stemmedTerm="";
-            if (squeryValue.length() == 2 && squeryValue.substring(1, 2).equals("q")) {
+            if (squery.length() == 2 && squery.substring(1, 2).equals("q")) {
                 System.out.println("\nEnding program...");
                 System.exit(-1);
                 return "";
-            } else if (squeryValue.length() >= 5 && squeryValue.substring(1, 5).equals("stem")) {
-                stemmedTerm = indexer.stemWord(squeryValue.substring(6));
+            } else if (squery.length() >= 5 && squery.substring(1, 5).equals("stem")) {
+                stemmedTerm = indexer.stemWord(squery.substring(6));
                 //squeryValue = squeryValue.substring(6);
                 System.out.printf("%s stemmed to: %s", "", stemmedTerm);
                 System.out.println();
-                return "</br><div style=\"font-size: 12px;\">"+ squeryValue.substring(6) + " stemmed to: " + stemmedTerm + "</div></br>";
+                return "</br><div style=\"font-size: 12px;\">"+ squery.substring(6) + " stemmed to: " + stemmedTerm + "</div></br>";
                 //build a new index from the given directory
-            } else if (squeryValue.length() >= 6 && squeryValue.substring(1, 6).equals("index")) {
+            } else if (squery.length() >= 6 && squery.substring(1, 6).equals("index")) {
                 System.out.println("Resetting the directory...");//re-build an in-memory index
-                dir = squeryValue.substring(7);
+                dir = squery.substring(7);
                 corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
                 long startTime = System.nanoTime();
                 index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
@@ -99,7 +98,7 @@ public class App
                 long totalTime = endTime - startTime;//Timer
                 return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ totalTime +  " seconds</div>";
                 //print the first 1000 terms in the vocabulary
-            } else if (squeryValue.length() == 6 && squeryValue.substring(1, 6).equals("vocab")) {
+            } else if (squery.length() == 6 && squery.substring(1, 6).equals("vocab")) {
                 List<String> vocabList = index.getVocabulary();//gather vocab list from any index
                 List<String> subVocab = null;
                 if (vocabList.size() >= 1000) { subVocab = vocabList.subList(0, 999); }

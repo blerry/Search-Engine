@@ -1,38 +1,36 @@
-    // javascript functions
-
-    // search button, submit queries to be outputted in iframe (tables) using jQuery
-    document.addEventListener("DOMContentLoaded", () => { 
-        document.getElementById("searchDiv").style.display="none";
-        document.getElementById("searchButton").addEventListener("click", function(evt) {
-            let queryValue = document.getElementById("queryInput").value;
-            if(queryValue == ""){
+    // search button
+    document.addEventListener("DOMContentLoaded", () => { //on window load
+        document.getElementById("searchDiv").style.display="none"; 
+        document.getElementById("searchButton").addEventListener("click", function(evt) {//on click
+            document.getElementById("search-contents").style.display="";//show contents
+            let query = document.getElementById("query").value;//get query input
+            if(query == ""){ // no empty search
                 alert("query cannot be empty")
             } 
-            else if(queryValue.charAt(0) === ":"){
-                specialQuerySearch(queryValue);
+            else if(query.charAt(0) === ":"){//special query serach
+                specialQuerySearch(query);//function for it
             }
             else {
-                    $.post("/search", {queryValue: queryValue}, function(result){
-                        $(result).prependTo($("#search-contents"));
+                    $.post("/search", {query: query}, function(result){//post a regular search
+                        $(result).prependTo($("#search-contents"));//append results
                     });
              
             }
         })
     });
-    // document selecter button, click document title button to print out document contents by sending a post to "/document" using jQuery
-    function docClicked(id) {
-        $.post("/document", {docValue: id}, function(result){
-            $(result).prependTo($("#search-contents"));
+    // user picks a document
+    function docClicked(id) {//upon a clicked title
+        $.post("/document", {docId: id}, function(result){//post to server
+            $(result).prependTo($("#search-contents"));//append results
         });
     };
 
 
-    // special queries button, input special query and it will output in the #maindiv
-   
-    function specialQuerySearch(queryValue) {
-            console.log(queryValue);
-                $.post("/squery", {queryValue: queryValue}, function(result){
-                    $(result).prependTo($("#search-contents"));
+    // special query function
+    function specialQuerySearch(squery) {
+            console.log(squery);//debug
+                $.post("/squery", {squery: squery}, function(result){//post to server
+                    $(result).prependTo($("#search-contents"));//show results
                 });
     }
 
