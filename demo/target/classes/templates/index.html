@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en" style="background-image: url('1.png');">
+<head>
+    <!-- Required meta tags -->
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <!-- styles -->
+    <link rel="stylesheet" href="styles.css" />
+
+    <title>Search Engine</title>
+</head>
+<body style="color: white;">
+    <div id="title" style="font-size:24px; margin-left: 600px; width: fit-content;"><h1 style="width:fit-content;">SEARCH</h1></div>
+
+<div id="maindiv" style="margin-left: 10rem;">
+    <div id="dir" style="margin:200px auto; width:25vw;">
+        <p style="color:white">Enter Directory of Corpus to Index:</p>
+        <input id="directory"type="text" name="button1" value="" autocomplete="off" style="width:25vw;"/>
+
+        <button id="submitButton" class="btn btn-secondary">SUBMIT</button>
+    </div>
+    <p id="loadingText" style="color:white; margin:200px auto; width:25vw;">Loading.....</p>
+</div>
+<!-- style="position: fixed; bottom: 10px; right: 10px;"-->
+
+</div>
+<div id="searchDiv" class="searchBox" style="margin: 100px 23rem;width: 100vw;">
+    <div>
+        <div id="search" style="margin: auto 11rem;">
+            Query:
+            <input id="query"type="text" name="search-txt" value="" autocomplete="off" style="width:20vw;"/>
+
+            <button id="searchButton" >SEARCH</button>
+        </div>
+        <div id="search-contents" style="background-color: black; font-size: 12px;width:55vw;height: 100vh; overflow-x: scroll; margin-top:20px;"></div>
+    </div>
+</div>
+<!-- jQuery  -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+<!-- JavaScript -->
+<script src="main.js"></script>
+<script src="search.js"></script>
+
+</body>
+</html>

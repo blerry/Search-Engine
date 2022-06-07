@@ -140,14 +140,40 @@ public class BooleanQueryParser {
 	 * Locates and returns the next literal from the given subquery string.
 	 */
 	private Literal findNextLiteral(String subquery, int startIndex) {
+		/*
+		Instead of assuming that we only have single-term literals, modify this method so it will create a PhraseLiteral
+		object if the first non-space character you find is a double-quote ("). In this case, the literal is not ended
+		by the next space character, but by the next double-quote character.
+		 */
 		int subLength = subquery.length();
-		int lengthOut;
+		int lengthOut=0;
 		
 		// Skip past white space.
 		while (subquery.charAt(startIndex) == ' ') {
 			++startIndex;
 		}
-		
+		//determine if a phrase literal is next
+		if (subquery.charAt(startIndex) == '\"') {
+			startIndex++;//skip first \"
+			int phraseEnd = subquery.indexOf('\"', startIndex+1);//phrase ending
+			if (phraseEnd >= 0) {
+				lengthOut = phraseEnd - startIndex;
+
+				//split up the terms within the phrase
+				String[] splitPhrase = subquery.substring(startIndex, startIndex + lengthOut).split(" ");
+				List<QueryComponent> phraseTerms = new ArrayList<>();
+				for (int i = 0; i < splitPhrase.length; i++) {
+					phraseTerms.add(new TermLiteral(splitPhrase[i]));
+				}
+
+				// This is a phrase literal containing multiple terms.
+				return new Literal(
+						new StringBounds(startIndex, lengthOut),
+						new PhraseLiteral(phraseTerms));
+
+			}
+
+		}
 		// Locate the next space to find the end of this literal.
 		int nextSpace = subquery.indexOf(' ', startIndex);
 		if (nextSpace < 0) {
@@ -159,15 +185,7 @@ public class BooleanQueryParser {
 		}
 		
 		// This is a term literal containing a single term.
-		return new Literal(
-		 new StringBounds(startIndex, lengthOut),
-		 new TermLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
+		return new Literal(new StringBounds(startIndex, lengthOut),new TermLiteral(subquery.substring(startIndex, startIndex + lengthOut)));
 		
-		/*
-		TODO:
-		Instead of assuming that we only have single-term literals, modify this method so it will create a PhraseLiteral
-		object if the first non-space character you find is a double-quote ("). In this case, the literal is not ended
-		by the next space character, but by the next double-quote character.
-		 */
 	}
 }

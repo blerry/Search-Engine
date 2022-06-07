@@ -1,3 +1,4 @@
+/*
 package cecs429.indexes;
 
 import java.util.List;
@@ -7,11 +8,6 @@ import java.util.Set;
 import java.util.Collections;
 
 public class InvertedIndex implements Index{
-    /**
-	 * Constructs an empty index with with given vocabulary set and corpus size.
-	 * @param vocabulary a collection of all terms in the corpus vocabulary.
-	 * @param corpuseSize the number of documents in the corpus.
-	 */
     private HashMap<String, List<Posting>>map = new HashMap<String, List<Posting>>();
 
     @Override
@@ -27,7 +23,7 @@ public class InvertedIndex implements Index{
     }
     @Override
     public List<String> getVocabulary(){
-        //TODO Auto-generated method stub
+        // Auto-generated method stub
         //return lists of strings in vocabulary the keys of Hasmap
         Set<String> keys = map.keySet();//not really a list, sort arraylist then return it
         List<String> vocabulary = new ArrayList<String>();
@@ -49,7 +45,7 @@ public class InvertedIndex implements Index{
         if(map.containsKey(term)){
             if(exists.get(exists.size()-1).getDocumentId() != docId){ //if not the last document 
                 List<Posting> list = getPostings(term);
-                list.add(new Posting(docId));
+                list.add(new Posting(docId,new ArrayList<Integer>()));
                 map.put(term,list);
             }
             else{
@@ -63,9 +59,9 @@ public class InvertedIndex implements Index{
             List<Posting> list = new ArrayList<Posting>();
 			//ArrayList<Integer> posList = new ArrayList<Integer>();
 			//posList.add(position);
-			list.add(new Posting(docId));
+			list.add(new Posting(docId, new ArrayList<Integer>()));
 			map.put(term, list);
         }
     }
-
 }
+*/
