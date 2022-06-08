@@ -6,7 +6,7 @@ import edu.csulb.PositionalInvertedIndexIndexer;
 /**
  * Unit test for simple App.
  */
-public class AppTest 
+public class TestIndexer 
 {
     /**
      * Rigorous Test :-)
@@ -15,5 +15,10 @@ public class AppTest
     public void shouldAnswerWithTrue()
     {
         assertTrue( true );
+    }
+
+@Test
+	public void testMLBCorpus() {	
+		//Has the indexer index the document
     }
 }
