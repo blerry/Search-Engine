@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
     
-public class PositionalInvertedIndexIndexer {
+public class Indexer {
         
     public static void main(String[] args) throws IOException {
         Index index;

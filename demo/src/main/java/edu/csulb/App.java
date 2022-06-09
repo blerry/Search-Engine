@@ -4,7 +4,6 @@ import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.documents.DirectoryCorpus;
 import cecs429.indexes.*;
-import edu.csulb.PositionalInvertedIndexIndexer; 
 
 import spark.ModelAndView;
 import spark.Spark;
@@ -23,7 +22,7 @@ import static java.util.stream.Collectors.joining;
  */
 public class App 
 {
-    private static PositionalInvertedIndexIndexer indexer = new PositionalInvertedIndexIndexer();
+    private static Indexer indexer = new Indexer();
     private static Index index = null;
     private static String dir = "";
     private static DocumentCorpus corpus = null;
@@ -42,7 +41,7 @@ public class App
             System.out.println(dir); 
             corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
             long startTime = System.nanoTime();
-            index = PositionalInvertedIndexIndexer.indexCorpus(corpus); //index the corpus with method
+            index = Indexer.indexCorpus(corpus); //index the corpus with method
             long endTime = System.nanoTime(); 
             long totalTime = endTime - startTime;//Timer
             return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
@@ -93,7 +92,7 @@ public class App
                 dir = squery.substring(7);
                 corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
                 long startTime = System.nanoTime();
-                index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
+                index = Indexer.indexCorpus(corpus);
                 long endTime = System.nanoTime();
                 long totalTime = endTime - startTime;//Timer
                 return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ totalTime +  " seconds</div>";

@@ -2,7 +2,7 @@ package edu.csulb;
 
 import static org.junit.Assert.assertTrue;
 import org.junit.Test;
-import edu.csulb.PositionalInvertedIndexIndexer;
+import edu.csulb.Indexer;
 /**
  * Unit test for simple App.
  */

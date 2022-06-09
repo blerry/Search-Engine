@@ -30,14 +30,14 @@ public class OrQuery implements QueryComponent {
 	public List<Posting> getPostings(Index index) {
 		List<Posting> result = new ArrayList<Posting>();//post list
 		result = mComponents.get(0).getPostings(index);//Set posting list to first element
-		List<Posting> currList = new ArrayList<Posting>();
-		// TODO: program the merge for an OrQuery, by gathering the postings of the composed QueryComponents and
+		//List<Posting> currList = new ArrayList<Posting>();
+		// program the merge for an OrQuery, by gathering the postings of the composed QueryComponents and
 		// unioning the resulting postings.
 		for(int i = 1; i< mComponents.size(); i++){
 				//verify the next posting appears in at least 1 document
-				QueryComponent component = mComponents.get(i);
-				List<Posting> posting = component.getPostings(index);
-				int size = posting.size();
+				//QueryComponent component = mComponents.get(i);
+				//List<Posting> posting = component.getPostings(index);
+				//int size = posting.size();
 				if (mComponents.get(i).getPostings(index).size() != 0) {
 					result = orMerge(mComponents.get(i).getPostings(index), result);
 				}
