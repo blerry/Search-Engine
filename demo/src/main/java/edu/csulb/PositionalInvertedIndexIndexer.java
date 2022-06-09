@@ -3,6 +3,7 @@ package edu.csulb;
 import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
+import cecs429.indexes.DiskIndexWriter;
 import cecs429.indexes.Index;
 import cecs429.indexes.PositionalInvertedIndex;
 import cecs429.indexes.Posting;
@@ -142,12 +143,21 @@ public class PositionalInvertedIndexIndexer {
             //return query;
         }
         public static Index buildIndex(DocumentCorpus corpus, String path){
+            DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
+
             long startTime = System.nanoTime();
             Index index = indexCorpus(corpus);
             long endTime = System.nanoTime();
             long totalTime = endTime - startTime;
             // Create a DocumentCorpus to load .txt documents from the project directory.
             System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
+            try {
+                diskIndexWriter.writeIndex(index, path);
+            } catch (IOException e) {
+                // Auto-generated catch block
+                System.out.println("Something went wrong.");
+                e.printStackTrace();
+            }
             return index;
         }
         public String stemWord(String word){
@@ -158,6 +168,7 @@ public class PositionalInvertedIndexIndexer {
             //HashSet<String> vocabulary = new HashSet<>();
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
             PositionalInvertedIndex  index = new PositionalInvertedIndex();
+
             // Get all the documents in the corpus by calling GetDocuments().
             Iterable<Document> documents = corpus.getDocuments();
             List<String> wordList = new ArrayList<String>();
