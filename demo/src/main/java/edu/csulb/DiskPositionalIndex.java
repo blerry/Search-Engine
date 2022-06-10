@@ -87,18 +87,75 @@ public class DiskPositionalIndex implements Index{
             return map.get(term);
         }
     }
+    public double getDocumentWeight(int docId) {
+
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "\\docWeights.bin", "r")) {
+
+            raf.seek(docId * 8);//double needs 8-byte offset
+            return raf.readDouble();
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return -1;
+
+    }
     @Override
     public List<Posting> getPostings(String term){
-        return new ArrayList<Posting>(); 
+        List<Posting> result = new ArrayList<>();
+        String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
+
+        if (getKeyTermAddress(stemmedTerm) != -1) {//term doesn't exist
+            if (accessTermData(getKeyTermAddress(stemmedTerm), false) != null) {
+                result.addAll(accessTermData(getKeyTermAddress(stemmedTerm), false));
+            }
+        }
+
+        return result;
     }
     @Override
     public List<Posting> getPostingsPositions(String term){
-        return new ArrayList<Posting>(); 
+        List<Posting> result = new ArrayList<>();
+        String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
+
+        if (getKeyTermAddress(stemmedTerm) != -1) {//term doesn't exist
+            if (accessTermData(getKeyTermAddress(stemmedTerm), true) != null) {
+                result.addAll(accessTermData(getKeyTermAddress(stemmedTerm), true));
+            }
+        }
+
+        return result;
     }
     @Override
     public List<String> getVocabulary(){
+        Iterator<String> iterator = map.getKeys().iterator();
         List<String> vocab = new ArrayList<>();
+        while (iterator.hasNext()) {
+            vocab.add(iterator.next());
+        }
         return vocab;
     }
-    
+    public int getTermFrequency(String term) {
+
+        int termFrequency = -1;
+
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "\\postings.bin", "r")) {
+
+            if (getKeyTermAddress(term) == -1) {
+                return termFrequency;
+            } else {
+                raf.seek(getKeyTermAddress(term));
+            }
+
+            raf.readInt();//consume postings size
+            termFrequency = raf.readInt();//collect how many documents the term appears in
+
+        }  catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return termFrequency;
+
+    }
 }
