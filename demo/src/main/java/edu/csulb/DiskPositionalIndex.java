@@ -158,4 +158,24 @@ public class DiskPositionalIndex implements Index{
         return termFrequency;
 
     }
+    public int getDocumentFrequencyOfTerm(String term) {
+
+        int df_t = -1;
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "\\postings.bin", "r")) {
+
+            if (getKeyTermAddress(term) == -1) {
+                return df_t;
+            } else {
+                raf.seek(getKeyTermAddress(term));
+            }
+
+            df_t = raf.readInt();//collect how many documents the term appears in
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+        return df_t;
+
+    }
 }
