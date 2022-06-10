@@ -6,9 +6,13 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.File;
-
 import java.util.ArrayList;
 import java.util.List;
+
+import org.mapdb.BTreeMap;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
 
 public class DiskIndexWriter {
 
@@ -23,7 +27,13 @@ public class DiskIndexWriter {
 
 	public ArrayList<Long> writeIndex(Index index, String indexLocation) throws IOException {
         createIndexFolder(indexLocation); //create an index folder in the corpus
-
+        //create B+ tree for terms and addresses
+        DB db = DBMaker.fileDB(indexLocation + "\\index\\index.db").make();
+        BTreeMap<String, Long> map = db.treeMap("map")
+                .keySerializer(Serializer.STRING)
+                .valueSerializer(Serializer.LONG)
+                .counterEnable()
+                .createOrOpen();
         //create postings.bin file to act as index on disk. max address is 8-bytes = 64-bits
 
         //Every file(4Bytes) Format: term 1 frequency / firstDocumentID / total positions / 1stPosition / 2ndPosition /...
@@ -35,7 +45,7 @@ public class DiskIndexWriter {
                 new BufferedOutputStream(
                         new FileOutputStream(indexLocation+"\\index\\postings.bin")))) {
             for (int i = 0; i < words.size(); i++) {//iterate through vocabulary of index
-                
+                map.put(words.get(i), (long)dout.size()); //store term and address in B+ tree
                 //get current position stored as address for term
                 wordAddresses.add((long)dout.size());
                 //make sure the term exists
