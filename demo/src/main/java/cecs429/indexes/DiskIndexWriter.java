@@ -33,7 +33,7 @@ public class DiskIndexWriter {
 
         try (DataOutputStream dout = new DataOutputStream(
                 new BufferedOutputStream(
-                        new FileOutputStream(indexLocation + "\\index\\postings.bin")))) {
+                        new FileOutputStream(indexLocation+"\\index\\postings.bin")))) {
             for (int i = 0; i < words.size(); i++) {//iterate through vocabulary of index
                 
                 //get current position stored as address for term
