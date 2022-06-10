@@ -4,6 +4,12 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.Iterator;
 import java.util.List;
+
+import org.mapdb.BTreeMap;
+import org.mapdb.DB;
+import org.mapdb.DBMaker;
+import org.mapdb.Serializer;
+
 import java.util.ArrayList;
 
 import cecs429.text.AdvancedTokenProcessor;
@@ -13,11 +19,18 @@ import cecs429.indexes.Posting;
 public class DiskPositionalIndex implements Index{
     
         String indexLocation;
-    
+        DB diskIndex = null;
+        BTreeMap<String, Long> map = null;
         public DiskPositionalIndex(String dir) {
             indexLocation = dir + "\\index";
             try {
                 //B+ Tree
+                diskIndex = DBMaker.fileDB(indexLocation + "\\index.db").make();
+                map = diskIndex.treeMap("map")
+                    .keySerializer(Serializer.STRING)
+                    .valueSerializer(Serializer.LONG)
+                    .counterEnable()
+                    .open();
             } catch (Exception e) {
                 System.out.println("Could not find B+ Tree on disk...");
                 e.printStackTrace();
@@ -66,6 +79,13 @@ public class DiskPositionalIndex implements Index{
             return null;
         }
         return postings;
+    }
+    public long getKeyTermAddress(String term) {
+        if (map.get(term) == null) {
+            return -1;
+        } else {
+            return map.get(term);
+        }
     }
     @Override
     public List<Posting> getPostings(String term){
