@@ -1,4 +1,4 @@
-package edu.csulb;
+package cecs429.indexes;
 
 import java.io.IOException;
 import java.io.RandomAccessFile;

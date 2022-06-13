@@ -15,6 +15,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
     
@@ -164,6 +165,88 @@ public class Indexer {
             ArrayList<String> stemmedWord = new AdvancedTokenProcessor().processToken(word);
             return stemmedWord.get(0);
         }
+        public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) {
+            PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
+            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();//create token processor
+            DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
+            ArrayList<Double> documentWeight = new ArrayList<>();
+            // Get all the documents in the corpus by calling GetDocuments().
+            Iterable<Document> documents = corpus.getDocuments();
+            HashMap<String, Integer> mostPopularTerms = new HashMap<>();
+            int currentDoc = 0;
+            String[] vectorTerms = {"flow", "on", "at", "by", "that", "pressur", "an", "be", "number", "boundari", "layer", "from", "as", "result", "this", "it", "effect", "which", "method", "theori", "bodi", "solut", "heat", "wing", "mach", "equat", "shock", "use", "present", "was", "surfac", "distribut", "obtain", "two", "temperatur", "ratio", "been", "problem", "were", "veloc", "approxim", "calcul", "case", "have", "test", "plate", "investig", "given", "condit", "speed", "these", "valu", "transfer", "wave", "or", "has", "angl", "experiment", "superson", "jet", "made", "cylind", "edg", "rang", "measur", "laminar", "found", "load", "can", "stream", "lift", "determin", "coeffici", "analysi", "over", "increas", "general", "reynold", "wall", "free", "base", "high", "point", "turbul", "dimension", "also", "between", "some", "hyperson", "stress", "shown", "than", "buckl", "separ"};
+            double[][] termVectorSpace = new double[corpus.getCorpusSize()][vectorTerms.length];
+
+            for (Document docs : documents) {//iterate through every valid document found in the corpus
+                currentDoc = docs.getId();
+                int totalTerms = 0;
+                double[] docVector = new double[vectorTerms.length];
+                HashMap<String, Integer> termFrequency = new HashMap<>();//term frequency of every term in a document
+                // Tokenize the document's content by constructing an EnglishTokenStream around the document's content.
+                EnglishTokenStream stream = new EnglishTokenStream(docs.getContent());
+                Iterable<String> tokens = stream.getTokens();//convert read data into tokens
+                int wordPosition = 1;//maintain the position of the word throughout the document
+                // Iterate through the tokens in the document, processing them using a BasicTokenProcessor,
+                for (String token : tokens) {
+
+                    List<String> words = processor.processToken(token);//convert a token to indexable terms
+                    for (int i = 0; i < words.size(); i++) {//iterate through all unstemmed tokens
+                        words.set(i, AdvancedTokenProcessor.stemToken(words.get(i)));
+                        if (termFrequency.containsKey(words.get(i))) {//if term is duplicate
+                            int prevFrequency = termFrequency.get(words.get(i));
+                            termFrequency.put(words.get(i), prevFrequency + 1);//increment term frequency counter
+                        } else {
+                            termFrequency.put(words.get(i), 1);//add new term to frequency counter
+                    }
+                }
+                index.addTerm(words, docs.getId(), wordPosition);//add word data to index
+                wordPosition++;//increment word position
+                totalTerms = words.size();
+            }
+
+            /* Determine popular terms */
+            int finalTotalTerms = totalTerms;
+            termFrequency.forEach((key, value) -> {
+
+                for (int j = 0; j < vectorTerms.length; j++) {
+                    if (key.equals(vectorTerms[j])) {
+                        docVector[j] = (double) value / finalTotalTerms;
+                    }
+                }
+
+                if (mostPopularTerms.containsKey(key)) {
+                    int prevFrequency = mostPopularTerms.get(key);
+                    mostPopularTerms.put(key, prevFrequency + value);
+                } else {
+                    mostPopularTerms.put(key, 1);
+                }
+
+            });
+
+            for (int j = 0; j < docVector.length; j++) {
+                termVectorSpace[currentDoc][j] = docVector[j];
+            }
+
+            /* */
+
+            double sumTermWeights = 0;//sum of term weights
+            ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
+
+            for (int i = 0; i < tf_d.size(); i++) {//iterate through all term frequencies
+                double w_dt = 1 + Math.log(tf_d.get(i));//weight of specific term in a document
+                w_dt = Math.pow(w_dt, 2);
+                sumTermWeights += w_dt;//summation of w_dt^2
+            }
+            //do math to get L_d
+            double l_d = Math.sqrt(sumTermWeights);//square root normalized w_dt's
+            documentWeight.add(l_d);
+
+        }
+        //write document weights to disk
+        diskIndexWriter.writeDocumentWeights(documentWeight, indexLocation);
+        return index;
+        }
+
         public static Index indexCorpus(DocumentCorpus corpus) {
             //HashSet<String> vocabulary = new HashSet<>();
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	

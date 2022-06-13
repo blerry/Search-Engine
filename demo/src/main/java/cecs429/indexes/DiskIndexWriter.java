@@ -88,4 +88,24 @@ public class DiskIndexWriter {
 
     }
 
+    public void writeDocumentWeights(ArrayList<Double> documentWeights, String indexLocation) {
+
+        createIndexFolder(indexLocation);
+
+        //create docWeights.bin file to act as index on disk
+        try (DataOutputStream dout = new DataOutputStream(
+                new BufferedOutputStream(
+                        new FileOutputStream(indexLocation + "\\index\\docWeights.bin")))) {
+
+            for (Double documentWeight : documentWeights) {//iterate through every document weight in doc id order
+
+                dout.writeDouble(documentWeight);//write doc weight to disk (8-byte double)
+
+            }
+
+        } catch (IOException ioe) {
+            ioe.printStackTrace();
+        }
+
+    }
 }
