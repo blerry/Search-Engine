@@ -87,7 +87,7 @@ public class Indexer {
                             scan.nextLine();
                             break;
                         case "vocab":
-                            List<String> vocabList = index.getVocabulary(); //make a temp vocab list from vocab
+                            List<String> vocabList = d.getVocabulary(); //make a temp vocab list from vocab
                             if(vocabList.size() >= 1000){ //check if vocab has at least 1000 words
                                 for(int i = 0; i< 1000; i++){
                                     System.out.println(vocabList.get(i)); //output the list
@@ -101,14 +101,14 @@ public class Indexer {
                             System.out.println("Total vocabulary words: "+ vocabList.size());
                             break;
                         case "index":
-                            index = buildIndex(corpus,s);
+                            index = buildIndex(corpusB,pathName);
                             break;
                         default:
-                            search(query,corpus,index);
+                            search(query,corpusB,d);
                             System.out.println("Enter Document ID number to view contents or -1 to continue: ");
                             int docID = scan.nextInt();
                             scan.nextLine();
-                            openDocument(docID,corpus);
+                            openDocument(docID,corpusB);
                             break;
                             }
                     break;
@@ -116,34 +116,67 @@ public class Indexer {
             }
             }//end while
         }
+    }
         //Move this to another class later on
-        public String webSearch(String query,DocumentCorpus corpus, Index index){
-            List<Posting> postings = search(query, corpus, index);//Run Boolean Search
+        public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
+            System.out.println("Starting Query...");
+            if (isBooleanQuery) {//process a boolean query
+                List<Posting> postings = search(query, corpus, index);//Run Boolean Search
             for (Posting post : postings) {//include document titles for each returned posting
+                    String title = corpus.getDocument(post.getDocumentId()).getTitle();
+                    String row = "    <tr>\n" +
+                                "        <td>"+post.getDocumentId()+"</td>\n" +
+                                "        <td><button id=\"" + post.getDocumentId() + "\" onClick=\"docClicked(this.id)\" >"+title+"</button></td>\n" +
+                                "        <td>"+post.getPostions()+"</td>\n" +
+                                "    </tr>\n";
+                        postingsRows.append(row);
 
-            String title = corpus.getDocument(post.getDocumentId()).getTitle();
-            String row = "    <tr>\n" +
-                        "        <td>"+post.getDocumentId()+"</td>\n" +
-                        "        <td><button id=\"" + post.getDocumentId() + "\" onClick=\"docClicked(this.id)\" >"+title+"</button></td>\n" +
-                        "        <td>"+post.getPostions()+"</td>\n" +
-                        "    </tr>\n";
-                postingsRows.append(row);
+                }
+                result = "<div><b>Query: </b>" + query +
+                        "<div>Total Documents: " + postings.size() + "</div></div></br>" +
+                        "<table style=\"width:100%\">\n" +
+                        "    <tr>\n" +
+                        "        <th>Document ID</th>\n" +
+                        "        <th>Document Title</th>\n" +
+                        "        <th>Positions</th>\n" +
+                        "    </tr>\n" +
+                        postingsRows.toString() +
+                        "</table>";
+                return result;
 
-            }
+                }else{
+                    PriorityQueue<Accumulator> pq;
+                    pq = userRankedQueryInput(corpus, index, query);
+                int pqSize = pq.size();
+                while(!pq.isEmpty()){
+                    Accumulator currAcc = pq.poll();
+                    String title = corpus.getDocument(currAcc.getDocId()).getTitle();
+                    int docId = currAcc.getDocId() + 1;
+                    docId--;
+                    double value = currAcc.getA_d();
+                    String row = "    <tr>\n" +
+                            "        <td>"+docId+"</td>\n" +
+                            "        <td><button id=\"" + docId + "\" onClick=\"docClicked(this.id)\" >"+title+"</button></td>\n" +
+                            "        <td>"+value+"</td>\n" +
+                            "    </tr>\n";
+                    postingsRows.insert(0,row);
+                }
 
-            result = "<div><b>Query: </b>" + query +
-                    "<div>Total Documents: " + postings.size() + "</div></div></br>" +
-                    "<table style=\"width:100%\">\n" +
-                    "    <tr>\n" +
-                    "        <th>Document ID</th>\n" +
-                    "        <th>Document Title</th>\n" +
-                    "        <th>Positions</th>\n" +
-                    "    </tr>\n" +
-                    postingsRows.toString() +
-                    "</table>";
-            return result;
+                result = "<div><b>Top " + RANKED_RETURN + " Results for: </b>" + query +
+                        "<div>Total Documents: " + pqSize + "</div></div></br>" +
+                        "<table style=\"width:100%\">\n" +
+                        "    <tr>\n" +
+                        "        <th>Document Id</th>\n" +
+                        "        <th>Document Title</th>\n" +
+                        "        <th>Score</th>\n" +
+                        "    </tr>\n" +
+                        postingsRows.toString() +
+                        "</table>";
+
+                    return "";
+                }
         }
         //Boolean search
         public static List<Posting> search(String query,DocumentCorpus corpus, Index index){
