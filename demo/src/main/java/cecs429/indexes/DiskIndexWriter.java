@@ -84,6 +84,7 @@ public class DiskIndexWriter {
         } catch (FileNotFoundException fnfe) {
             fnfe.printStackTrace();
         }
+        db.close();
         return wordAddresses;
 
     }

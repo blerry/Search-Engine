@@ -4,10 +4,13 @@ import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
 import cecs429.indexes.DiskIndexWriter;
+import cecs429.indexes.DiskPositionalIndex;
 import cecs429.indexes.Index;
 import cecs429.indexes.PositionalInvertedIndex;
 import cecs429.indexes.Posting;
+import cecs429.queries.Accumulator;
 import cecs429.queries.BooleanQueryParser;
+import cecs429.queries.TermLiteral;
 import cecs429.text.AdvancedTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 
@@ -17,69 +20,100 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.PriorityQueue;
 import java.util.Scanner;
     
 public class Indexer {
-        
+    private static final int RANKED_RETURN = 50;
     public static void main(String[] args) throws IOException {
-        Index index;
-        Scanner scan = new Scanner(System.in);
-		System.out.println("What is the path of the directory you would like to index: ");
-		String s = scan.nextLine();
         //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
         // /Users/berry/Desktop/CECS429/testCorpus
         // /Users/berry/Desktop/cor
         // Create a DocumentCorpus to load .txt documents from the project directory.
-        DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get(s).toAbsolutePath());
-        index = buildIndex(corpus, s);
-
+        Index index;
         /**************************************
         *                   MENU
         **************************************/
-        while (true){
-        System.out.println("Enter search query: ");
-        String query = "whale"; // hard-coded search for "whale"
-        query = scan.nextLine();
-        
-        switch(query){
-            case "q":
-                 System.out.println("Shut down...");
-                 scan.close();
-                 return;//end program 
-            case "stem":
-                AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
-                System.out.print("Enter word:");
-                //ArrayList<String> word = processor.processToken(scan.next());
-                System.out.print(processor.processToken(scan.next()));
-                //System.out.println(word.get(1));
-                System.out.println();
-                scan.nextLine();
-                break;
-            case "vocab":
-                List<String> vocabList = index.getVocabulary(); //make a temp vocab list from vocab
-                if(vocabList.size() >= 1000){ //check if vocab has at least 1000 words
-                    for(int i = 0; i< 1000; i++){
-                        System.out.println(vocabList.get(i)); //output the list
-                    }
-                }
-                else{
-                    for(int i = 0; i < vocabList.size(); i++){
-                        System.out.println(vocabList.get(i));//output  the list if less than 100 words
-                    }
-                }
-                System.out.println("Total vocabulary words: "+ vocabList.size());
-                break;
-            case "index":
-                index = buildIndex(corpus,s);
-                break;
-            default:
-                search(query,corpus,index);
-                System.out.println("Enter Document ID number to view contents or -1 to continue: ");
-                int docID = scan.nextInt();
-                scan.nextLine();
-                openDocument(docID,corpus);
-                break;
-                }
+        Scanner scan = new Scanner(System.in);
+		System.out.print("1.Build Index\n2.Query Index\n");
+        int userInput = scan.nextInt();
+        scan.nextLine();
+        while (true){     
+            switch(userInput){
+                case 1:
+                System.out.println("What is the path of the directory you would like to index: ");
+                String s = scan.nextLine();
+                System.out.println(Paths.get(s).toAbsolutePath());
+                //loadDirectory
+				DocumentCorpus corpus = DirectoryCorpus.loadTextDirectory(Paths.get(s).toAbsolutePath());
+				long startTime = System.nanoTime();
+
+				//FIX ME index = indexDiskCorpus(corpus, Paths.get(s).toAbsolutePath());
+                index = indexDiskCorpus(corpus, s);
+
+				DiskIndexWriter dw = new DiskIndexWriter();
+				//dw.setDocSize(corpus.getCorpusSize());
+				dw.writeIndex(index, s);
+				//dw close DB;
+				long endTime = System.nanoTime();
+				long totalTime = endTime - startTime;
+				System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
+					return;
+                    //break;
+                case 2:
+                    System.out.println("Enter corpus path: ");
+                    scan.nextLine();
+                    String pathName = scan.nextLine();	
+                    System.out.println(Paths.get(pathName).toAbsolutePath());
+                    DocumentCorpus corpusB = DirectoryCorpus.loadTextDirectory(Paths.get(pathName).toAbsolutePath());
+                    corpusB.getDocuments();
+                    DiskPositionalIndex d = new DiskPositionalIndex(pathName);
+                    while (true) {
+                        System.out.println("Enter search query: ");
+                        String query = "whale"; // hard-coded search for "whale"
+                        query = scan.nextLine();
+                    switch(query){
+                        case "q":
+                            System.out.println("Shut down...");
+                            scan.close();
+                            return;//end program 
+                        case "stem":
+                            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
+                            System.out.print("Enter word:");
+                            //ArrayList<String> word = processor.processToken(scan.next());
+                            System.out.print(processor.processToken(scan.next()));
+                            //System.out.println(word.get(1));
+                            System.out.println();
+                            scan.nextLine();
+                            break;
+                        case "vocab":
+                            List<String> vocabList = index.getVocabulary(); //make a temp vocab list from vocab
+                            if(vocabList.size() >= 1000){ //check if vocab has at least 1000 words
+                                for(int i = 0; i< 1000; i++){
+                                    System.out.println(vocabList.get(i)); //output the list
+                                }
+                            }
+                            else{
+                                for(int i = 0; i < vocabList.size(); i++){
+                                    System.out.println(vocabList.get(i));//output  the list if less than 100 words
+                                }
+                            }
+                            System.out.println("Total vocabulary words: "+ vocabList.size());
+                            break;
+                        case "index":
+                            index = buildIndex(corpus,s);
+                            break;
+                        default:
+                            search(query,corpus,index);
+                            System.out.println("Enter Document ID number to view contents or -1 to continue: ");
+                            int docID = scan.nextInt();
+                            scan.nextLine();
+                            openDocument(docID,corpus);
+                            break;
+                            }
+                    break;
+
+            }
             }//end while
         }
         //Move this to another class later on
@@ -165,6 +199,56 @@ public class Indexer {
             ArrayList<String> stemmedWord = new AdvancedTokenProcessor().processToken(word);
             return stemmedWord.get(0);
         }
+        //ranked query
+    public static PriorityQueue<Accumulator> userRankedQueryInput(DocumentCorpus corpus, Index index, String queryInput) {
+        double n = corpus.getCorpusSize();
+        List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
+        int counter = 0;
+        List<Posting> postings = new ArrayList<Posting>();
+        HashMap<Posting, Double> hm = new HashMap<>();
+        PriorityQueue<Accumulator> pq = new PriorityQueue<>(RANKED_RETURN);
+
+        String[] terms = queryInput.split(" ");
+        for (String term : terms) { // for each term in query
+            term = term.toLowerCase();
+            String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
+            termLiterals.add(new TermLiteral(stemmedTerm));
+
+            int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
+            double w_qt = Math.log(1 + n/df_t);  // calculate wqt = ln(1 + N/dft)
+            //not as accurate, but saves us from thousands of disk reads
+                postings = termLiterals.get(counter).getPostings(index);
+                counter++;
+                double tf_td = (double) index.getTermFrequency(stemmedTerm) / (double) postings.size();
+                for(Posting p : postings){ // for each document in postings list
+                    //Document d = corpus.getDocument(p.getDocumentId());//very slow
+                    //double tf_td = index.getTermDocumentFrequency(stemmedTerm, d.getId());//Horribly slow
+                    double w_dt = 1 + Math.log(tf_td);
+                    double a_d = (w_dt * w_qt);
+                    if (hm.get(p) != null) {
+                        hm.put(p, hm.get(p) + a_d);
+                    } else {
+                        hm.put(p, a_d);
+                    }
+                }
+            }
+
+        List<Accumulator> accumulators = new ArrayList<Accumulator>();
+        hm.forEach((key,value) -> accumulators.add(new Accumulator(key.getDocumentId(),value)));
+        for (Accumulator acc : accumulators){
+            // only retain the a certain amount of the top results
+            double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
+            acc.setA_d(value);
+            if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
+                if(pq.size() == RANKED_RETURN){
+                    pq.remove();
+                }
+                pq.add(acc);
+            }
+        }
+
+        return pq;
+    }
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) {
             PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();//create token processor
