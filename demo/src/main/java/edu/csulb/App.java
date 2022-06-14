@@ -49,7 +49,7 @@ public class App
         //path /search to differ from / post path
         Spark.post("/search", (request, response) -> {
             String query = request.queryParams("query");//get query from web
-            return indexer.webSearch(query, corpus, index); //do a web search this time with query from indexer
+            return indexer.webSearch(query, corpus, index,false); //do a web search this time with query from indexer
         });
         // posts document contents as a div
 

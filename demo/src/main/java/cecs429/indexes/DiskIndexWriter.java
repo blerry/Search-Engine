@@ -19,7 +19,7 @@ public class DiskIndexWriter {
     private void createIndexFolder(String indexLocation) {
 
         //create an index folder in the corpus
-        File directory = new File(indexLocation + "\\index");
+        File directory = new File(indexLocation + "/index");
         if (!directory.exists()) {
             directory.mkdirs();
         }
@@ -28,7 +28,7 @@ public class DiskIndexWriter {
 	public ArrayList<Long> writeIndex(Index index, String indexLocation) throws IOException {
         createIndexFolder(indexLocation); //create an index folder in the corpus
         //create B+ tree for terms and addresses
-        DB db = DBMaker.fileDB(indexLocation + "\\index\\index.db").make();
+        DB db = DBMaker.fileDB(indexLocation + "/index/index.db").make();
         BTreeMap<String, Long> map = db.treeMap("map")
                 .keySerializer(Serializer.STRING)
                 .valueSerializer(Serializer.LONG)
@@ -43,7 +43,7 @@ public class DiskIndexWriter {
 
         try (DataOutputStream dout = new DataOutputStream(
                 new BufferedOutputStream(
-                        new FileOutputStream(indexLocation+"\\index\\postings.bin")))) {
+                        new FileOutputStream(indexLocation+"/index/postings.bin")))) {
             for (int i = 0; i < words.size(); i++) {//iterate through vocabulary of index
                 map.put(words.get(i), (long)dout.size()); //store term and address in B+ tree
                 //get current position stored as address for term
@@ -96,7 +96,7 @@ public class DiskIndexWriter {
         //create docWeights.bin file to act as index on disk
         try (DataOutputStream dout = new DataOutputStream(
                 new BufferedOutputStream(
-                        new FileOutputStream(indexLocation + "\\index\\docWeights.bin")))) {
+                        new FileOutputStream(indexLocation + "/index/docWeights.bin")))) {
 
             for (Double documentWeight : documentWeights) {//iterate through every document weight in doc id order
 

@@ -22,10 +22,10 @@ public class DiskPositionalIndex implements Index{
         DB diskIndex = null;
         BTreeMap<String, Long> map = null;
         public DiskPositionalIndex(String dir) {
-            indexLocation = dir + "\\index";
+            indexLocation = dir + "/index";
             try {
                 //B+ Tree
-                diskIndex = DBMaker.fileDB(indexLocation + "\\index.db").make();
+                diskIndex = DBMaker.fileDB(indexLocation + "/index.db").make();
                 map = diskIndex.treeMap("map")
                     .keySerializer(Serializer.STRING)
                     .valueSerializer(Serializer.LONG)
@@ -41,7 +41,7 @@ public class DiskPositionalIndex implements Index{
 
         List<Posting> postings = new ArrayList<>();
 
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "\\postings.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
 
             raf.seek(address);//skip to the terms address
             int postingsSize = raf.readInt();//collect how many documents the term appears in
@@ -89,7 +89,7 @@ public class DiskPositionalIndex implements Index{
     }
     public double getDocumentWeight(int docId) {
 
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "\\docWeights.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/index/docWeights.bin", "r")) {
 
             raf.seek(docId * 8);//double needs 8-byte offset
             return raf.readDouble();
@@ -140,7 +140,7 @@ public class DiskPositionalIndex implements Index{
 
         int termFrequency = -1;
 
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "\\postings.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/index/postings.bin", "r")) {
 
             if (getKeyTermAddress(term) == -1) {
                 return termFrequency;
@@ -161,7 +161,7 @@ public class DiskPositionalIndex implements Index{
     public int getDocumentFrequencyOfTerm(String term) {
 
         int df_t = -1;
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "\\postings.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/index/postings.bin", "r")) {
 
             if (getKeyTermAddress(term) == -1) {
                 return df_t;

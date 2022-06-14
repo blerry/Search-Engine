@@ -28,7 +28,7 @@ public class Indexer {
     public static void main(String[] args) throws IOException {
         //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
         // /Users/berry/Desktop/CECS429/testCorpus
-        // /Users/berry/Desktop/cor
+        // /Users/berry/Desktop/CECS429/MobyDick10Chapters
         // Create a DocumentCorpus to load .txt documents from the project directory.
         Index index;
         /**************************************
@@ -62,9 +62,10 @@ public class Indexer {
                     //break;
                 case 2:
                     System.out.println("Enter corpus path: ");
-                    scan.nextLine();
+                    //2scan.nextLine();
                     String pathName = scan.nextLine();	
-                    System.out.println(Paths.get(pathName).toAbsolutePath());
+                   
+                    //System.out.println(Paths.get(pathName).toAbsolutePath());
                     DocumentCorpus corpusB = DirectoryCorpus.loadTextDirectory(Paths.get(pathName).toAbsolutePath());
                     corpusB.getDocuments();
                     DiskPositionalIndex d = new DiskPositionalIndex(pathName);
@@ -282,7 +283,7 @@ public class Indexer {
 
         return pq;
     }
-        public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) {
+        public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
             PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();//create token processor
             DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
