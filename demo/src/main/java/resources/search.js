@@ -12,10 +12,19 @@
                 specialQuerySearch(query);//function for it
             }
             else {
+                    if (document.getElementById("bool-search").checked == true){
                     $.post("/search", {query: query}, function(result){//post a regular search
                         $(result).prependTo($("#search-contents"));//append results
-                    });
+                        console.log(result);
+                     });
+                    }
+                    if (document.getElementById("ranked-search").checked == true) {
+                        $.post("/ranked-search", {query: query}, function(result){
+                            $(result).prependTo($("#search-contents"));
+                            console.log(result);
+                        });   
              
+                    }
             }
         })
     });

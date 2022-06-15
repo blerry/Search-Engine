@@ -184,8 +184,10 @@ public class Indexer {
                 }else{
                     PriorityQueue<Accumulator> pq;
                     pq = userRankedQueryInput(corpus, index, query);
-                int pqSize = pq.size();
+                    int pqSize = pq.size();
+                //System.out.println("psSize" + pq.size());
                 while(!pq.isEmpty()){
+                    //System.out.println("RUNS 2");
                     Accumulator currAcc = pq.poll();
                     String title = corpus.getDocument(currAcc.getDocId()).getTitle();
                     int docId = currAcc.getDocId() + 1;
@@ -210,7 +212,7 @@ public class Indexer {
                         postingsRows.toString() +
                         "</table>";
 
-                    return "";
+                    return result;
                 }
         }
         //Boolean search

@@ -46,19 +46,29 @@ public class App
             long totalTime = endTime - startTime;//Timer
             return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
         });
+        Spark.post("/", (request, response) -> {//same / path
+            dir = request.queryParams("directory"); //value from post
+            System.out.println(dir); 
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
+            long startTime = System.nanoTime();
+            index = Indexer.indexDiskCorpus(corpus,dir); //index the corpus with method
+            long endTime = System.nanoTime(); 
+            long totalTime = endTime - startTime;//Timer
+            return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
+        });
         //path /search to differ from / post path
         Spark.post("/search", (request, response) -> {
             String query = request.queryParams("query");//get query from web
-            return indexer.webSearch(query, corpus, index,false); //do a web search this time with query from indexer
+            return indexer.webSearch(query, corpus, index,true); //do a web search this time with query from indexer
         });
         // post ranked query values based on query inputs from client (outputs as html table)
 
         Spark.post("/ranked-search", (request, response) -> {
-
-            String query = request.queryParams("queryValue");
-
+            String query = request.queryParams("query");
+            //String thestring = 
             return indexer.webSearch(query,corpus, index, false);
-
+            //System.out.println(thestring);
+            //return thestring;
         });
         // posts document contents as a div
 
