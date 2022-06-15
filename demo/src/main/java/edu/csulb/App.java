@@ -26,7 +26,7 @@ public class App
     private static Index index = null;
     private static String dir = "";
     private static DocumentCorpus corpus = null;
-
+    private static DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
     public static void main( String[] args )
     {
         Spark.port(4000); //http://localhost:4000/
@@ -50,6 +50,15 @@ public class App
         Spark.post("/search", (request, response) -> {
             String query = request.queryParams("query");//get query from web
             return indexer.webSearch(query, corpus, index,false); //do a web search this time with query from indexer
+        });
+        // post ranked query values based on query inputs from client (outputs as html table)
+
+        Spark.post("/ranked-search", (request, response) -> {
+
+            String query = request.queryParams("queryValue");
+
+            return indexer.webSearch(query,corpus, index, false);
+
         });
         // posts document contents as a div
 
@@ -109,4 +118,31 @@ public class App
             }
         });
     }
+    private static long timeToBuildIndex(String dir, boolean isDiskIndex) throws IOException {
+
+        System.out.println("Starting to build index...");
+        //measure how long it takes to build the index
+        long startTime = System.nanoTime();
+
+        if (isDiskIndex) {//create index from disk
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
+            index = indexer.buildDiskPositionalIndex(dir);//builds positional index 
+        } else {//create in memory index
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
+            index = Indexer.indexCorpus(corpus); //index the corpus with method
+            diskIndexWriter.writeIndex(index, dir);//calls the writer of index to disk
+        }
+
+       // long stopTime = System.nanoTime();
+        long endTime = System.nanoTime(); 
+        long totalTime = endTime - startTime;//Timer
+        //double indexSeconds = (double)(stopTime - startTime) / 1_000_000_000.0;
+        System.out.println("Done!\n");
+        System.out.println("Time to build index: " + totalTime/1000000000 + " seconds");
+        
+        return totalTime;
+
+    }
+
 }
+

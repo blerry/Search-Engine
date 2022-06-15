@@ -18,6 +18,7 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -133,7 +134,7 @@ public class Indexer {
 								    return;
 							        }
                                     PriorityQueue<Accumulator> res = userRankedQueryInput(corpusR,d2,pathNameR);
-                                    System.out.println(res);
+                                    System.out.println(Arrays.toString(res.toArray()));
 							    //List<RankedDocument> topKDocs = new ArrayList<RankedDocument>();
 							    //topKDocs = r.RankedRetrieval(query, new AdvancedTokenProcessor());
 							    //for(RankedDocument rd : topKDocs) {
@@ -425,6 +426,9 @@ public class Indexer {
             }
             System.out.println("Number of Documents: " + docCount);
             return index;
+        }
+        public DiskPositionalIndex buildDiskPositionalIndex(String dir) {
+            return new DiskPositionalIndex(dir);
         }
     }
     
