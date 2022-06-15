@@ -24,7 +24,7 @@ import java.util.PriorityQueue;
 import java.util.Scanner;
     
 public class Indexer {
-    private static final int RANKED_RETURN = 50;
+    private static final int RANKED_RETURN = 10;//change
     public static void main(String[] args) throws IOException {
         //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
         // /Users/berry/Desktop/CECS429/testCorpus
@@ -61,32 +61,35 @@ public class Indexer {
 					return;
                     //break;
                 case 2:
-                    System.out.println("Enter corpus path: ");
-                    //2scan.nextLine();
-                    String pathName = scan.nextLine();	
-                   
-                    //System.out.println(Paths.get(pathName).toAbsolutePath());
-                    DocumentCorpus corpusB = DirectoryCorpus.loadTextDirectory(Paths.get(pathName).toAbsolutePath());
-                    corpusB.getDocuments();
-                    DiskPositionalIndex d = new DiskPositionalIndex(pathName);
-                    while (true) {
-                        System.out.println("Enter search query: ");
-                        String query = "whale"; // hard-coded search for "whale"
-                        query = scan.nextLine();
-                    switch(query){
-                        case "q":
-                            System.out.println("Shut down...");
-                            scan.close();
-                            return;//end program 
-                        case "stem":
-                            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
-                            System.out.print("Enter word:");
-                            //ArrayList<String> word = processor.processToken(scan.next());
-                            System.out.print(processor.processToken(scan.next()));
-                            //System.out.println(word.get(1));
-                            System.out.println();
-                            scan.nextLine();
-                            break;
+                    System.out.println("1.Boolean Retrieval\n2.Ranked Retrieval");
+                    userInput = scan.nextInt();
+                    //scan.nextLine();
+                    switch(userInput) { 
+                        case 1:
+                            System.out.println("Enter corpus path: ");
+                            String pathName = scan.nextLine();	
+                            //System.out.println(Paths.get(pathName).toAbsolutePath());
+                            DocumentCorpus corpusB = DirectoryCorpus.loadTextDirectory(Paths.get(pathName).toAbsolutePath());
+                            corpusB.getDocuments();
+                            DiskPositionalIndex d = new DiskPositionalIndex(pathName);
+                            while (true) {
+                                System.out.println("Enter search query: ");
+                                String query = "whale"; // hard-coded search for "whale"
+                                query = scan.nextLine();
+                                switch(query){
+                                case "q":
+                                    System.out.println("Shut down...");
+                                    scan.close();
+                                    return;//end program 
+                                case "stem":
+                                    AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
+                                    System.out.print("Enter word:");
+                                    //ArrayList<String> word = processor.processToken(scan.next());
+                                    System.out.print(processor.processToken(scan.next()));
+                                    //System.out.println(word.get(1));
+                                    System.out.println();
+                                    scan.nextLine();
+                                    break;
                         case "vocab":
                             List<String> vocabList = d.getVocabulary(); //make a temp vocab list from vocab
                             if(vocabList.size() >= 1000){ //check if vocab has at least 1000 words
@@ -112,12 +115,35 @@ public class Indexer {
                             openDocument(docID,corpusB);
                             break;
                             }
-                    break;
+                    //break;
+
+                             }//end while
+                             case 2:
+						        System.out.println("Enter corpus path: ");
+						        scan.nextLine();
+						        String pathNameR = scan.nextLine();	
+						        System.out.println(Paths.get(pathNameR).toAbsolutePath());
+						        DocumentCorpus corpusR = DirectoryCorpus.loadTextDirectory(Paths.get(pathNameR).toAbsolutePath());
+						        corpusR.getDocuments();
+						        DiskPositionalIndex d2 = new DiskPositionalIndex(pathNameR);
+						        while(true) {
+							        System.out.println("Enter search query: ");
+							        String query = scan.nextLine();
+							        if(query.equals("q")) {
+								    return;
+							        }
+                                    PriorityQueue<Accumulator> res = userRankedQueryInput(corpusR,d2,pathNameR);
+                                    System.out.println(res);
+							    //List<RankedDocument> topKDocs = new ArrayList<RankedDocument>();
+							    //topKDocs = r.RankedRetrieval(query, new AdvancedTokenProcessor());
+							    //for(RankedDocument rd : topKDocs) {
+								    //System.out.println("DocID " + rd.getDocID() +": " + "(" + corpusR.getDocument(rd.getDocID()).getTitle() + ")"+ " -- " + rd.getAcc());
+							}
+						}
+                     }
 
             }
-            }//end while
         }
-    }
         //Move this to another class later on
         public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery){
             StringBuilder postingsRows = new StringBuilder();
@@ -208,6 +234,10 @@ public class Indexer {
                     System.out.println(str); //display
                     bufferedReader.close(); //close reader
                     //break;
+                }
+                else{
+                    System.out.println("Bad Input");
+                    return;
                 }
             //return query;
         }

@@ -89,7 +89,7 @@ public class DiskPositionalIndex implements Index{
     }
     public double getDocumentWeight(int docId) {
 
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/index/docWeights.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/docWeights.bin", "r")) {
 
             raf.seek(docId * 8);//double needs 8-byte offset
             return raf.readDouble();
@@ -140,7 +140,7 @@ public class DiskPositionalIndex implements Index{
 
         int termFrequency = -1;
 
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/index/postings.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
 
             if (getKeyTermAddress(term) == -1) {
                 return termFrequency;
@@ -161,7 +161,7 @@ public class DiskPositionalIndex implements Index{
     public int getDocumentFrequencyOfTerm(String term) {
 
         int df_t = -1;
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/index/postings.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
 
             if (getKeyTermAddress(term) == -1) {
                 return df_t;
