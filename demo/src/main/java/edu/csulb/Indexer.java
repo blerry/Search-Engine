@@ -18,7 +18,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
@@ -133,8 +132,16 @@ public class Indexer {
 							        if(query.equals("q")) {
 								    return;
 							        }
-                                    PriorityQueue<Accumulator> res = userRankedQueryInput(corpusR,d2,pathNameR);
-                                    System.out.println(Arrays.toString(res.toArray()));
+                                    PriorityQueue<Accumulator> res = userRankedQueryInput(corpusR,d2,query);
+                                    int resSize = res.size();
+                                    while(!res.isEmpty()){
+                                        Accumulator currAcc = res.poll();
+                                        String title = corpusR.getDocument(currAcc.getDocId()).getTitle();
+                                        int docId = currAcc.getDocId() + 1;
+                                        docId--;
+                                        double value = currAcc.getA_d();
+                                        System.out.println("Title: " + title.toString()+ "Doc ID: " + docId+ "Value: "+ value);
+                                    }
 							    //List<RankedDocument> topKDocs = new ArrayList<RankedDocument>();
 							    //topKDocs = r.RankedRetrieval(query, new AdvancedTokenProcessor());
 							    //for(RankedDocument rd : topKDocs) {
@@ -266,6 +273,7 @@ public class Indexer {
         }
         //ranked query
     public static PriorityQueue<Accumulator> userRankedQueryInput(DocumentCorpus corpus, Index index, String queryInput) {
+        System.out.println("RUNS");
         double n = corpus.getCorpusSize();
         List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
         int counter = 0;
@@ -337,7 +345,7 @@ public class Indexer {
                 int wordPosition = 1;//maintain the position of the word throughout the document
                 // Iterate through the tokens in the document, processing them using a BasicTokenProcessor,
                 for (String token : tokens) {
-
+                    //System.out.println(tokens);/////////
                     List<String> words = processor.processToken(token);//convert a token to indexable terms
                     for (int i = 0; i < words.size(); i++) {//iterate through all unstemmed tokens
                         words.set(i, AdvancedTokenProcessor.stemToken(words.get(i)));
@@ -351,6 +359,7 @@ public class Indexer {
                 index.addTerm(words, docs.getId(), wordPosition);//add word data to index
                 wordPosition++;//increment word position
                 totalTerms = words.size();
+                System.out.println(totalTerms);
             }
 
             /* Determine popular terms */
