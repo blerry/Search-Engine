@@ -16,6 +16,8 @@ import cecs429.text.EnglishTokenStream;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -63,15 +65,17 @@ public class Indexer {
                 case 2:
                     System.out.println("1.Boolean Retrieval\n2.Ranked Retrieval");
                     userInput = scan.nextInt();
-                    //scan.nextLine();
+                    scan.nextLine();
                     switch(userInput) { 
                         case 1:
                             System.out.println("Enter corpus path: ");
-                            String pathName = scan.nextLine();	
+                            String pathName = scan.nextLine();
+                            //scan.nextLine();	
                             //System.out.println(Paths.get(pathName).toAbsolutePath());
                             DocumentCorpus corpusB = DirectoryCorpus.loadTextDirectory(Paths.get(pathName).toAbsolutePath());
                             corpusB.getDocuments();
-                            DiskPositionalIndex d = new DiskPositionalIndex(pathName);
+                            DiskPositionalIndex dIndex = new DiskPositionalIndex(pathName);
+
                             while (true) {
                                 System.out.println("Enter search query: ");
                                 String query = "whale"; // hard-coded search for "whale"
@@ -91,7 +95,7 @@ public class Indexer {
                                     scan.nextLine();
                                     break;
                         case "vocab":
-                            List<String> vocabList = d.getVocabulary(); //make a temp vocab list from vocab
+                            List<String> vocabList = dIndex.getVocabulary(); //make a temp vocab list from vocab
                             if(vocabList.size() >= 1000){ //check if vocab has at least 1000 words
                                 for(int i = 0; i< 1000; i++){
                                     System.out.println(vocabList.get(i)); //output the list
@@ -108,7 +112,7 @@ public class Indexer {
                             index = buildIndex(corpusB,pathName);
                             break;
                         default:
-                            search(query,corpusB,d);
+                            search(query,corpusB,dIndex);
                             System.out.println("Enter Document ID number to view contents or -1 to continue: ");
                             int docID = scan.nextInt();
                             scan.nextLine();
@@ -120,15 +124,18 @@ public class Indexer {
                              }//end while
                              case 2:
 						        System.out.println("Enter corpus path: ");
-						        scan.nextLine();
-						        String pathNameR = scan.nextLine();	
+						        //scan.nextLine();
+						        //String pathNameR = scan.nextLine();	
+                                String pathNameR = "/Users/berry/Desktop/CECS429/MobyDick10Chapters";//REMOVE 154
+
 						        System.out.println(Paths.get(pathNameR).toAbsolutePath());
 						        DocumentCorpus corpusR = DirectoryCorpus.loadTextDirectory(Paths.get(pathNameR).toAbsolutePath());
 						        corpusR.getDocuments();
 						        DiskPositionalIndex d2 = new DiskPositionalIndex(pathNameR);
 						        while(true) {
 							        System.out.println("Enter search query: ");
-							        String query = scan.nextLine();
+							        //String query = scan.nextLine();
+                                    String query = "whale";
 							        if(query.equals("q")) {
 								    return;
 							        }
@@ -140,8 +147,11 @@ public class Indexer {
                                         int docId = currAcc.getDocId() + 1;
                                         docId--;
                                         double value = currAcc.getA_d();
-                                        System.out.println("Title: " + title.toString()+ "Doc ID: " + docId+ "Value: "+ value);
+                                        System.out.println("Title: " + title.toString()+ " Doc ID: " + docId+ " Value: "+ value);
+                                        
                                     }
+                                    /////////////////////////////////////////
+                                    return;//REMOVE
 							    //List<RankedDocument> topKDocs = new ArrayList<RankedDocument>();
 							    //topKDocs = r.RankedRetrieval(query, new AdvancedTokenProcessor());
 							    //for(RankedDocument rd : topKDocs) {
@@ -157,17 +167,25 @@ public class Indexer {
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
             System.out.println("Starting Query...");
+            String[] terms = query.split(" ");
+            int docCount = 0;
             if (isBooleanQuery) {//process a boolean query
                 List<Posting> postings = search(query, corpus, index);//Run Boolean Search
+                for(String term:terms){
+                    term = term.toLowerCase();
+                    List<Posting> tempPostingList = index.getPostingsPositions(term);
+                    //postings.get(docCount).getPostions()
+                
             for (Posting post : postings) {//include document titles for each returned posting
                     String title = corpus.getDocument(post.getDocumentId()).getTitle();
                     String row = "    <tr>\n" +
                                 "        <td>"+post.getDocumentId()+"</td>\n" +
                                 "        <td><button id=\"" + post.getDocumentId() + "\" onClick=\"docClicked(this.id)\" >"+title+"</button></td>\n" +
-                                "        <td>"+post.getPostions()+"</td>\n" +
+                                "        <td>"+tempPostingList.get(docCount).getPostions()+"</td>\n" +
                                 "    </tr>\n";
                         postingsRows.append(row);
-
+                        docCount++;
+                    }
                 }
                 result = "<div><b>Query: </b>" + query +
                         "<div>Total Documents: " + postings.size() + "</div></div></br>" +
@@ -175,17 +193,17 @@ public class Indexer {
                         "    <tr>\n" +
                         "        <th>Document ID</th>\n" +
                         "        <th>Document Title</th>\n" +
-                        "        <th>Positions</th>\n" +
+                        "        <th>Positions</th>\n" + 
                         "    </tr>\n" +
                         postingsRows.toString() +
                         "</table>";
                 return result;
-
                 }else{
                     PriorityQueue<Accumulator> pq;
                     pq = userRankedQueryInput(corpus, index, query);
                     int pqSize = pq.size();
                 //System.out.println("psSize" + pq.size());
+
                 while(!pq.isEmpty()){
                     //System.out.println("RUNS 2");
                     Accumulator currAcc = pq.poll();
@@ -193,6 +211,13 @@ public class Indexer {
                     int docId = currAcc.getDocId() + 1;
                     docId--;
                     double value = currAcc.getA_d();
+                    System.out.println("Value" + value);
+                    //BigDecimal sValue = new BigDecimal(value);
+                    //MathContext m = new MathContext(5);
+                    //sValue.round(m);
+                    //System.out.println("New Value "+ sValue);
+
+                    System.out.println(value);
                     String row = "    <tr>\n" +
                             "        <td>"+docId+"</td>\n" +
                             "        <td><button id=\"" + docId + "\" onClick=\"docClicked(this.id)\" >"+title+"</button></td>\n" +
@@ -219,14 +244,22 @@ public class Indexer {
         public static List<Posting> search(String query,DocumentCorpus corpus, Index index){
             BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
             List<Posting> postings = parser.parseQuery(query).getPostings(index);
-                int docCount = 0; //doc counter
+            //List<Posting> postingPositions = new ArrayList<Posting>();
+            String[] terms = query.split(" ");  
+            //int boolCounter = 0;
+            int docCount = 0; //doc counter
+            for (String term : terms) { // for each term in query
+                term = term.toLowerCase();
+                List<Posting> tempPostingList = index.getPostingsPositions(term);
                 //get the postings of the query after parsing  using index
                 for(Posting p: postings){
                     System.out.println(p.getDocumentId() + ". " + corpus.getDocument(p.getDocumentId()).getTitle());
+                    System.out.println(tempPostingList.get(docCount).getPostions());//print positions
                     docCount++;
-                    System.out.println(p.getPostions());
                 }
-                System.out.println("Number of Documents: " + docCount);
+            //boolCounter++;
+            }
+            System.out.println("Number of Documents: " + docCount);
                 return postings;
             }
         public static void openDocument(int docID, DocumentCorpus corpus) throws IOException{
@@ -290,15 +323,14 @@ public class Indexer {
             termLiterals.add(new TermLiteral(stemmedTerm));
 
             int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
-            double w_qt = Math.log(1 + n/df_t);  // calculate wqt = ln(1 + N/dft)
+            double w_qt = Math.log(1 + (n/df_t));  // calculate wqt = ln(1 + N/dft)
             //not as accurate, but saves us from thousands of disk reads
                 postings = termLiterals.get(counter).getPostings(index);
                 counter++;
                 double tf_td = (double) index.getTermFrequency(stemmedTerm) / (double) postings.size();
                 for(Posting p : postings){ // for each document in postings list
-                    //Document d = corpus.getDocument(p.getDocumentId());//very slow
-                    //double tf_td = index.getTermDocumentFrequency(stemmedTerm, d.getId());//Horribly slow
                     double w_dt = 1 + Math.log(tf_td);
+                    //print do not truncate
                     double a_d = (w_dt * w_qt);
                     if (hm.get(p) != null) {
                         hm.put(p, hm.get(p) + a_d);
@@ -309,7 +341,11 @@ public class Indexer {
             }
 
         List<Accumulator> accumulators = new ArrayList<Accumulator>();
-        hm.forEach((key,value) -> accumulators.add(new Accumulator(key.getDocumentId(),value)));
+        hm.forEach((key,value) -> 
+                                    //{if(!accumulators.contains(accumulators))){
+                                    accumulators.add(new Accumulator(key.getDocumentId(),value)));
+                                        
+                                    //});
         for (Accumulator acc : accumulators){
             // only retain the a certain amount of the top results
             double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
@@ -331,15 +367,10 @@ public class Indexer {
             ArrayList<Double> documentWeight = new ArrayList<>();
             // Get all the documents in the corpus by calling GetDocuments().
             Iterable<Document> documents = corpus.getDocuments();
-            HashMap<String, Integer> mostPopularTerms = new HashMap<>();
-            int currentDoc = 0;
-            String[] vectorTerms = {"flow", "on", "at", "by", "that", "pressur", "an", "be", "number", "boundari", "layer", "from", "as", "result", "this", "it", "effect", "which", "method", "theori", "bodi", "solut", "heat", "wing", "mach", "equat", "shock", "use", "present", "was", "surfac", "distribut", "obtain", "two", "temperatur", "ratio", "been", "problem", "were", "veloc", "approxim", "calcul", "case", "have", "test", "plate", "investig", "given", "condit", "speed", "these", "valu", "transfer", "wave", "or", "has", "angl", "experiment", "superson", "jet", "made", "cylind", "edg", "rang", "measur", "laminar", "found", "load", "can", "stream", "lift", "determin", "coeffici", "analysi", "over", "increas", "general", "reynold", "wall", "free", "base", "high", "point", "turbul", "dimension", "also", "between", "some", "hyperson", "stress", "shown", "than", "buckl", "separ"};
-            double[][] termVectorSpace = new double[corpus.getCorpusSize()][vectorTerms.length];
-
+            
             for (Document docs : documents) {//iterate through every valid document found in the corpus
-                currentDoc = docs.getId();
                 int totalTerms = 0;
-                double[] docVector = new double[vectorTerms.length];
+    
                 HashMap<String, Integer> termFrequency = new HashMap<>();//term frequency of every term in a document
                 // Tokenize the document's content by constructing an EnglishTokenStream around the document's content.
                 EnglishTokenStream stream = new EnglishTokenStream(docs.getContent());
@@ -347,7 +378,6 @@ public class Indexer {
                 int wordPosition = 1;//maintain the position of the word throughout the document
                 // Iterate through the tokens in the document, processing them using a BasicTokenProcessor,
                 for (String token : tokens) {
-                    //System.out.println(tokens);/////////
                     List<String> words = processor.processToken(token);//convert a token to indexable terms
                     for (int i = 0; i < words.size(); i++) {//iterate through all unstemmed tokens
                         words.set(i, AdvancedTokenProcessor.stemToken(words.get(i)));
@@ -364,36 +394,14 @@ public class Indexer {
                 System.out.println(totalTerms);
             }
 
-            /* Determine popular terms */
-            int finalTotalTerms = totalTerms;
-            termFrequency.forEach((key, value) -> {
-
-                for (int j = 0; j < vectorTerms.length; j++) {
-                    if (key.equals(vectorTerms[j])) {
-                        docVector[j] = (double) value / finalTotalTerms;
-                    }
-                }
-
-                if (mostPopularTerms.containsKey(key)) {
-                    int prevFrequency = mostPopularTerms.get(key);
-                    mostPopularTerms.put(key, prevFrequency + value);
-                } else {
-                    mostPopularTerms.put(key, 1);
-                }
-
-            });
-
-            for (int j = 0; j < docVector.length; j++) {
-                termVectorSpace[currentDoc][j] = docVector[j];
-            }
-
+            
             /* */
 
             double sumTermWeights = 0;//sum of term weights
             ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
 
             for (int i = 0; i < tf_d.size(); i++) {//iterate through all term frequencies
-                double w_dt = 1 + Math.log(tf_d.get(i));//weight of specific term in a document
+                double w_dt = 1 + Math.log((double)tf_d.get(i));//weight of specific term in a document
                 w_dt = Math.pow(w_dt, 2);
                 sumTermWeights += w_dt;//summation of w_dt^2
             }

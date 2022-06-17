@@ -23,7 +23,8 @@ import static java.util.stream.Collectors.joining;
 public class App 
 {
     private static Indexer indexer = new Indexer();
-    private static Index index = null;
+    //private static Index index = null;
+    private static DiskPositionalIndex index = null;
     private static String dir = "";
     private static DocumentCorpus corpus = null;
     private static DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
@@ -36,6 +37,7 @@ public class App
             return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));//get index.html
         });
         // posting the directory from web to index
+        /* 
         Spark.post("/", (request, response) -> {//same / path
             dir = request.queryParams("directory"); //value from post
             System.out.println(dir); 
@@ -46,12 +48,15 @@ public class App
             long totalTime = endTime - startTime;//Timer
             return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
         });
+        */
         Spark.post("/", (request, response) -> {//same / path
             dir = request.queryParams("directory"); //value from post
             System.out.println(dir); 
             corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
             long startTime = System.nanoTime();
-            index = Indexer.indexDiskCorpus(corpus,dir); //index the corpus with method
+            //index = Indexer.indexDiskCorpus(corpus,dir); //index the corpus with method
+            corpus.getDocuments();
+            index = new DiskPositionalIndex(dir);
             long endTime = System.nanoTime(); 
             long totalTime = endTime - startTime;//Timer
             return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
@@ -111,7 +116,7 @@ public class App
                 dir = squery.substring(7);
                 corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
                 long startTime = System.nanoTime();
-                index = Indexer.indexCorpus(corpus);
+                //index = DiskPositionalIndex.writeIndex();
                 long endTime = System.nanoTime();
                 long totalTime = endTime - startTime;//Timer
                 return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ totalTime +  " seconds</div>";
@@ -139,7 +144,8 @@ public class App
             index = indexer.buildDiskPositionalIndex(dir);//builds positional index 
         } else {//create in memory index
             corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
-            index = Indexer.indexCorpus(corpus); //index the corpus with method
+            index = new DiskPositionalIndex(dir);
+            //index = Indexer.indexCorpus(corpus); //index the corpus with method
             diskIndexWriter.writeIndex(index, dir);//calls the writer of index to disk
         }
 
