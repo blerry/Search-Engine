@@ -1,5 +1,6 @@
 package edu.csulb;
 
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.List;
@@ -106,7 +107,7 @@ public class Tester {
                             System.out.println("Enter Document ID number to view contents or -1 to continue: ");
                             int docID = scan.nextInt();
                             scan.nextLine();
-                            Indexer.openDocument(docID,corpusB);
+                            openDocument(docID,corpusB);
                             break;
                             }
                     //break;
@@ -115,17 +116,19 @@ public class Tester {
                              case 2:
 						        System.out.println("Enter corpus path: ");
 						        //scan.nextLine();
-						        //String pathNameR = scan.nextLine();	
-                                String pathNameR = "/Users/berry/Desktop/CECS429/MobyDick10Chapters";//REMOVE 154
-
+						        String pathNameR = scan.nextLine();	
+                                //String pathNameR = "/Users/berry/Desktop/CECS429/MobyDick10Chapters";//REMOVE 154
+                                //String pathNameR = "/Users/berry/Desktop/CECS429/all-nps-sites-extracted";
 						        System.out.println(Paths.get(pathNameR).toAbsolutePath());
 						        DocumentCorpus corpusR = DirectoryCorpus.loadTextDirectory(Paths.get(pathNameR).toAbsolutePath());
 						        corpusR.getDocuments();
 						        DiskPositionalIndex d2 = new DiskPositionalIndex(pathNameR);
 						        while(true) {
 							        System.out.println("Enter search query: ");
-							        //String query = scan.nextLine();
-                                    String query = "whale";
+							        String query = scan.nextLine();
+                                    //2String query = "whale";
+                                    //String query = "whale";
+                                    //String query = "camping in yosemite";
 							        if(query.equals("q")) {
 								    return;
 							        }
@@ -152,4 +155,26 @@ public class Tester {
 
             }
         }
+        public static void openDocument(int docID, DocumentCorpus corpus) throws IOException{
+            //Get document contents the user wants
+            if(docID>=0){
+                //Get contents of Document user asked for
+                BufferedReader bufferedReader = new BufferedReader(corpus.getDocument(docID).getContent());
+                StringBuilder stringBuilder = new StringBuilder();
+                String line;
+                //use bufferedReader to read each single character in line
+                while ((line = bufferedReader.readLine()) != null) {
+                    stringBuilder.append(line); //building the string
+                }
+                String str = stringBuilder.toString(); //the string results
+                System.out.println(str); //display
+                bufferedReader.close(); //close reader
+                //break;
+            }
+            else{
+                System.out.println("Bad Input");
+                return;
+            }
+        //return query;
+    }
 }

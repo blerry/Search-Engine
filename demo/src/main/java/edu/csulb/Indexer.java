@@ -127,28 +127,7 @@ public class Indexer {
             System.out.println("Number of Documents: " + docCount);
                 return postings;
             }
-        public static void openDocument(int docID, DocumentCorpus corpus) throws IOException{
-                //Get document contents the user wants
-                if(docID>=0){
-                    //Get contents of Document user asked for
-                    BufferedReader bufferedReader = new BufferedReader(corpus.getDocument(docID).getContent());
-                    StringBuilder stringBuilder = new StringBuilder();
-                    String line;
-                    //use bufferedReader to read each single character in line
-					while ((line = bufferedReader.readLine()) != null) {
-						stringBuilder.append(line); //building the string
-					}
-                    String str = stringBuilder.toString(); //the string results
-                    System.out.println(str); //display
-                    bufferedReader.close(); //close reader
-                    //break;
-                }
-                else{
-                    System.out.println("Bad Input");
-                    return;
-                }
-            //return query;
-        }
+    
         public static Index buildIndex(DocumentCorpus corpus, String path){
             DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
 
@@ -188,15 +167,20 @@ public class Indexer {
             termLiterals.add(new TermLiteral(stemmedTerm));
 
             int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
-            double w_qt = Math.log(1 + (n/df_t));  // calculate wqt = ln(1 + N/dft)
-            //not as accurate, but saves us from thousands of disk reads
+            double w_qt = Math.log(1.0 + (n/((double)df_t)));  // calcul;ate wqt = ln(1 + N/dft)
+            System.out.println("w_qt = " + n + "/ "+ df_t);
+;           //not as accurate, but saves us from thousands of disk reads
                 postings = termLiterals.get(counter).getPostings(index);
                 counter++;
-                double tf_td = (double) index.getTermFrequency(stemmedTerm) / (double) postings.size();
+                //System.out.print("tf "+((double) index.getTermFrequency(stemmedTerm)) +"/" +"posting size "+ ((double) postings.size()));
+                double tf_td = ((double) index.getTermFrequency(stemmedTerm)) / ((double) postings.size());
                 for(Posting p : postings){ // for each document in postings list
-                    double w_dt = 1 + Math.log(tf_td);
+                    System.out.println("tf_td" +tf_td);
+                    double w_dt = 1.0 + Math.log(tf_td);
                     //print do not truncate
+                    
                     double a_d = (w_dt * w_qt);
+                    System.out.println("Ad = " + a_d +"Wdt " + w_dt+ " x "+ " Wqt " + w_qt );
                     if (hm.get(p) != null) {
                         hm.put(p, hm.get(p) + a_d);
                     } else {
@@ -213,6 +197,7 @@ public class Indexer {
                                     //});
         for (Accumulator acc : accumulators){
             // only retain the a certain amount of the top results
+            System.out.println("Score = "+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
             double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
             acc.setA_d(value);
             if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
@@ -256,7 +241,7 @@ public class Indexer {
                 index.addTerm(words, docs.getId(), wordPosition);//add word data to index
                 wordPosition++;//increment word position
                 totalTerms = words.size();
-                System.out.println(totalTerms);
+                //System.out.println(totalTerms);
             }
 
             
@@ -264,14 +249,16 @@ public class Indexer {
 
             double sumTermWeights = 0;//sum of term weights
             ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
-
+            //System.out.println("tf_d"+tf_d);
             for (int i = 0; i < tf_d.size(); i++) {//iterate through all term frequencies
-                double w_dt = 1 + Math.log((double)tf_d.get(i));//weight of specific term in a document
+                double w_dt = 1.0 + Math.log((double)tf_d.get(i));//weight of specific term in a document
                 w_dt = Math.pow(w_dt, 2);
                 sumTermWeights += w_dt;//summation of w_dt^2
+                //System.out.println("sumTermWeights sqrt " + sumTermWeights);
             }
             //do math to get L_d
             double l_d = Math.sqrt(sumTermWeights);//square root normalized w_dt's
+
             documentWeight.add(l_d);
 
         }

@@ -6,7 +6,7 @@ import edu.csulb.Indexer;
 /**
  * Unit test for simple App.
  */
-public class TestIndexer 
+public class TestIndex 
 {
     /**
      * Rigorous Test :-)

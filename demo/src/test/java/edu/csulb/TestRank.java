@@ -1,5 +1,5 @@
 package edu.csulb;
 
-public class TestDisk {
+public class TestRank {
     
 }
