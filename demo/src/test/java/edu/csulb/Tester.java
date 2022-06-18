@@ -15,7 +15,7 @@ import cecs429.indexes.Index;
 import cecs429.queries.Accumulator;
 import cecs429.text.AdvancedTokenProcessor;
 
-import edu.csulb.Indexer;
+import cecs429.indexes.Indexer;
 
 public class Tester {
     public static void main(String[] args) throws IOException {

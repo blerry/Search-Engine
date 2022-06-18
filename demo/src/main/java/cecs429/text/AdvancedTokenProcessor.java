@@ -9,64 +9,6 @@ public class AdvancedTokenProcessor implements TokenProcessor{
     
     @Override
     public ArrayList<String> processToken(String token){
-        int beginIndex = 0;
-        int endIndex = 0;
-        String currentToken;
-        String stringArray[];//a hyphenated word will return multiple term
-        ArrayList<String> result = new ArrayList<String>();//every term derived from the token
-
-        //disqualify beginning characters that are not alphanumeric
-        for (int i = 0; i < token.length(); i++) {
-            if (isAlphanumeric(token.charAt(i))) {
-                beginIndex = i;
-                break;
-            }
-        }
-
-        //disqualify ending characters that are not alphanumeric
-        for (int i = token.length()-1; i >= 0; i--) {
-            if (isAlphanumeric(token.charAt(i))) {
-                endIndex = i;
-                break;
-            }
-        }
-
-        //remove excess characters
-        currentToken = token.substring(beginIndex, endIndex+1);
-
-        // Remove all apostrophes or quotation marks (single or double) from anywhere in the string
-//        currentToken = currentToken.replaceAll("\'","");
-//        currentToken = currentToken.replaceAll("\"","");
-        char singleQuote = '\'';
-        char doubleQuote = '\"';
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < currentToken.length(); i++) {
-            char c = currentToken.charAt(i);
-            if (c != singleQuote && c != doubleQuote) {
-                sb.append(c);
-            }
-
-        }
-        currentToken = sb.toString();
-
-        //DONE: remove hyphens from tokens
-        // Remove hyphens and split up the original hyphenated token into multiple tokens (returns combined, and separated strings)
-        stringArray = currentToken.split("-",-1);
-
-        // Convert token to lowercase and add to result array
-        if (stringArray.length > 1) {//multiple tokens found
-            StringBuilder combinedToken = new StringBuilder();//combination of all subtokens into one
-            for(int i = 0; i < stringArray.length;i++){//iterate through all subtokens separately
-                combinedToken.append(stringArray[i]);//add to combo token
-                result.add(stringArray[i].toLowerCase());//add individual token to result
-            }
-            result.add(combinedToken.toString());//add combo token to result
-        } else {//single token found
-            result.add(stringArray[0].toLowerCase());//add individual token to result
-        }
-
-        return result;
-        /* 
         englishStemmer stemmer = new englishStemmer();
         ArrayList<String> list = new ArrayList<String>();
         token = token.replaceAll("^\\W+|\\W+$", ""); //start-end delete non-alphanum characters
@@ -90,7 +32,7 @@ public class AdvancedTokenProcessor implements TokenProcessor{
             list.set(i,list.get(i)); //update
         }
         return list;
-        */
+        
     }
     /**
      * stem a single token using the Porter2stemmer method

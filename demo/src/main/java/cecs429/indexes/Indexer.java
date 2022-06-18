@@ -1,29 +1,24 @@
-package edu.csulb;
+package cecs429.indexes;
 
-import cecs429.documents.DirectoryCorpus;
+
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
-import cecs429.indexes.DiskIndexWriter;
-import cecs429.indexes.DiskPositionalIndex;
-import cecs429.indexes.Index;
-import cecs429.indexes.PositionalInvertedIndex;
-import cecs429.indexes.Posting;
+
 import cecs429.queries.Accumulator;
 import cecs429.queries.BooleanQueryParser;
 import cecs429.queries.TermLiteral;
 import cecs429.text.AdvancedTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.math.BigDecimal;
-import java.math.MathContext;
-import java.nio.file.Paths;
+//import java.math.BigDecimal;
+//import java.math.MathContext;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-import java.util.Scanner;
+
     
 public class Indexer {
     private static final int RANKED_RETURN = 10;//change
@@ -106,26 +101,81 @@ public class Indexer {
                 }
         }
         //Boolean search
-        public static List<Posting> search(String query,DocumentCorpus corpus, Index index){
+        public static List<Posting> search(String queryi,DocumentCorpus corpus, Index index){
+            BooleanQueryParser query = new BooleanQueryParser();
+            if(queryi.contains("+")){
+                queryi = queryi.replace("+"," "); //change
+                String[] terms; //= query.split(" "); 
+		        ArrayList<String> termsList = new ArrayList<String>();
+                terms = queryi.split("\\+");
+                for(String term:terms){
+                    term = term.toLowerCase();
+                    termsList.add(term);
+                
+                //System.out.println(term);
+                //tempPositionList = index.getPostingsPositions(term);
+                }
+            }
+            List<Posting> postings = query.parseQuery(queryi).getPostingsPositions(index);
+
+        corpus.getDocuments();//corpus doesn't exist if we don't include this line. (I have no idea)
+        //print each document associated with the query
+        for (Posting posting : postings) {
+            System.out.printf("Document ID: %-9s Title: %s", posting.getDocumentId(),
+                    corpus.getDocument(posting.getDocumentId()).getTitle());
+            System.out.println("");
+            System.out.println("Positions: "+ posting.getPostions());
+        }
+        System.out.println("\nTotal Documents: " + postings.size());//print total documents found
+
+        return postings;
+            /* 
             BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
             List<Posting> postings = parser.parseQuery(query).getPostings(index);
             //List<Posting> postingPositions = new ArrayList<Posting>();
-            String[] terms = query.split(" ");  
+            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
+            String[] terms; //= query.split(" "); 
+		    ArrayList<String> termsList = new ArrayList<String>();
+            //for(word: wordList)
+            
+            if(query.contains("+")){
+                terms = query.split("\\+");
+                for(String t:terms){
+                    termsList.add(t);
+                }
+            }
+            else{
+                terms = query.split(" ");
+                termsList = processor.processToken(query);
+            }
             //int boolCounter = 0;
             int docCount = 0; //doc counter
-            for (String term : terms) { // for each term in query
+            List<Posting> tempPositionList = new ArrayList<Posting>();
+            for (String term : termsList) { // for each term in query
                 term = term.toLowerCase();
-                List<Posting> tempPostingList = index.getPostingsPositions(term);
+                System.out.println(term);
+                tempPositionList = index.getPostingsPositions(term);
+            }
+            
                 //get the postings of the query after parsing  using index
                 for(Posting p: postings){
+                    
                     System.out.println(p.getDocumentId() + ". " + corpus.getDocument(p.getDocumentId()).getTitle());
-                    System.out.println(tempPostingList.get(docCount).getPostions());//print positions
+                    if(tempPositionList.size()>0 && docCount < tempPositionList.size()){
+                    System.out.println(tempPositionList.get(docCount).getPostions());//print positions
+                    }
+                    else{
+                        System.out.println("Is this a different query?");//print positions
+                        //THE OR QUERY DOESNT GET POSITIONS FOR OTHER TERM JUST FIRST
+                        //System.out.println(tempPostingList.get(docCount).getPostions());
+                    }
                     docCount++;
                 }
             //boolCounter++;
-            }
+            //}
             System.out.println("Number of Documents: " + docCount);
                 return postings;
+               */ 
             }
     
         public static Index buildIndex(DocumentCorpus corpus, String path){
@@ -159,28 +209,36 @@ public class Indexer {
         List<Posting> postings = new ArrayList<Posting>();
         HashMap<Posting, Double> hm = new HashMap<>();
         PriorityQueue<Accumulator> pq = new PriorityQueue<>(RANKED_RETURN);
-
+        String stemmedTerm = "";
         String[] terms = queryInput.split(" ");
         for (String term : terms) { // for each term in query
             term = term.toLowerCase();
-            String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
+            //String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
+            stemmedTerm = AdvancedTokenProcessor.stemToken(term);
             termLiterals.add(new TermLiteral(stemmedTerm));
-
+        //}
             int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
             double w_qt = Math.log(1.0 + (n/((double)df_t)));  // calcul;ate wqt = ln(1 + N/dft)
-            System.out.println("w_qt = " + n + "/ "+ df_t);
+
+            System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
 ;           //not as accurate, but saves us from thousands of disk reads
                 postings = termLiterals.get(counter).getPostings(index);
                 counter++;
                 //System.out.print("tf "+((double) index.getTermFrequency(stemmedTerm)) +"/" +"posting size "+ ((double) postings.size()));
-                double tf_td = ((double) index.getTermFrequency(stemmedTerm)) / ((double) postings.size());
+                //double tf_td = ((double) index.getTermFrequency(stemmedTerm)) / ((double) postings.size());
+           
+                //double tf_td = ((double) index.getTermFrequency(stemmedTerm));// / ((double) postings.size());
+                //System.out.println("tf")
+                //System.out.println("tf_td" +tf_td);
+
                 for(Posting p : postings){ // for each document in postings list
-                    System.out.println("tf_td" +tf_td);
-                    double w_dt = 1.0 + Math.log(tf_td);
+                    //double w_dt = 1.0 + Math.log(tf_td);
+                    double w_dt = p.getWDT();
+                    System.out.println("WDT: " +w_dt);
                     //print do not truncate
                     
                     double a_d = (w_dt * w_qt);
-                    System.out.println("Ad = " + a_d +"Wdt " + w_dt+ " x "+ " Wqt " + w_qt );
+                    //System.out.println("Ad = " + a_d +"Wdt " + w_dt+ " x "+ " Wqt " + w_qt );
                     if (hm.get(p) != null) {
                         hm.put(p, hm.get(p) + a_d);
                     } else {
@@ -207,9 +265,8 @@ public class Indexer {
                 pq.add(acc);
             }
         }
-
-        return pq;
-    }
+    return pq;
+    }          
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
             PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();//create token processor

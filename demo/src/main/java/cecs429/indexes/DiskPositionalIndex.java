@@ -56,7 +56,7 @@ public class DiskPositionalIndex implements Index{
                     for (int j = 0; j < totalPositions; j++) {//iterate through term frequency in the document
                         position += raf.readInt();//read single position
                         if (post == null) {//if posting doesn't exist yet
-                            post = new Posting(docId);//create new posting
+                            post = new Posting(docId,new ArrayList<Integer>());//create new posting, position
                             post.addPosition(position);//add position to posting
                         } else {
                             post.addPosition(position);//add position to posting
@@ -66,9 +66,13 @@ public class DiskPositionalIndex implements Index{
                     //each position represents 4 bytes so (* 4) to account for this offset
                     raf.seek(raf.getFilePointer() + (totalPositions * 4));//skip positions bytes
                     post = new Posting(docId);//create new posting
+                    double tf_td = (double)totalPositions;//tf_td
+                    double dwt = 1.0 + Math.log(tf_td);//save in posting for ranks
+                    post.setWDT(dwt);
                 }
 
                 postings.add(post);//add new post to postings list
+                
             }
 
         } catch (IOException ioe) {

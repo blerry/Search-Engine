@@ -2,22 +2,27 @@ package edu.csulb;
 
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
+import cecs429.indexes.DiskIndexWriter;
+import cecs429.indexes.DiskPositionalIndex;
 import cecs429.documents.DirectoryCorpus;
-import cecs429.indexes.*;
+
+import cecs429.indexes.Indexer;
 
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.*;
+
 
 import static java.util.stream.Collectors.joining;
 
 
 /**
- * Hello world!
+ * Server
  *
  */
 public class App 
@@ -36,19 +41,7 @@ public class App
             HashMap<String, Object> model =  new HashMap<>(); //model for page
             return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));//get index.html
         });
-        // posting the directory from web to index
-        /* 
-        Spark.post("/", (request, response) -> {//same / path
-            dir = request.queryParams("directory"); //value from post
-            System.out.println(dir); 
-            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
-            long startTime = System.nanoTime();
-            index = Indexer.indexCorpus(corpus); //index the corpus with method
-            long endTime = System.nanoTime(); 
-            long totalTime = endTime - startTime;//Timer
-            return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
-        });
-        */
+
         Spark.post("/", (request, response) -> {//same / path
             dir = request.queryParams("directory"); //value from post
             System.out.println(dir); 
