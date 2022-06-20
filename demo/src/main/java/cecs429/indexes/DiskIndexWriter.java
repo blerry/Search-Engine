@@ -19,6 +19,7 @@ public class DiskIndexWriter {
     private void createIndexFolder(String indexLocation) {
 
         //create an index folder in the corpus
+
         File directory = new File(indexLocation + "/index");
         if (!directory.exists()) {
             directory.mkdirs();
@@ -53,10 +54,10 @@ public class DiskIndexWriter {
                     dout.writeInt(0);//term appears in 0 documents
                 } else {//psize = 15, tfreq = 231
                     int postingsSize = index.getPostings(words.get(i)).size();
-                    dout.writeInt(postingsSize);
+                    dout.writeInt(postingsSize); //Dft
                     List<Posting> postings = index.getPostings(words.get(i));
                     int termFrequency = 0; //term frequency among documents
-                    for (int j = 0; j < postings.size(); j++) {
+                    for (int j = 0; j < postings.size(); j++)  {
                         termFrequency += postings.get(j).getPostions().size();
                     }
                     dout.writeInt(termFrequency);//store term frequency among documents
@@ -66,7 +67,11 @@ public class DiskIndexWriter {
                         dout.writeInt(documentId - prevDocumentId);//store the gap between document id's
                         //term frequency within a document
                         int termDocumentFrequency = index.getPostings(words.get(i)).get(j).getPostions().size();
-                        dout.writeInt(termDocumentFrequency);//store term frequency in document
+                        //DSP?
+                        //dout.writeDouble(postings.getWDT(words.get(i)));
+                        //double w_dt = 1.0 + Math.Log((double)termDocumentFrequency);
+                        //dout.writeDouble(w_dt);
+                        dout.writeInt(termDocumentFrequency);//tf_td store term frequency in document
                         int prevTermPosition = 0;
                         for (int k = 0; k < termDocumentFrequency; k++) {//iterate through all terms in a document
                             //gets a terms position within a document

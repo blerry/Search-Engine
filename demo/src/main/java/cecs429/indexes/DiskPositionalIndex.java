@@ -44,7 +44,7 @@ public class DiskPositionalIndex implements Index{
         try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
 
             raf.seek(address);//skip to the terms address
-            int postingsSize = raf.readInt();//collect how many documents the term appears in
+            int postingsSize = raf.readInt();//Dft collect how many documents the term appears in
             int termFrequency = raf.readInt();
             int docId = 0;
             for (int i = 0; i < postingsSize; i++) {//iterate through every document associated with the term
@@ -64,11 +64,14 @@ public class DiskPositionalIndex implements Index{
                     }
                 } else {//create posting without positions
                     //each position represents 4 bytes so (* 4) to account for this offset
+//DSP?
                     raf.seek(raf.getFilePointer() + (totalPositions * 4));//skip positions bytes
                     post = new Posting(docId);//create new posting
                     double tf_td = (double)totalPositions;//tf_td
-                    double dwt = 1.0 + Math.log(tf_td);//save in posting for ranks
-                    post.setWDT(dwt);
+                    //double wdt = getWDTFromDisk(term);//call
+                    //post.setWDT(wdt); //If written on disk already
+                    double wdt = 1.0 + Math.log(tf_td);//save in posting for ranks
+                    post.setWDT(wdt);//keep this line
                 }
 
                 postings.add(post);//add new post to postings list
@@ -106,7 +109,7 @@ public class DiskPositionalIndex implements Index{
 
     }
     @Override
-    public List<Posting> getPostings(String term){
+    public List<Posting> getPostings(String term){//ranked
         List<Posting> result = new ArrayList<>();
         String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
 
@@ -119,7 +122,7 @@ public class DiskPositionalIndex implements Index{
         return result;
     }
     @Override
-    public List<Posting> getPostingsPositions(String term){
+    public List<Posting> getPostingsPositions(String term){//boolean
         List<Posting> result = new ArrayList<>();
         String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
 
@@ -143,16 +146,18 @@ public class DiskPositionalIndex implements Index{
     public int getTermFrequency(String term) {
 
         int termFrequency = -1;
+//double wdt = -1;
 
         try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
-
+//raf.seek(getwdt)? possible add? New Function?
             if (getKeyTermAddress(term) == -1) {
                 return termFrequency;
             } else {
                 raf.seek(getKeyTermAddress(term));
             }
-
+            //raf.readDouble(); //Possible add. Read wdt before tf?
             raf.readInt();//consume postings size
+
             termFrequency = raf.readInt();//collect how many documents the term appears in
 
         }  catch (IOException ioe) {
@@ -182,4 +187,14 @@ public class DiskPositionalIndex implements Index{
         return df_t;
 
     }
+
+    //Get Weight Term Frequency of Document function here
+    //pubic double getWDTFromDisk(String term)
+    //double wdt = -1.0;
+    //if(getKeyTermAddress(term) == -1 ){
+
+    //}
+    //else{
+    //raf.seek(getKeyTermAddress(term));
+    //double wdt = raf.readDouble()//save in posting for ranks
 }

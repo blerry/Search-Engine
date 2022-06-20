@@ -20,7 +20,6 @@ public class BooleanQueryParser {
 			this.length = length;
 		}
 	}
-	
 	/**
 	 * Encapsulates a QueryComponent and the StringBounds that led to its parsing.
 	 */

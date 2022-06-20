@@ -7,17 +7,22 @@ import java.util.List;
 import java.util.PriorityQueue;
 import java.util.Scanner;
 
+import org.junit.Test;
+
 import cecs429.documents.DirectoryCorpus;
 import cecs429.documents.DocumentCorpus;
 import cecs429.indexes.DiskIndexWriter;
 import cecs429.indexes.DiskPositionalIndex;
 import cecs429.indexes.Index;
 import cecs429.queries.Accumulator;
+import cecs429.queries.BooleanQueryParser;
+import cecs429.queries.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
 
 import cecs429.indexes.Indexer;
 
 public class Tester {
+    @Test
     public static void main(String[] args) throws IOException {
         //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
         // /Users/berry/Desktop/CECS429/testCorpus

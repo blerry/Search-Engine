@@ -1,9 +1,7 @@
 package cecs429.indexes;
 
-
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
-
 import cecs429.queries.Accumulator;
 import cecs429.queries.BooleanQueryParser;
 import cecs429.queries.TermLiteral;
@@ -11,15 +9,11 @@ import cecs429.text.AdvancedTokenProcessor;
 import cecs429.text.EnglishTokenStream;
 
 import java.io.IOException;
-//import java.math.BigDecimal;
-//import java.math.MathContext;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-
-    
+  
 public class Indexer {
     private static final int RANKED_RETURN = 10;//change
     
@@ -31,17 +25,15 @@ public class Indexer {
             int docCount = 0;
             if (isBooleanQuery) {//process a boolean query
                 List<Posting> postings = search(query, corpus, index);//Run Boolean Search
-                for(String term:terms){
-                    term = term.toLowerCase();
-                    List<Posting> tempPostingList = index.getPostingsPositions(term);
-                    //postings.get(docCount).getPostions()
-                
+                for(String term:terms){      
             for (Posting post : postings) {//include document titles for each returned posting
+                    ArrayList<Integer> positions = new ArrayList<>();
+                    
                     String title = corpus.getDocument(post.getDocumentId()).getTitle();
                     String row = "    <tr>\n" +
                                 "        <td>"+post.getDocumentId()+"</td>\n" +
                                 "        <td><button id=\"" + post.getDocumentId() + "\" onClick=\"docClicked(this.id)\" >"+title+"</button></td>\n" +
-                                "        <td>"+tempPostingList.get(docCount).getPostions()+"</td>\n" +
+                                "        <td>"+post.getPostions()+"</td>\n" +
                                 "    </tr>\n";
                         postingsRows.append(row);
                         docCount++;
@@ -58,25 +50,17 @@ public class Indexer {
                         postingsRows.toString() +
                         "</table>";
                 return result;
-                }else{
+                }else{//Ranked Query
                     PriorityQueue<Accumulator> pq;
                     pq = userRankedQueryInput(corpus, index, query);
                     int pqSize = pq.size();
-                //System.out.println("psSize" + pq.size());
-
                 while(!pq.isEmpty()){
-                    //System.out.println("RUNS 2");
                     Accumulator currAcc = pq.poll();
                     String title = corpus.getDocument(currAcc.getDocId()).getTitle();
                     int docId = currAcc.getDocId() + 1;
                     docId--;
                     double value = currAcc.getA_d();
                     System.out.println("Value" + value);
-                    //BigDecimal sValue = new BigDecimal(value);
-                    //MathContext m = new MathContext(5);
-                    //sValue.round(m);
-                    //System.out.println("New Value "+ sValue);
-
                     System.out.println(value);
                     String row = "    <tr>\n" +
                             "        <td>"+docId+"</td>\n" +
@@ -85,7 +69,6 @@ public class Indexer {
                             "    </tr>\n";
                     postingsRows.insert(0,row);
                 }
-
                 result = "<div><b>Top " + RANKED_RETURN + " Results for: </b>" + query +
                         "<div>Total Documents: " + pqSize + "</div></div></br>" +
                         "<table style=\"width:100%\">\n" +
@@ -96,28 +79,24 @@ public class Indexer {
                         "    </tr>\n" +
                         postingsRows.toString() +
                         "</table>";
-
                     return result;
                 }
         }
         //Boolean search
         public static List<Posting> search(String queryi,DocumentCorpus corpus, Index index){
+            List<Posting> postings = new ArrayList<>();
             BooleanQueryParser query = new BooleanQueryParser();
-            if(queryi.contains("+")){
-                queryi = queryi.replace("+"," "); //change
-                String[] terms; //= query.split(" "); 
+            if(queryi.contains("+")){//Handle OR query
+                queryi = queryi.replaceAll("\\+"," "); //change
 		        ArrayList<String> termsList = new ArrayList<String>();
-                terms = queryi.split("\\+");
-                for(String term:terms){
+                for(String term:queryi.split(" ")){//loop terms in or +
                     term = term.toLowerCase();
                     termsList.add(term);
-                
-                //System.out.println(term);
-                //tempPositionList = index.getPostingsPositions(term);
+                for(Posting post:index.getPostingsPositions(term)){postings.add(post); }
                 }
+            }else{
+            postings = query.parseQuery(queryi).getPostingsPositions(index);
             }
-            List<Posting> postings = query.parseQuery(queryi).getPostingsPositions(index);
-
         corpus.getDocuments();//corpus doesn't exist if we don't include this line. (I have no idea)
         //print each document associated with the query
         for (Posting posting : postings) {
@@ -127,60 +106,10 @@ public class Indexer {
             System.out.println("Positions: "+ posting.getPostions());
         }
         System.out.println("\nTotal Documents: " + postings.size());//print total documents found
-
         return postings;
-            /* 
-            BooleanQueryParser parser = new BooleanQueryParser(); //boolean for terms
-            List<Posting> postings = parser.parseQuery(query).getPostings(index);
-            //List<Posting> postingPositions = new ArrayList<Posting>();
-            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();
-            String[] terms; //= query.split(" "); 
-		    ArrayList<String> termsList = new ArrayList<String>();
-            //for(word: wordList)
-            
-            if(query.contains("+")){
-                terms = query.split("\\+");
-                for(String t:terms){
-                    termsList.add(t);
-                }
-            }
-            else{
-                terms = query.split(" ");
-                termsList = processor.processToken(query);
-            }
-            //int boolCounter = 0;
-            int docCount = 0; //doc counter
-            List<Posting> tempPositionList = new ArrayList<Posting>();
-            for (String term : termsList) { // for each term in query
-                term = term.toLowerCase();
-                System.out.println(term);
-                tempPositionList = index.getPostingsPositions(term);
-            }
-            
-                //get the postings of the query after parsing  using index
-                for(Posting p: postings){
-                    
-                    System.out.println(p.getDocumentId() + ". " + corpus.getDocument(p.getDocumentId()).getTitle());
-                    if(tempPositionList.size()>0 && docCount < tempPositionList.size()){
-                    System.out.println(tempPositionList.get(docCount).getPostions());//print positions
-                    }
-                    else{
-                        System.out.println("Is this a different query?");//print positions
-                        //THE OR QUERY DOESNT GET POSITIONS FOR OTHER TERM JUST FIRST
-                        //System.out.println(tempPostingList.get(docCount).getPostions());
-                    }
-                    docCount++;
-                }
-            //boolCounter++;
-            //}
-            System.out.println("Number of Documents: " + docCount);
-                return postings;
-               */ 
-            }
-    
+            } 
         public static Index buildIndex(DocumentCorpus corpus, String path){
             DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
-
             long startTime = System.nanoTime();
             Index index = indexCorpus(corpus);
             long endTime = System.nanoTime();
@@ -213,30 +142,20 @@ public class Indexer {
         String[] terms = queryInput.split(" ");
         for (String term : terms) { // for each term in query
             term = term.toLowerCase();
-            //String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
             stemmedTerm = AdvancedTokenProcessor.stemToken(term);
             termLiterals.add(new TermLiteral(stemmedTerm));
-        //}
             int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
             double w_qt = Math.log(1.0 + (n/((double)df_t)));  // calcul;ate wqt = ln(1 + N/dft)
-
             System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
 ;           //not as accurate, but saves us from thousands of disk reads
                 postings = termLiterals.get(counter).getPostings(index);
                 counter++;
                 //System.out.print("tf "+((double) index.getTermFrequency(stemmedTerm)) +"/" +"posting size "+ ((double) postings.size()));
-                //double tf_td = ((double) index.getTermFrequency(stemmedTerm)) / ((double) postings.size());
-           
-                //double tf_td = ((double) index.getTermFrequency(stemmedTerm));// / ((double) postings.size());
-                //System.out.println("tf")
                 //System.out.println("tf_td" +tf_td);
-
                 for(Posting p : postings){ // for each document in postings list
                     //double w_dt = 1.0 + Math.log(tf_td);
                     double w_dt = p.getWDT();
                     System.out.println("WDT: " +w_dt);
-                    //print do not truncate
-                    
                     double a_d = (w_dt * w_qt);
                     //System.out.println("Ad = " + a_d +"Wdt " + w_dt+ " x "+ " Wqt " + w_qt );
                     if (hm.get(p) != null) {
@@ -246,16 +165,14 @@ public class Indexer {
                     }
                 }
             }
-
         List<Accumulator> accumulators = new ArrayList<Accumulator>();
         hm.forEach((key,value) -> 
                                     //{if(!accumulators.contains(accumulators))){
                                     accumulators.add(new Accumulator(key.getDocumentId(),value)));
-                                        
                                     //});
         for (Accumulator acc : accumulators){
-            // only retain the a certain amount of the top results
-            System.out.println("Score = "+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
+            // only retain the a certain amount of the top k results
+            //System.out.println("Score = "+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
             double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
             acc.setA_d(value);
             if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
@@ -266,18 +183,16 @@ public class Indexer {
             }
         }
     return pq;
-    }          
+    }         
+        //create Positial Inverted Index for corpus when building to disk 
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
             PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();//create token processor
             DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
             ArrayList<Double> documentWeight = new ArrayList<>();
-            // Get all the documents in the corpus by calling GetDocuments().
-            Iterable<Document> documents = corpus.getDocuments();
-            
+            Iterable<Document> documents = corpus.getDocuments();  // Get all the documents in the corpus by calling GetDocuments().          
             for (Document docs : documents) {//iterate through every valid document found in the corpus
                 int totalTerms = 0;
-    
                 HashMap<String, Integer> termFrequency = new HashMap<>();//term frequency of every term in a document
                 // Tokenize the document's content by constructing an EnglishTokenStream around the document's content.
                 EnglishTokenStream stream = new EnglishTokenStream(docs.getContent());
@@ -299,11 +214,7 @@ public class Indexer {
                 wordPosition++;//increment word position
                 totalTerms = words.size();
                 //System.out.println(totalTerms);
-            }
-
-            
-            /* */
-
+            }            
             double sumTermWeights = 0;//sum of term weights
             ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
             //System.out.println("tf_d"+tf_d);
@@ -315,20 +226,16 @@ public class Indexer {
             }
             //do math to get L_d
             double l_d = Math.sqrt(sumTermWeights);//square root normalized w_dt's
-
             documentWeight.add(l_d);
-
         }
         //write document weights to disk
         diskIndexWriter.writeDocumentWeights(documentWeight, indexLocation);
         return index;
         }
-
+        //Used to Index a corpus in Memory "Slow"
         public static Index indexCorpus(DocumentCorpus corpus) {
-            //HashSet<String> vocabulary = new HashSet<>();
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
             PositionalInvertedIndex  index = new PositionalInvertedIndex();
-
             // Get all the documents in the corpus by calling GetDocuments().
             Iterable<Document> documents = corpus.getDocuments();
             List<String> wordList = new ArrayList<String>();
