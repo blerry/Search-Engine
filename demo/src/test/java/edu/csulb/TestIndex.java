@@ -8,7 +8,9 @@ import org.tartarus.snowball.ext.porterStemmer;
 import cecs429.indexes.DiskPositionalIndex;
 import cecs429.indexes.Index;
 import cecs429.indexes.Indexer;
+import cecs429.indexes.PositionalInvertedIndex;
 import cecs429.indexes.Posting;
+import cecs429.queries.BooleanQueryParser;
 
 import java.io.File;
 import java.io.IOException;
@@ -27,6 +29,19 @@ import cecs429.documents.*;
  */
 public class TestIndex 
 {
+	String[] testDoc1 = {"apple","banana","dog","enjoi",
+	"enjoy","in","is","known","mani","monument",
+	"on","park","raid","seattl","the","there","wa",
+	"washington","well","wellknown","went"};
+	String[] testDoc2 = {"apple","banana","dog","enjoi",
+	"enjoy","in","is","known","mani","monument",
+	"on","park","raid","seattl","the","there","wa",
+	"washington","well","wellknown","went"};
+	ArrayList<Integer> positions = new ArrayList<>();
+	public void  buildPositions(){
+	for(int i=1; i<=21; i++){positions.add(i);}
+	}
+	BooleanQueryParser bp = new BooleanQueryParser();
     /**
      * Rigorous Test :-)
      */
@@ -78,6 +93,19 @@ public class TestIndex
 			    }
 		    }
 	    }
+
+		public Index indexForQuery(String[] terms){//test index for Query
+			String testQuery = "apple banana";
+			Index index = new PositionalInvertedIndex();
+			List<Posting> postings = new ArrayList<>();
+			int docOne = 1;
+			String[] query = testQuery.split(" ");
+			buildPositions();
+			for (String term: query){
+				postings.add(new Posting(docOne,positions));
+			}
+			return index;
+		}
 	/**
 	 * Fills hand built index with terms by hand
 	 * @param index Hand built index

@@ -149,7 +149,7 @@ public class Tester {
                                         
                                     }
                                     /////////////////////////////////////////
-                                    return;//REMOVE
+                                    //return;//REMOVE
 							    //List<RankedDocument> topKDocs = new ArrayList<RankedDocument>();
 							    //topKDocs = r.RankedRetrieval(query, new AdvancedTokenProcessor());
 							    //for(RankedDocument rd : topKDocs) {
