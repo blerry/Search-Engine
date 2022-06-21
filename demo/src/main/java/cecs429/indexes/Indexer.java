@@ -85,18 +85,8 @@ public class Indexer {
         //Boolean search
         public static List<Posting> search(String queryi,DocumentCorpus corpus, Index index){
             List<Posting> postings = new ArrayList<>();
-            BooleanQueryParser query = new BooleanQueryParser();
-            if(queryi.contains("+")){//Handle OR query
-                queryi = queryi.replaceAll("\\+"," "); //change
-		        ArrayList<String> termsList = new ArrayList<String>();
-                for(String term:queryi.split(" ")){//loop terms in or +
-                    term = term.toLowerCase();
-                    termsList.add(term);
-                for(Posting post:index.getPostingsPositions(term)){postings.add(post); }
-                }
-            }else{
+            BooleanQueryParser query = new BooleanQueryParser();  
             postings = query.parseQuery(queryi).getPostingsPositions(index);
-            }
         corpus.getDocuments();//corpus doesn't exist if we don't include this line. (I have no idea)
         //print each document associated with the query
         for (Posting posting : postings) {
@@ -208,29 +198,29 @@ public class Indexer {
                             termFrequency.put(words.get(i), prevFrequency + 1);//increment term frequency counter
                         } else {
                             termFrequency.put(words.get(i), 1);//add new term to frequency counter
+                        }
                     }
+                    index.addTerm(words, docs.getId(), wordPosition);//add word data to index
+                    wordPosition++;//increment word position
+                    totalTerms = words.size();
+                    //System.out.println(totalTerms);
+                }            
+                double sumTermWeights = 0;//sum of term weights
+                ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
+                //System.out.println("tf_d"+tf_d);
+                for (int i = 0; i < tf_d.size(); i++) {//iterate through all term frequencies
+                    double w_dt = 1.0 + Math.log((double)tf_d.get(i));//weight of specific term in a document
+                    w_dt = Math.pow(w_dt, 2);
+                    sumTermWeights += w_dt;//summation of w_dt^2
+                    //System.out.println("sumTermWeights sqrt " + sumTermWeights);
                 }
-                index.addTerm(words, docs.getId(), wordPosition);//add word data to index
-                wordPosition++;//increment word position
-                totalTerms = words.size();
-                //System.out.println(totalTerms);
-            }            
-            double sumTermWeights = 0;//sum of term weights
-            ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
-            //System.out.println("tf_d"+tf_d);
-            for (int i = 0; i < tf_d.size(); i++) {//iterate through all term frequencies
-                double w_dt = 1.0 + Math.log((double)tf_d.get(i));//weight of specific term in a document
-                w_dt = Math.pow(w_dt, 2);
-                sumTermWeights += w_dt;//summation of w_dt^2
-                //System.out.println("sumTermWeights sqrt " + sumTermWeights);
+                //do math to get L_d
+                double l_d = Math.sqrt(sumTermWeights);//square root normalized w_dt's
+                documentWeight.add(l_d);
             }
-            //do math to get L_d
-            double l_d = Math.sqrt(sumTermWeights);//square root normalized w_dt's
-            documentWeight.add(l_d);
-        }
-        //write document weights to disk
-        diskIndexWriter.writeDocumentWeights(documentWeight, indexLocation);
-        return index;
+            //write document weights to disk
+            diskIndexWriter.writeDocumentWeights(documentWeight, indexLocation);
+            return index;
         }
         //Used to Index a corpus in Memory "Slow"
         public static Index indexCorpus(DocumentCorpus corpus) {

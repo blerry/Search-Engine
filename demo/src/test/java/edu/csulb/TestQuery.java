@@ -41,7 +41,19 @@ public class TestQuery {
 //		assertTrue();
 		assertTrue("Query Exists", qc != null);
 	}
-
+	@Before
+	public void parseNull(){
+		BooleanQueryParser bp = new BooleanQueryParser();
+		qc = bp.parseQuery("");
+//		assertTrue();
+		assertNull("Query Exists", null);
+	}
+	@Test
+	public void andQueryTest(){
+		String query = "apple banana";
+		BooleanQueryParser bp = new BooleanQueryParser();
+		
+	}
 
 	@Test
 	public void testSpaces() {

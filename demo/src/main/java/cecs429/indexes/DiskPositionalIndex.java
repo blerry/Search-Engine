@@ -99,6 +99,7 @@ public class DiskPositionalIndex implements Index{
         try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/docWeights.bin", "r")) {
 
             raf.seek(docId * 8);//double needs 8-byte offset
+            //check if doc starts at 0
             return raf.readDouble();
 
         } catch (IOException ioe) {
