@@ -20,7 +20,6 @@ public class BooleanQueryParser {
 			this.length = length;
 		}
 	}
-	
 	/**
 	 * Encapsulates a QueryComponent and the StringBounds that led to its parsing.
 	 */
@@ -82,6 +81,7 @@ public class BooleanQueryParser {
 				// With more than one literal, we must wrap them in an AndQuery component.
 				allSubqueries.add(new AndQuery(subqueryLiterals));
 			}
+			System.out.println(allSubqueries);
 			start = nextSubquery.start + nextSubquery.length;
 		} while (start < query.length());
 		
@@ -90,7 +90,7 @@ public class BooleanQueryParser {
 		if (allSubqueries.size() == 1) {
 			return allSubqueries.get(0);
 		}
-		else if (allSubqueries.size() > 1) {
+		else if (allSubqueries.size() > 1 || query.contains("+")) {
 			return new OrQuery(allSubqueries);
 		}
 		else {

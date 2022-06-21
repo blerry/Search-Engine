@@ -2,32 +2,37 @@ package edu.csulb;
 
 import cecs429.documents.Document;
 import cecs429.documents.DocumentCorpus;
+import cecs429.indexes.DiskIndexWriter;
+import cecs429.indexes.DiskPositionalIndex;
 import cecs429.documents.DirectoryCorpus;
-import cecs429.indexes.*;
-import edu.csulb.PositionalInvertedIndexIndexer; 
+
+import cecs429.indexes.Indexer;
 
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
 import java.nio.file.Paths;
+import java.util.HashMap;
+import java.util.List;
 import java.io.IOException;
 import java.io.Reader;
-import java.util.*;
+
 
 import static java.util.stream.Collectors.joining;
 
 
 /**
- * Hello world!
+ * Server
  *
  */
 public class App 
 {
-    private static PositionalInvertedIndexIndexer indexer = new PositionalInvertedIndexIndexer();
-    private static Index index = null;
+    private static Indexer indexer = new Indexer();
+    //private static Index index = null;
+    private static DiskPositionalIndex index = null;
     private static String dir = "";
     private static DocumentCorpus corpus = null;
-
+    private static DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
     public static void main( String[] args )
     {
         Spark.port(4000); //http://localhost:4000/
@@ -36,13 +41,15 @@ public class App
             HashMap<String, Object> model =  new HashMap<>(); //model for page
             return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));//get index.html
         });
-        // posting the directory from web to index
+
         Spark.post("/", (request, response) -> {//same / path
             dir = request.queryParams("directory"); //value from post
             System.out.println(dir); 
             corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
             long startTime = System.nanoTime();
-            index = PositionalInvertedIndexIndexer.indexCorpus(corpus); //index the corpus with method
+            //index = Indexer.indexDiskCorpus(corpus,dir); //index the corpus with method
+            corpus.getDocuments();
+            index = new DiskPositionalIndex(dir);
             long endTime = System.nanoTime(); 
             long totalTime = endTime - startTime;//Timer
             return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
@@ -50,7 +57,16 @@ public class App
         //path /search to differ from / post path
         Spark.post("/search", (request, response) -> {
             String query = request.queryParams("query");//get query from web
-            return indexer.webSearch(query, corpus, index); //do a web search this time with query from indexer
+            return indexer.webSearch(query, corpus, index,true); //do a web search this time with query from indexer
+        });
+        // post ranked query values based on query inputs from client (outputs as html table)
+
+        Spark.post("/ranked-search", (request, response) -> {
+            String query = request.queryParams("query");
+            //String thestring = 
+            return indexer.webSearch(query,corpus, index, false);
+            //System.out.println(thestring);
+            //return thestring;
         });
         // posts document contents as a div
 
@@ -93,7 +109,7 @@ public class App
                 dir = squery.substring(7);
                 corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
                 long startTime = System.nanoTime();
-                index = PositionalInvertedIndexIndexer.indexCorpus(corpus);
+                //index = DiskPositionalIndex.writeIndex();
                 long endTime = System.nanoTime();
                 long totalTime = endTime - startTime;//Timer
                 return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ totalTime +  " seconds</div>";
@@ -110,4 +126,32 @@ public class App
             }
         });
     }
+    private static long timeToBuildIndex(String dir, boolean isDiskIndex) throws IOException {
+
+        System.out.println("Starting to build index...");
+        //measure how long it takes to build the index
+        long startTime = System.nanoTime();
+
+        if (isDiskIndex) {//create index from disk
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
+            index = indexer.buildDiskPositionalIndex(dir);//builds positional index 
+        } else {//create in memory index
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
+            index = new DiskPositionalIndex(dir);
+            //index = Indexer.indexCorpus(corpus); //index the corpus with method
+            diskIndexWriter.writeIndex(index, dir);//calls the writer of index to disk
+        }
+
+       // long stopTime = System.nanoTime();
+        long endTime = System.nanoTime(); 
+        long totalTime = endTime - startTime;//Timer
+        //double indexSeconds = (double)(stopTime - startTime) / 1_000_000_000.0;
+        System.out.println("Done!\n");
+        System.out.println("Time to build index: " + totalTime/1000000000 + " seconds");
+        
+        return totalTime;
+
+    }
+
 }
+

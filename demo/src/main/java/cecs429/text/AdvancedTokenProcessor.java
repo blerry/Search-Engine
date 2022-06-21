@@ -3,6 +3,7 @@ package cecs429.text;
 import org.tartarus.snowball.ext.englishStemmer;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public class AdvancedTokenProcessor implements TokenProcessor{
     
@@ -31,6 +32,7 @@ public class AdvancedTokenProcessor implements TokenProcessor{
             list.set(i,list.get(i)); //update
         }
         return list;
+        
     }
     /**
      * stem a single token using the Porter2stemmer method
@@ -49,5 +51,18 @@ public class AdvancedTokenProcessor implements TokenProcessor{
 
         return stemmedTerm;
 
+    }
+    /**
+     * determine if the character is an alpha-numeric character
+     * @param c the character to inspect
+     * @return whether the character is alpha-numeric or not
+     */
+    private static boolean isAlphanumeric(char c) {
+        //checks chars exist within the range of letters and numbers via ascii
+        if (c < 0x30 || (c >= 0x3a && c <= 0x40) || (c > 0x5a && c <= 0x60) || c > 0x7a){
+            return false;
+        } else {
+            return true;
+        }
     }
 }

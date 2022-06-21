@@ -2,7 +2,7 @@ package cecs429.documents;
 
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
+
 import java.io.Reader;
 import java.io.StringReader;
 import java.nio.file.Path;

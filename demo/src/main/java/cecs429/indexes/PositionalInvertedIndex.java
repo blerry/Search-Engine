@@ -104,4 +104,17 @@ public class PositionalInvertedIndex implements Index{
 		String stemmed = processor.stemToken(token);
 		return map.get(stemmed);//index
 	}
+
+	@Override
+	public int getTermFrequency(String term){
+		return 0;
+	}
+
+	public double getDocumentWeight(int docId){
+		return 0.0;
+	}
+
+	public int getDocumentFrequencyOfTerm(String term){
+		return 0;
+	}
 }
