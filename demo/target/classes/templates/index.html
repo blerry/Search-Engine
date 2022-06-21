@@ -8,10 +8,10 @@
     <!-- styles -->
     <link rel="stylesheet" href="styles.css" />
 
-    <title>Search Engine</title>
+    <title>Super Smash Search</title>
 </head>
 <body style="color: white;">
-    <div id="title" style="font-size:24px; margin-left: 600px; width: fit-content;"><h1 style="width:fit-content;">SEARCH</h1></div>
+    <div id="title" style="font-size:24px; margin-left: 500px; width: fit-content;"><h1 style="width:fit-content;">SUPER SMASH SEARCH</h1></div>
 
 <div id="maindiv" style="margin-left: 10rem;">
     <div id="dir" style="margin:200px auto; width:25vw;">
@@ -19,6 +19,7 @@
         <input id="directory"type="text" name="button1" value="" autocomplete="off" style="width:25vw;"/>
 
         <button id="submitButton" class="btn btn-secondary">SUBMIT</button>
+        <button id="goToSearch" class="btn btn-secondary">QUERY</button>
     </div>
     <p id="loadingText" style="color:white; margin:200px auto; width:25vw;">Loading.....</p>
 </div>
@@ -32,6 +33,10 @@
             <input id="query"type="text" name="search-txt" value="" autocomplete="off" style="width:20vw;"/>
 
             <button id="searchButton" >SEARCH</button>
+            <div>
+                <input type="checkbox" id="bool-search" name="bool-search" value="Bool Query" > Bool Query </input>
+                <input type="checkbox" id="ranked-search" name="ranked-search" value="Ranked Query" > Ranked Query </input>
+            </div>
         </div>
         <div id="search-contents" style="background-color: black; font-size: 12px;width:55vw;height: 100vh; overflow-x: scroll; margin-top:20px;"></div>
     </div>

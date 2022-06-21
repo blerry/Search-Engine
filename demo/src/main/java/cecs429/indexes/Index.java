@@ -16,4 +16,10 @@ public interface Index {
 	 * A (sorted) list of all terms in the index vocabulary.
 	 */
 	List<String> getVocabulary();
+
+	int getTermFrequency(String term);
+
+	double getDocumentWeight(int docId);
+
+	int getDocumentFrequencyOfTerm(String term);
 }

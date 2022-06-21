@@ -9,6 +9,7 @@ import java.util.Collections;
 public class Posting { //Posting consists of document if with a list of positions
 	private int mDocumentId;
 	private ArrayList<Integer> mPositions; 
+	private double mWeight;//For WDT; Calulated during DiskPositionalIndex in AccessTermData()
 	
 	public Posting(int documentId, ArrayList<Integer> position) {
 		mDocumentId = documentId;
@@ -18,6 +19,7 @@ public class Posting { //Posting consists of document if with a list of position
 
 		mDocumentId = documentId;
 		mPositions = new ArrayList<>();
+		mWeight = 0.0;
 	}
 	public int getDocumentId() {
 		return mDocumentId;
@@ -30,5 +32,12 @@ public class Posting { //Posting consists of document if with a list of position
 			mPositions.add(position);
 			Collections.sort(mPositions);
 			}
+	}
+	public void setWDT(double wdt){//set the qdt value for computing
+		mWeight = wdt;
+	}
+	//get the qdt
+	public double getWDT(){
+		return mWeight;
 	}
 }
