@@ -112,42 +112,10 @@ public class TestIndex
 	 * @param terms List of terms
 	 */
 	public void fillHandBuilt(Index index, List<Posting> postings) {
-
+		int pos = 1;
         for(Posting p:postings){
-		p.addPosition(1); // ar Term, docID, pos
-		p.addPosition(2); // british
-		p.addPosition(3); // dog
-		p.addPosition(4); // dog
-		p.addPosition(4); // dog
-		p.addPosition(4); // enjoi
-		p.addPosition(0); // enjoy
-		p.addPosition(5); // in, potential error
-		p.addPosition(4); // in
-		p.addPosition(4); // is, potential error
-		p.addPosition(1); // known
-		p.addPosition(2); // mani
-		p.addPosition(1); // monument
-		p.addPosition( 3); // monument potential error
-		p.addPosition( 3); // on
-		p.addPosition( 2); // on
-		p.addPosition(4); // park
-		p.addPosition(4); // park
-		p.addPosition( 2); // raid
-		p.addPosition(1); // raid
-		p.addPosition( 5); // seattl
-		p.addPosition(0); // the
-		p.addPosition(0); // the
-		p.addPosition( 3); // the
-		p.addPosition( 2); // the
-		p.addPosition(0); // there
-		p.addPosition(5); // wa
-		p.addPosition(2); // washington potential error
-		p.addPosition(6); // washington potential error
-		p.addPosition(0); // washington
-		p.addPosition(6); // washington
-		p.addPosition(1); // well potential error
-		p.addPosition(6); // well 
-		p.addPosition(1); // wellknown
+		p.addPosition(pos); // ar Term, docID, pos
+		pos++;
 		//index.addPosition(terms[20], 2, 6); // went
         }
 	}
