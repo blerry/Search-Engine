@@ -16,10 +16,17 @@ import java.util.PriorityQueue;
   
 public class Indexer {
     private static final int RANKED_RETURN = 10;//change
-    
-        public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery){
+    private static final double VOCAB_ELIMINATION_THRESHOLD = 3;//chosen number
+    private final int TEST_ITERATIONS = 30;//30 required
+
+        public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean throughput){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
+            int testIterations = 1;//test start
+            if(throughput == true) {
+                testIterations = TEST_ITERATIONS;
+            }
+            for(int iteration = 0; iteration < testIterations; iteration++) {
             System.out.println("Starting Query...");
             String[] terms = query.split(" ");
             int docCount = 0;
@@ -79,8 +86,10 @@ public class Indexer {
                         "    </tr>\n" +
                         postingsRows.toString() +
                         "</table>";
-                    return result;
+                    }
                 }
+                    return result;
+                
         }
         //Boolean search
         public static List<Posting> search(String queryi,DocumentCorpus corpus, Index index){

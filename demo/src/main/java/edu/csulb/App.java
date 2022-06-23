@@ -57,14 +57,14 @@ public class App
         //path /search to differ from / post path
         Spark.post("/search", (request, response) -> {
             String query = request.queryParams("query");//get query from web
-            return indexer.webSearch(query, corpus, index,true); //do a web search this time with query from indexer
+            return indexer.webSearch(query, corpus, index,true,false); //do a web search this time with query from indexer
         });
         // post ranked query values based on query inputs from client (outputs as html table)
 
         Spark.post("/ranked-search", (request, response) -> {
             String query = request.queryParams("query");
             //String thestring = 
-            return indexer.webSearch(query,corpus, index, false);
+            return indexer.webSearch(query,corpus, index, false,false);
             //System.out.println(thestring);
             //return thestring;
         });
