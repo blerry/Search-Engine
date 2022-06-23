@@ -24,11 +24,7 @@ import cecs429.indexes.Indexer;
 public class Tester {
     @Test
     public static void main(String[] args) throws IOException {
-        //"/Users/berry/Desktop/CECS429/all-nps-sites-extracted"
-        // /Users/berry/Desktop/CECS429/testCorpus
-        // /Users/berry/Desktop/CECS429/MobyDick10Chapters
-        // Create a DocumentCorpus to load .txt documents from the project directory.
-        Index index;
+        Index index;//Declared depending on choice
         /**************************************
         *                   MENU
         **************************************/
@@ -148,11 +144,6 @@ public class Tester {
                                         System.out.println("Title: " + title.toString()+ " Doc ID: " + docId+ " Value: "+ value);
                                         
                                     }
-                                    /////////////////////////////////////////
-                                    //return;//REMOVE
-							    //List<RankedDocument> topKDocs = new ArrayList<RankedDocument>();
-							    //topKDocs = r.RankedRetrieval(query, new AdvancedTokenProcessor());
-							    //for(RankedDocument rd : topKDocs) {
 								    //System.out.println("DocID " + rd.getDocID() +": " + "(" + corpusR.getDocument(rd.getDocID()).getTitle() + ")"+ " -- " + rd.getAcc());
 							}
 						}
