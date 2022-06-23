@@ -145,7 +145,7 @@ public class Indexer {
                 for(Posting p : postings){ // for each document in postings list
                     //double w_dt = 1.0 + Math.log(tf_td);
                     double w_dt = p.getWDT();
-                    System.out.println("WDT: " +w_dt);
+                    //System.out.println("WDT: " +w_dt);
                     double a_d = (w_dt * w_qt);
                     //System.out.println("Ad = " + a_d +"Wdt " + w_dt+ " x "+ " Wqt " + w_qt );
                     if (hm.get(p) != null) {
@@ -162,8 +162,8 @@ public class Indexer {
                                     //});
         for (Accumulator acc : accumulators){
             // only retain the a certain amount of the top k results
-            //System.out.println("Score = "+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
             double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
+            System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
             acc.setA_d(value);
             if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
                 if(pq.size() == RANKED_RETURN){
@@ -205,12 +205,12 @@ public class Indexer {
                     totalTerms = words.size();
                     //System.out.println(totalTerms);
                 }            
-                double sumTermWeights = 0;//sum of term weights
+                double sumTermWeights = 0.0;//sum of term weights
                 ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
                 //System.out.println("tf_d"+tf_d);
                 for (int i = 0; i < tf_d.size(); i++) {//iterate through all term frequencies
-                    double w_dt = 1.0 + Math.log((double)tf_d.get(i));//weight of specific term in a document
-                    w_dt = Math.pow(w_dt, 2);
+                    double w_dt = 1 + Math.log(tf_d.get(i));//weight of specific term in a document
+                    w_dt = Math.pow(w_dt, 2.0);
                     sumTermWeights += w_dt;//summation of w_dt^2
                     //System.out.println("sumTermWeights sqrt " + sumTermWeights);
                 }
