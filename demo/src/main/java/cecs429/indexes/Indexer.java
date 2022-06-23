@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.PriorityQueue;
   
 public class Indexer {
-    private static final int RANKED_RETURN = 10;//change
+    private static final int RANKED_RETURN = 50;//change
     private static final double VOCAB_ELIMINATION_THRESHOLD = 3;//chosen number
     private final int TEST_ITERATIONS = 30;//30 required
     private double queryTime = 0.0;
@@ -115,27 +115,6 @@ public class Indexer {
         System.out.println("\nTotal Documents: " + postings.size());//print total documents found
         return postings;
             } 
-        public static Index buildIndex(DocumentCorpus corpus, String path){
-            DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
-            long startTime = System.nanoTime();
-            Index index = indexCorpus(corpus);
-            long endTime = System.nanoTime();
-            long totalTime = endTime - startTime;
-            // Create a DocumentCorpus to load .txt documents from the project directory.
-            System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
-            try {
-                diskIndexWriter.writeIndex(index, path);
-            } catch (IOException e) {
-                // Auto-generated catch block
-                System.out.println("Something went wrong.");
-                e.printStackTrace();
-            }
-            return index;
-        }
-        public String stemWord(String word){
-            ArrayList<String> stemmedWord = new AdvancedTokenProcessor().processToken(word);
-            return stemmedWord.get(0);
-        }
         //ranked query
     public static PriorityQueue<Accumulator> userRankedQueryInput(DocumentCorpus corpus, Index index, String queryInput) {
         System.out.println("RUNS");
@@ -176,25 +155,71 @@ public class Indexer {
                         }
                     }
             }
-        List<Accumulator> accumulators = new ArrayList<Accumulator>();
-        hm.forEach((key,value) -> 
-                                    //{if(!accumulators.contains(accumulators))){
-                                    accumulators.add(new Accumulator(key.getDocumentId(),value)));
-                                    //});
-        for (Accumulator acc : accumulators){
-            // only retain the a certain amount of the top k results
-            double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
-            System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
-            acc.setA_d(value);
-            if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
-                if(pq.size() == RANKED_RETURN){
-                    pq.remove();
+            List<Accumulator> accumulators = new ArrayList<Accumulator>();
+            hm.forEach((key,value) -> 
+                                        //{if(!accumulators.contains(accumulators))){
+                                        accumulators.add(new Accumulator(key.getDocumentId(),value)));
+                                        //});
+            for (Accumulator acc : accumulators){
+                // only retain the a certain amount of the top k results
+                double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
+                System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
+                acc.setA_d(value);
+                if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
+                    if(pq.size() == RANKED_RETURN){
+                        pq.remove();
+                    }
+                    pq.add(acc);
                 }
-                pq.add(acc);
             }
+        return pq;
+        }       
+
+        public double testSearch(DocumentCorpus corpus, Index index, String queryValue, ArrayList<Integer> leaders, Boolean isBooleanQuery, Boolean testThroughput, int[] relDocs) {
+
+            System.out.println("Starting Query...");//calculate how long it takes to execute
+            double queryRuntime;
+            long startTime = System.nanoTime();
+    
+            PriorityQueue<Accumulator> pq;
+            pq = userRankedQueryInput(corpus, index, queryValue);
+           
+            System.out.println("Query: " + queryValue.substring(0, queryValue.length()-2));
+            System.out.print("Relevant: ");
+    
+            double relevantSum = 0;
+            int relevantIndex = 0;
+            int totalRelevantDocs = 0;
+            while(!pq.isEmpty()){
+                Accumulator currAcc = pq.poll();
+                relevantIndex++;
+                String title = corpus.getDocument(currAcc.getDocId()).getTitle();
+                int docId = currAcc.getDocId() + 1;
+                for (int i = 0; i < relDocs.length; i++) {
+                    if (relDocs[i] == docId) {
+                        System.out.print(docId + ", ");
+                        totalRelevantDocs++;
+                        relevantSum += (double) totalRelevantDocs / relevantIndex;
+                        break;
+                    }
+                }
+    
+            }
+    
+            double avgPrecision = ((double)1/relDocs.length) * relevantSum;
+    
+            System.out.println();
+    
+            long stopTime = System.nanoTime();
+            queryRuntime = (double)(stopTime - startTime) / 1_000_000_000.0;
+            setQueryTime(queryTime + queryRuntime);
+            System.out.println("Query Time: " + queryRuntime + " seconds");
+            System.out.println("Average Precision: " + avgPrecision + "\n");
+    
+            return avgPrecision;
+    
         }
-    return pq;
-    }         
+        
         //create Positial Inverted Index for corpus when building to disk 
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
             PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
@@ -243,6 +268,7 @@ public class Indexer {
             diskIndexWriter.writeDocumentWeights(documentWeight, indexLocation);
             return index;
         }
+
         //Used to Index a corpus in Memory "Slow"
         public static Index indexCorpus(DocumentCorpus corpus) {
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
@@ -272,6 +298,27 @@ public class Indexer {
             }
             System.out.println("Number of Documents: " + docCount);
             return index;
+        }
+        public static Index buildIndex(DocumentCorpus corpus, String path){
+            DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
+            long startTime = System.nanoTime();
+            Index index = indexCorpus(corpus);
+            long endTime = System.nanoTime();
+            long totalTime = endTime - startTime;
+            // Create a DocumentCorpus to load .txt documents from the project directory.
+            System.out.println("Corpus indexed in: " + totalTime / 1000000000 + " seconds");
+            try {
+                diskIndexWriter.writeIndex(index, path);
+            } catch (IOException e) {
+                // Auto-generated catch block
+                System.out.println("Something went wrong.");
+                e.printStackTrace();
+            }
+            return index;
+        }
+        public String stemWord(String word){
+            ArrayList<String> stemmedWord = new AdvancedTokenProcessor().processToken(word);
+            return stemmedWord.get(0);
         }
         public DiskPositionalIndex buildDiskPositionalIndex(String dir) {
             return new DiskPositionalIndex(dir);

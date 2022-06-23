@@ -19,6 +19,8 @@ import cecs429.queries.BooleanQueryParser;
 import cecs429.queries.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
 
+import edu.csulb.InExactRetrieval;
+
 import cecs429.indexes.Indexer;
 
 public class Tester {
@@ -59,7 +61,7 @@ public class Tester {
 					return;
                     //break;
                 case 2:
-                    System.out.println("1.Boolean Retrieval\n2.Ranked Retrieval");
+                    System.out.println("Retrieval Modes\n1.Boolean \n2.Ranked \n3.Inexact");
                     userInput = scan.nextInt();
                     scan.nextLine();
                     switch(userInput) { 
@@ -148,15 +150,40 @@ public class Tester {
                                         System.out.println("Title: " + title.toString()+ " Doc ID: " + docId+ " Value: "+ value);
                                         
                                     }
-                                    /////////////////////////////////////////
-                                    //return;//REMOVE
-							    //List<RankedDocument> topKDocs = new ArrayList<RankedDocument>();
-							    //topKDocs = r.RankedRetrieval(query, new AdvancedTokenProcessor());
-							    //for(RankedDocument rd : topKDocs) {
-								    //System.out.println("DocID " + rd.getDocID() +": " + "(" + corpusR.getDocument(rd.getDocID()).getTitle() + ")"+ " -- " + rd.getAcc());
 							}
+                        case 3:
+                        System.out.println("Enter corpus path: ");
+                        //scan.nextLine();
+                        String path = scan.nextLine();	
+                        System.out.println(Paths.get(path).toAbsolutePath());
+                        DocumentCorpus cor = DirectoryCorpus.loadTextDirectory(Paths.get(path).toAbsolutePath());
+                        cor.getDocuments();
+                        DiskPositionalIndex disk = new DiskPositionalIndex(path);
+                        while(true) {
+                            System.out.println("Enter search query: ");
+                            String query = scan.nextLine();
+                            //2String query = "whale";
+                            //String query = "whale";
+                            //String query = "camping in yosemite";
+                            if(query.equals("q")) {
+                            return;
+                            }
+                            // PriorityQueue<Accumulator> res = Indexer.userRankedQueryInput(cor,disk,query);
+                            // int resSize = res.size();
+                            // while(!res.isEmpty()){
+                            //     Accumulator currAcc = res.poll();
+                            //     String title = cor.getDocument(currAcc.getDocId()).getTitle();
+                            //     int docId = currAcc.getDocId() + 1;
+                            //     docId--;
+                            //     double value = currAcc.getA_d();
+                            //     System.out.println("Title: " + title.toString()+ " Doc ID: " + docId+ " Value: "+ value);
+                                
+                            // }
+                            InExactRetrieval.runQueries(path, cor, disk, false, true);
+                    }
 						}
                      }
+                
 
             }
         }
