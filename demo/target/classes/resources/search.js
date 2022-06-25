@@ -23,7 +23,10 @@
                             $(result).prependTo($("#search-contents"));
                             console.log(result);
                         });   
-             
+                    } else{
+                        $.post("/ranked-search", {query: query}, function(result){
+                            $(result).prependTo($("#search-contents"));
+                        });
                     }
             }
         })

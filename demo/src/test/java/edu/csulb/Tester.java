@@ -16,9 +16,9 @@ import cecs429.indexes.DiskPositionalIndex;
 import cecs429.indexes.Index;
 import cecs429.queries.Accumulator;
 import cecs429.queries.BooleanQueryParser;
+import cecs429.queries.MeanAverage;
 import cecs429.queries.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
-
 import cecs429.indexes.Indexer;
 
 public class Tester {
@@ -55,7 +55,7 @@ public class Tester {
 					return;
                     //break;
                 case 2:
-                    System.out.println("1.Boolean Retrieval\n2.Ranked Retrieval");
+                    System.out.println("Retrieval Modes\n1.Boolean \n2.Ranked \n3.MAP");
                     userInput = scan.nextInt();
                     scan.nextLine();
                     switch(userInput) { 
@@ -135,6 +135,7 @@ public class Tester {
 							        }
                                     PriorityQueue<Accumulator> res = Indexer.userRankedQueryInput(corpusR,d2,query);
                                     int resSize = res.size();
+                                    System.out.println("Res Size: " + resSize);
                                     while(!res.isEmpty()){
                                         Accumulator currAcc = res.poll();
                                         String title = corpusR.getDocument(currAcc.getDocId()).getTitle();
@@ -144,10 +145,20 @@ public class Tester {
                                         System.out.println("Title: " + title.toString()+ " Doc ID: " + docId+ " Value: "+ value);
                                         
                                     }
-								    //System.out.println("DocID " + rd.getDocID() +": " + "(" + corpusR.getDocument(rd.getDocID()).getTitle() + ")"+ " -- " + rd.getAcc());
+								    
 							}
+                            case 3:
+                            System.out.println("Enter corpus path: ");
+                            //scan.nextLine();
+                            String path = scan.nextLine();	
+                            System.out.println(Paths.get(path).toAbsolutePath());
+                            DocumentCorpus cor = DirectoryCorpus.loadTextDirectory(Paths.get(path).toAbsolutePath());
+                            cor.getDocuments();
+                            DiskPositionalIndex disk = new DiskPositionalIndex(path);
+                            MeanAverage.runQueries(path, cor, disk, false, true);    
 						}
                      }
+                
 
             }
         }

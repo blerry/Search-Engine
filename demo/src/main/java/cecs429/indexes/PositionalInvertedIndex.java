@@ -106,15 +106,15 @@ public class PositionalInvertedIndex implements Index{
 	}
 
 	@Override
-	public int getTermFrequency(String term){
+	public int getTF(String term){
 		return 0;
 	}
 
-	public double getDocumentWeight(int docId){
+	public double getLD(int docId){
 		return 0.0;
 	}
 
-	public int getDocumentFrequencyOfTerm(String term){
+	public int getDF_T(String term){
 		return 0;
 	}
 }

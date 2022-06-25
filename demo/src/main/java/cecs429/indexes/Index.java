@@ -17,9 +17,9 @@ public interface Index {
 	 */
 	List<String> getVocabulary();
 
-	int getTermFrequency(String term);
+	int getTF(String term);
 
-	double getDocumentWeight(int docId);
+	double getLD(int docId);
 
-	int getDocumentFrequencyOfTerm(String term);
+	int getDF_T(String term);
 }

@@ -61,8 +61,8 @@ public class TestIndex
         int position = 0;
 
 		assertTrue("Vocab exists",index.getVocabulary().size()>0);
-		assertEquals(-1, index.getDocumentFrequencyOfTerm("sites"));
-		assertEquals(-1, index.getDocumentFrequencyOfTerm("effective"));
+		assertEquals(-1, index.getDF_T("sites"));
+		assertEquals(-1, index.getDF_T("effective"));
 		assertEquals(0, index.getPostingsPositions("effective").size());
 		assertEquals(0, index.getPostings("town").size());
 		}
@@ -96,8 +96,8 @@ public class TestIndex
 			assertTrue("postings exist",index.getPostings("apple")!=null);
 			assertEquals(0, index.getPostings("apple").size());
 			assertEquals(21, vocab.size());
-			assertEquals(0, index.getTermFrequency("apple"));
-			assertEquals(0.0, index.getDocumentFrequencyOfTerm("apple"),0.0);
+			assertEquals(0, index.getTF("apple"));
+			assertEquals(0.0, index.getDF_T("apple"),0.0);
 		
 		}
 
