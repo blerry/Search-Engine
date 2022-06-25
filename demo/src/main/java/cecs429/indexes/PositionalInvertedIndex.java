@@ -12,6 +12,7 @@ public class PositionalInvertedIndex implements Index{
 	 * Constructs an empty index with with given vocabulary set and corpus size.
 	 * @param vocabulary a collection of all terms in the corpus vocabulary.
 	 * @param corpuseSize the number of documents in the corpus.
+	 * This class will construct the index in memory
 	 */
     private HashMap<String, List<Posting>>map = new HashMap<String, List<Posting>>();
 

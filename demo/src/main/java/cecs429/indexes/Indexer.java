@@ -20,6 +20,7 @@ public class Indexer {
     private final int TEST_ITERATIONS = 30;//30 required
     private double queryTime = 0.0; //timing purposes
 
+        //changed for inexact
         public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean throughput){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
