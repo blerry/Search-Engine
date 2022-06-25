@@ -1,6 +1,6 @@
 # Super Smash Search Engine
 
-MileStone 1 (Positional Inverted Index)
+MileStone 2 (Ranked and Boolean with Disk Index)
   Built on Maven with VSCode
   Dependencies -> Snowball Tartarus (Port2Stem), slf4j, Spark, Gson, ThymeLeafEngine, jQuery, mapDB.
 
