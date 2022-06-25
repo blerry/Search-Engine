@@ -7,7 +7,6 @@ import cecs429.indexes.DiskPositionalIndex;
 import cecs429.documents.DirectoryCorpus;
 
 import cecs429.indexes.Indexer;
-import cecs429.queries.MeanAverage;
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
@@ -112,7 +111,7 @@ public class App
                 return "";
             }
              else if (squery.length() >= 5 && squery.substring(1, 5).equals("test")) {
-                MeanAverage.runQueries(dir, corpus, index, false, false);
+                //MeanAverage.runQueries(dir, corpus, index, false, false);
                 return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>";
              }
             else if (squery.length() >= 5 && squery.substring(1, 5).equals(":stem")) {

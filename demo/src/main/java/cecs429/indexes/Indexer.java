@@ -175,51 +175,7 @@ public class Indexer {
             }
         return pq;
         }       
-        //This calculates average precision
-        public double averagePrecision(DocumentCorpus corpus, Index index, String queryValue, Boolean isBooleanQuery, Boolean testThroughput, int[] relDocs) {
-
-            System.out.println("Starting Query...");//calculate how long it takes to execute
-            double queryRuntime;
-            long startTime = System.nanoTime();
-    
-            PriorityQueue<Accumulator> pq;
-            pq = userRankedQueryInput(corpus, index, queryValue);
-           
-            System.out.println("Query: " + queryValue.substring(0, queryValue.length()-2));
-            System.out.print("Relevant: ");
-    
-            double relevantSum = 0;
-            int relevantIndex = 0;
-            int totalRelevantDocs = 0;
-            while(!pq.isEmpty()){
-                Accumulator currAcc = pq.poll();
-                relevantIndex++;
-                String title = corpus.getDocument(currAcc.getDocId()).getTitle();
-                int docId = currAcc.getDocId() + 1;
-                for (int i = 0; i < relDocs.length; i++) {
-                    if (relDocs[i] == docId) {
-                        System.out.print(docId + ", ");
-                        totalRelevantDocs++;
-                        relevantSum += (double) totalRelevantDocs / relevantIndex;
-                        break;
-                    }
-                }
-    
-            }
-    
-            double avgPrecision = ((double)1/relDocs.length) * relevantSum;
-    
-            System.out.println();
-    
-            long stopTime = System.nanoTime();
-            queryRuntime = (double)(stopTime - startTime) / 1_000_000_000.0;
-            setQueryTime(queryTime + queryRuntime);
-            System.out.println("Query Time: " + queryRuntime + " seconds");
-            System.out.println("Average Precision: " + avgPrecision + "\n");
-    
-            return avgPrecision;
-    
-        }
+        
         
         //create Positial Inverted Index for corpus when building to disk 
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
