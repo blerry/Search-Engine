@@ -17,7 +17,10 @@ import org.mapdb.Serializer;
 public class DiskIndexWriter {
 
 	public ArrayList<Long> writeIndex(Index index, String path) throws IOException {
-        createFolder(path); //create an index folder in the corpus
+        File directory = new File(path + "/index");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
         //create B+ tree for terms and addresses
         DB db = DBMaker.fileDB(path + "/index/index.db").make();
         BTreeMap<String, Long> bTreeMap = db.treeMap("map").keySerializer(Serializer.STRING).valueSerializer(Serializer.LONG).counterEnable().createOrOpen();
@@ -77,25 +80,21 @@ public class DiskIndexWriter {
 
     }
 
-    public void writeLD(ArrayList<Double> documentWeights, String indexLocation) {
-        createFolder(indexLocation);
+    public void writeLD(ArrayList<Double> documentWeights, String path) {
+        File directory = new File(path + "/index");
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
         //create docWeights.bin file to act as index on disk
         try (DataOutputStream dout = new DataOutputStream(
                 new BufferedOutputStream(
-                        new FileOutputStream(indexLocation + "/index/docWeights.bin")))) {
+                        new FileOutputStream(path + "/index/docWeights.bin")))) {
             for (Double documentWeight : documentWeights) {//iterate through every document weight in doc id order
                 dout.writeDouble(documentWeight);//8-byte double written to disk as weight.
             }
 
         } catch (IOException ioe) {
             ioe.printStackTrace();
-        }
-    }
-    private void createFolder(String indexLocation) {
-        //create folder called index, if it doesnt exist make one.
-        File directory = new File(indexLocation + "/index");
-        if (!directory.exists()) {
-            directory.mkdirs();
         }
     }
 }
