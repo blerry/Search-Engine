@@ -17,35 +17,27 @@ import cecs429.indexes.Index;
 import cecs429.indexes.Posting;
 
 public class DiskPositionalIndex implements Index{
-    
-        String indexLocation;
-        DB diskIndex = null;
-        BTreeMap<String, Long> map = null;
+        DB dIndex;
+        String path;
+        BTreeMap<String, Long> bTreeMap;
         public DiskPositionalIndex(String dir) {
-            indexLocation = dir + "/index";
+            dIndex = null;
+            bTreeMap = null;
+            path = dir + "/index";
             try {
-                //B+ Tree
-                diskIndex = DBMaker.fileDB(indexLocation + "/index.db").make();
-                map = diskIndex.treeMap("map")
-                    .keySerializer(Serializer.STRING)
-                    .valueSerializer(Serializer.LONG)
-                    .counterEnable()
-                    .open();
+                dIndex = DBMaker.fileDB(path + "/index.db").make(); //B+ Tree
+                bTreeMap = dIndex.treeMap("map").keySerializer(Serializer.STRING).valueSerializer(Serializer.LONG).counterEnable().open();
             } catch (Exception e) {
-                System.out.println("Could not find B+ Tree on disk...");
+                System.out.println("No B+ Tree");
                 e.printStackTrace();
             }
         }
-    
-    public List<Posting> accessTermData(long address, boolean withPositions) {
-
+    public List<Posting> getTermPostings(long address, boolean withPositions) {
         List<Posting> postings = new ArrayList<>();
-
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
-
-            raf.seek(address);//skip to the terms address
-            int postingsSize = raf.readInt();//Dft collect how many documents the term appears in
-            int termFrequency = raf.readInt();
+        try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
+            raf.seek(address);//go to term address
+            int postingsSize = raf.readInt();//Dft 
+            int termFrequency = raf.readInt();//needs this read
             int docId = 0;
             for (int i = 0; i < postingsSize; i++) {//iterate through every document associated with the term
                 docId += raf.readInt();//collect next docId
@@ -63,7 +55,7 @@ public class DiskPositionalIndex implements Index{
                         }
                     }
                 } else {//create posting without positions
-                    //each position represents 4 bytes so (* 4) to account for this offset
+                    //each position is 4 bytes so mulply by 4
 //DSP?
                     raf.seek(raf.getFilePointer() + (totalPositions * 4));//skip positions bytes
                     post = new Posting(docId);//create new posting
@@ -73,94 +65,77 @@ public class DiskPositionalIndex implements Index{
                     double wdt = 1.0 + Math.log(tf_td);//save in posting for ranks
                     post.setWDT(wdt);//keep this line
                 }
-
                 postings.add(post);//add new post to postings list
-                
             }
-
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
-        if (postings.size() == 0) {
+        if (postings.size() == 0) {//no postings so null
             return null;
         }
         return postings;
     }
-    public long getKeyTermAddress(String term) {
-        if (map.get(term) == null) {
+    public long getTermAddress(String term) {
+        if (bTreeMap.get(term) == null) {
             return -1;
         } else {
-            return map.get(term);
+            return bTreeMap.get(term);
         }
     }
-    public double getDocumentWeight(int docId) {
-
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/docWeights.bin", "r")) {
-
+    public double getLD(int docId) {
+        try (RandomAccessFile raf = new RandomAccessFile(path + "/docWeights.bin", "r")) {
             raf.seek(docId * 8);//double needs 8-byte offset
             //check if doc starts at 0
             return raf.readDouble();
-
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
-        return -1;
-
+        return -1;//in case not found
     }
     @Override
     public List<Posting> getPostings(String term){//ranked
         List<Posting> result = new ArrayList<>();
-        String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
-
-        if (getKeyTermAddress(stemmedTerm) != -1) {//term doesn't exist
-            if (accessTermData(getKeyTermAddress(stemmedTerm), false) != null) {
-                result.addAll(accessTermData(getKeyTermAddress(stemmedTerm), false));
+        String stringTerm = AdvancedTokenProcessor.stemToken(term);
+        if (getTermAddress(stringTerm) != -1) {//term doesn't exist
+            if (getTermPostings(getTermAddress(stringTerm), false) != null) {
+                result.addAll(getTermPostings(getTermAddress(stringTerm), false));
             }
         }
-
         return result;
     }
     @Override
     public List<Posting> getPostingsPositions(String term){//boolean
         List<Posting> result = new ArrayList<>();
-        String stemmedTerm = AdvancedTokenProcessor.stemToken(term);
-
-        if (getKeyTermAddress(stemmedTerm) != -1) {//term doesn't exist
-            if (accessTermData(getKeyTermAddress(stemmedTerm), true) != null) {
-                result.addAll(accessTermData(getKeyTermAddress(stemmedTerm), true));
+        String stringTerm = AdvancedTokenProcessor.stemToken(term);
+        if (getTermAddress(stringTerm) != -1) {//term doesn't exist
+            if (getTermPostings(getTermAddress(stringTerm), true) != null) {
+                result.addAll(getTermPostings(getTermAddress(stringTerm), true));
             }
         }
-
         return result;
     }
     @Override
     public List<String> getVocabulary(){
-        Iterator<String> iterator = map.getKeys().iterator();
         List<String> vocab = new ArrayList<>();
-        while (iterator.hasNext()) {
-            vocab.add(iterator.next());
+        Iterator<String> it = bTreeMap.getKeys().iterator(); //use iterator for keys
+        while (it.hasNext()) {
+            vocab.add(it.next());
         }
         return vocab;
     }
-    public int getTermFrequency(String term) {
-
+    public int getTF(String term) {
         int termFrequency = -1;
 //double wdt = -1;
-
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
+        try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
 //raf.seek(getwdt)? possible add? New Function?
-            if (getKeyTermAddress(term) == -1) {
+            if (getTermAddress(term) == -1) {
                 return termFrequency;
             } else {
-                raf.seek(getKeyTermAddress(term));
+                raf.seek(getTermAddress(term));
             }
             //raf.readDouble(); //Possible add. Read wdt before tf?
             raf.readInt();//consume postings size
-
-            termFrequency = raf.readInt();//collect how many documents the term appears in
-
+            termFrequency = raf.readInt();//how many docs the term appears in
         }  catch (IOException ioe) {
             ioe.printStackTrace();
         }
@@ -168,27 +143,21 @@ public class DiskPositionalIndex implements Index{
         return termFrequency;
 
     }
-    public int getDocumentFrequencyOfTerm(String term) {
-
+    public int getDF_T(String term) {
         int df_t = -1;
-        try (RandomAccessFile raf = new RandomAccessFile(indexLocation + "/postings.bin", "r")) {
-
-            if (getKeyTermAddress(term) == -1) {
+        try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
+            if (getTermAddress(term) == -1) {
                 return df_t;
             } else {
-                raf.seek(getKeyTermAddress(term));
+                raf.seek(getTermAddress(term));
             }
-
             df_t = raf.readInt();//collect how many documents the term appears in
-
         } catch (IOException ioe) {
             ioe.printStackTrace();
         }
-
         return df_t;
-
     }
-
+    //Attempted dsp
     //Get Weight Term Frequency of Document function here
     //pubic double getWDTFromDisk(String term)
     //double wdt = -1.0;

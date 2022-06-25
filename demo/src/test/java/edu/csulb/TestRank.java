@@ -90,7 +90,7 @@ public class TestRank {
         hm.forEach((key,value) -> 
                                     accumulators.add(new Accumulator(key.getDocumentId(),value)));
         for (Accumulator acc : accumulators){
-            double value = acc.getA_d() / d.getDocumentWeight(acc.getDocId());
+            double value = acc.getA_d() / d.getLD(acc.getDocId());
             acc.setA_d(value);
             if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
                 if(pq.size() == RANKED_RETURN){
