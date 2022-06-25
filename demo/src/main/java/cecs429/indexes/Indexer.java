@@ -18,7 +18,7 @@ public class Indexer {
     private static final int RANKED_RETURN = 50;//change
     private static final double VOCAB_ELIMINATION_THRESHOLD = 3;//chosen number
     private final int TEST_ITERATIONS = 30;//30 required
-    private double queryTime = 0.0;
+    private double queryTime = 0.0; //timing purposes
 
         public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean throughput){
             StringBuilder postingsRows = new StringBuilder();
@@ -174,8 +174,8 @@ public class Indexer {
             }
         return pq;
         }       
-
-        public double testSearch(DocumentCorpus corpus, Index index, String queryValue, ArrayList<Integer> leaders, Boolean isBooleanQuery, Boolean testThroughput, int[] relDocs) {
+        //This calculates average precision
+        public double averagePrecision(DocumentCorpus corpus, Index index, String queryValue, Boolean isBooleanQuery, Boolean testThroughput, int[] relDocs) {
 
             System.out.println("Starting Query...");//calculate how long it takes to execute
             double queryRuntime;
