@@ -47,7 +47,7 @@ public class InExactRetrieval {
 
         double sumAvgPrecision = 0;
         for (int i = 0; i < allQueries.size(); i++) {
-            sumAvgPrecision += search.testSearch(corpus, index, allQueries.get(i), false, false, relDocs.get(i));
+            sumAvgPrecision += search.averagePrecision(corpus, index, allQueries.get(i), false, false, relDocs.get(i));
         }
 
         double meanAvgPrecision = ((double)1/allQueries.size()) * sumAvgPrecision;
