@@ -115,14 +115,14 @@ public class App
                 MeanAverage.runQueries(dir, corpus, index, false, false);
                 return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>";
              }
-            else if (squery.length() >= 5 && squery.substring(1, 5).equals("stem")) {
+            else if (squery.length() >= 5 && squery.substring(1, 5).equals(":stem")) {
                 stemmedTerm = indexer.stemWord(squery.substring(6));
                 //squeryValue = squeryValue.substring(6);
                 System.out.printf("%s stemmed to: %s", "", stemmedTerm);
                 System.out.println();
                 return "</br><div style=\"font-size: 12px;\">"+ squery.substring(6) + " stemmed to: " + stemmedTerm + "</div></br>";
                 //build a new index from the given directory
-            } else if (squery.length() >= 6 && squery.substring(1, 6).equals("index")) {
+            } else if (squery.length() >= 6 && squery.substring(1, 6).equals(":index")) {
                 System.out.println("Resetting the directory...");//re-build an in-memory index
                 dir = squery.substring(7);
                 corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());
@@ -132,7 +132,7 @@ public class App
                 long totalTime = endTime - startTime;//Timer
                 return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ totalTime +  " seconds</div>";
                 //print the first 1000 terms in the vocabulary
-            } else if (squery.length() == 6 && squery.substring(1, 6).equals("vocab")) {
+            } else if (squery.length() == 6 && squery.substring(1, 6).equals(":vocab")) {
                 List<String> vocabList = index.getVocabulary();//gather vocab list from any index
                 List<String> subVocab = null;
                 if (vocabList.size() >= 1000) { subVocab = vocabList.subList(0, 999); }
