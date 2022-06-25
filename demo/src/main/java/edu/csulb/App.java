@@ -68,20 +68,6 @@ public class App
             //return thestring;
         });
         // posts document contents as a div
-        Spark.post("/ranked-search-test", (request, response) -> {
-
-            String query = request.queryParams("query");
-            indexer.setQueryTime(0.0);
-            indexer.webSearch(query, corpus, index, false, true);
-            double time = indexer.getQueryTime();
-            double meanResponseTime = time/indexer.getTEST_ITERATIONS();
-            double throughput = 1/meanResponseTime;
-            return "<div style=\"font-size: 12px;\">Total Time To Complete 30 iterations: " + time + " seconds</div>" +
-                    "<div style=\"font-size: 12px;\">Mean Response Time: " + meanResponseTime + " seconds</div>" +
-                    "<div style=\"font-size: 12px;\">Throughput: " + throughput + " queries/second</div>" +
-                    "<br>";
-
-        });
         Spark.post("/document", (request, response) -> {
             String docid = request.queryParams("docId");//get doc id from web
             int id = Integer.parseInt(docid);

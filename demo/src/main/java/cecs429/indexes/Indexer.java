@@ -15,23 +15,13 @@ import java.util.List;
 import java.util.PriorityQueue;
   
 public class Indexer {
-    private static final int RANKED_RETURN = 50;//change
-    private static final double VOCAB_ELIMINATION_THRESHOLD = 2.5;//chosen number
-    private final int TEST_ITERATIONS = 30;//30 required
+    private static final int RANKED_RETURN = 10;//change
     private double queryTime = 0.0; //timing purposes
 
         //changed for inexact
         public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean throughput){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
-            int testIterations = 1;//test start
-            System.out.println("Starting Query...");//calculate how long it takes to execute
-            double queryRuntime;
-            long startTime = System.nanoTime();
-            if(throughput == true) {
-                testIterations = TEST_ITERATIONS;
-            }
-            for(int iteration = 0; iteration < testIterations; iteration++) {
             System.out.println("Starting Query...");
             String[] terms = query.split(" ");
             int docCount = 0;
@@ -40,7 +30,6 @@ public class Indexer {
                 for(String term:terms){      
             for (Posting post : postings) {//include document titles for each returned posting
                     ArrayList<Integer> positions = new ArrayList<>();
-                    
                     String title = corpus.getDocument(post.getDocumentId()).getTitle();
                     String row = "    <tr>\n" +
                                 "        <td>"+post.getDocumentId()+"</td>\n" +
@@ -92,13 +81,7 @@ public class Indexer {
                         postingsRows.toString() +
                         "</table>";
                     }
-                    long stopTime = System.nanoTime();
-                    queryRuntime = (double)(stopTime - startTime) / 1_000_000_000.0;
-                    setQueryTime(queryTime + queryRuntime);
-                    System.out.println("Query Time: " + queryRuntime + " seconds\n");
-                }
                     return result;
-                
         }
         //Boolean search
         public static List<Posting> search(String queryi,DocumentCorpus corpus, Index index){
@@ -135,9 +118,6 @@ public class Indexer {
             double w_qt = Math.log(1.0 + (n/((double)df_t)));  // calcul;ate wqt = ln(1 + N/dft)
             System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
 ;           //not as accurate, but saves us from thousands of disk reads
-                if (w_qt < VOCAB_ELIMINATION_THRESHOLD) {//wqt is too small to be included in results
-                    //skip this term
-                } else {
                     postings = termLiterals.get(counter).getPostings(index);
                     counter++;
                     //System.out.print("tf "+((double) index.getTermFrequency(stemmedTerm)) +"/" +"posting size "+ ((double) postings.size()));
@@ -155,7 +135,6 @@ public class Indexer {
                             }
                         }
                     }
-            }
             List<Accumulator> accumulators = new ArrayList<Accumulator>();
             hm.forEach((key,value) -> 
                                         //{if(!accumulators.contains(accumulators))){
@@ -175,7 +154,6 @@ public class Indexer {
             }
         return pq;
         }       
-        
         
         //create Positial Inverted Index for corpus when building to disk 
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
@@ -280,16 +258,5 @@ public class Indexer {
         public DiskPositionalIndex buildDiskPositionalIndex(String dir) {
             return new DiskPositionalIndex(dir);
         }
-        public double getQueryTime() {
-            return queryTime;
-        }
-        public void setQueryTime(double queryTime) {
-            this.queryTime = queryTime;
-        }
-
-        public int getTEST_ITERATIONS() {
-            return TEST_ITERATIONS;
-        }
-
     }
     
