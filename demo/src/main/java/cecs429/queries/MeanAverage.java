@@ -8,50 +8,49 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
-
+/**
+ * MeanAverage Class will use run Queries according to the relevance folder from the test collection
+ */
 public class MeanAverage {
     private static Indexer search = new Indexer();
-
-    public static void runQueries(String indexLocation, DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean testThroughput) {
-        ArrayList<String> allQueries = new ArrayList<>();
+    //grab path, the corpus of collection, disk, check boolean from old rank search function, and check to test throughput
+    public static void runMAP(String path, DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean testThroughput) {
+        ArrayList<String> queries = new ArrayList<>();//a list of all queries to be ran
         try {
-            File queries = new File(indexLocation + "/relevance/queries");
-            Scanner read = new Scanner(queries);
-            while (read.hasNextLine()) {
-                allQueries.add(read.nextLine());
+            File fileQueries = new File(path + "/relevance/queries");//open the quieries to run
+            Scanner scan = new Scanner(fileQueries);
+            while (scan.hasNextLine()) {
+                queries.add(scan.nextLine());//add each line as a query to queries
             }
-            read.close();
+            scan.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }    
-        ArrayList<int[]> relDocs = new ArrayList<>();
+        ArrayList<int[]> relDocs = new ArrayList<>();//relevant documents in a list
         try {
-            File relevantDocs = new File(indexLocation + "/relevance/qrel");
-            Scanner read = new Scanner(relevantDocs);
-            int i = 0;
-            while (read.hasNextLine()) {
-                String data = read.nextLine();
-                String[] stringDocIds = data.split(" ");
-                int[] intDocIds = new int[stringDocIds.length];
+            File relevantDocs = new File(path + "/relevance/qrel");//get them from here
+            Scanner scan = new Scanner(relevantDocs); 
+            while (scan.hasNextLine()) {//each line has doc ids relevant to the query line
+                String data = scan.nextLine();
+                String[] stringDocIds = data.split(" ");//split white space
+                int[] intDocIds = new int[stringDocIds.length];//now add the numbers to an array
                 for (int j = 0; j < intDocIds.length; j++) {
-                    intDocIds[j] = Integer.parseInt(stringDocIds[j]);
+                    intDocIds[j] = Integer.parseInt(stringDocIds[j]);//dont forget to parse from String to Int
                 }
                 relDocs.add(intDocIds);
             }
-            read.close();
+            scan.close();
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-
-        double sumAvgPrecision = 0;
-        for (int i = 0; i < allQueries.size(); i++) {
-            sumAvgPrecision += search.averagePrecision(corpus, index, allQueries.get(i), false, false, relDocs.get(i));
+        double sumAvgPrecision = 0;//initialze
+        for (int i = 0; i < queries.size(); i++) {//run the AP formula
+            sumAvgPrecision += search.averagePrecision(corpus, index, queries.get(i), false, false, relDocs.get(i));
         }
-
-        double meanAvgPrecision = ((double)1/allQueries.size()) * sumAvgPrecision;
-
+        //Now we run the MAP forumla with that already calculated sum of AP
+        double meanAvgPrecision = ((double)1/queries.size()) * sumAvgPrecision;
         System.out.println("MAP: " + meanAvgPrecision);
     }
 }

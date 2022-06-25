@@ -112,7 +112,7 @@ public class App
                 return "";
             }
              else if (squery.length() >= 5 && squery.substring(1, 5).equals("test")) {
-                MeanAverage.runQueries(dir, corpus, index, false, false);
+                MeanAverage.runMAP(dir, corpus, index, false, false);
                 return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>";
              }
             else if (squery.length() >= 5 && squery.substring(1, 5).equals(":stem")) {

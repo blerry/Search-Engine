@@ -155,7 +155,7 @@ public class Tester {
                             DocumentCorpus cor = DirectoryCorpus.loadTextDirectory(Paths.get(path).toAbsolutePath());
                             cor.getDocuments();
                             DiskPositionalIndex disk = new DiskPositionalIndex(path);
-                            MeanAverage.runQueries(path, cor, disk, false, true);    
+                            MeanAverage.runMAP(path, cor, disk, false, true);    
 						}
                      }
                 
