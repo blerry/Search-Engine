@@ -1,4 +1,4 @@
-package edu.csulb;
+package cecs429.queries;
 
 import cecs429.documents.DocumentCorpus;
 import cecs429.indexes.Index;
@@ -9,7 +9,7 @@ import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Scanner;
 
-public class InExactRetrieval {
+public class MeanAverage {
     private static Indexer search = new Indexer();
 
     public static void runQueries(String indexLocation, DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean testThroughput) {

@@ -16,7 +16,7 @@ import java.util.PriorityQueue;
   
 public class Indexer {
     private static final int RANKED_RETURN = 50;//change
-    private static final double VOCAB_ELIMINATION_THRESHOLD = 3;//chosen number
+    private static final double VOCAB_ELIMINATION_THRESHOLD = 2.5;//chosen number
     private final int TEST_ITERATIONS = 30;//30 required
     private double queryTime = 0.0; //timing purposes
 
@@ -116,7 +116,7 @@ public class Indexer {
         return postings;
             } 
         //ranked query
-    public static PriorityQueue<Accumulator> userRankedQueryInput(DocumentCorpus corpus, Index index, String queryInput) {
+        public static PriorityQueue<Accumulator> userRankedQueryInput(DocumentCorpus corpus, Index index, String queryInput) {
         System.out.println("RUNS");
         double n = corpus.getCorpusSize();
         List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
@@ -163,7 +163,7 @@ public class Indexer {
             for (Accumulator acc : accumulators){
                 // only retain the a certain amount of the top k results
                 double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
-                System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
+                //System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
                 acc.setA_d(value);
                 if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
                     if(pq.size() == RANKED_RETURN){
