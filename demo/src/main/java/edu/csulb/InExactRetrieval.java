@@ -25,5 +25,33 @@ public class InExactRetrieval {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }    
+        ArrayList<int[]> relDocs = new ArrayList<>();
+        try {
+            File relevantDocs = new File(indexLocation + "/relevance/qrel");
+            Scanner read = new Scanner(relevantDocs);
+            int i = 0;
+            while (read.hasNextLine()) {
+                String data = read.nextLine();
+                String[] stringDocIds = data.split(" ");
+                int[] intDocIds = new int[stringDocIds.length];
+                for (int j = 0; j < intDocIds.length; j++) {
+                    intDocIds[j] = Integer.parseInt(stringDocIds[j]);
+                }
+                relDocs.add(intDocIds);
+            }
+            read.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("An error occurred.");
+            e.printStackTrace();
+        }
+
+        double sumAvgPrecision = 0;
+        for (int i = 0; i < allQueries.size(); i++) {
+            sumAvgPrecision += search.testSearch(corpus, index, allQueries.get(i), false, false, relDocs.get(i));
+        }
+
+        double meanAvgPrecision = ((double)1/allQueries.size()) * sumAvgPrecision;
+
+        System.out.println("MAP: " + meanAvgPrecision);
     }
 }
