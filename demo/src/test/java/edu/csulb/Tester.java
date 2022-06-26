@@ -103,7 +103,7 @@ public class Tester {
                             index = Indexer.buildIndex(corpusB,pathName);
                             break;
                         default:
-                            Indexer.search(query,corpusB,dIndex);
+                            Indexer.boolSearch(query,corpusB,dIndex);
                             System.out.println("Enter Document ID number to view contents or -1 to continue: ");
                             int docID = scan.nextInt();
                             scan.nextLine();
@@ -132,7 +132,7 @@ public class Tester {
 							        if(query.equals("q")) {
 								    return;
 							        }
-                                    PriorityQueue<Accumulator> res = Indexer.userRankedQueryInput(corpusR,d2,query);
+                                    PriorityQueue<Accumulator> res = Indexer.rankedSearch(corpusR,d2,query);
                                     int resSize = res.size();
                                     System.out.println("Res Size: " + resSize);
                                     while(!res.isEmpty()){

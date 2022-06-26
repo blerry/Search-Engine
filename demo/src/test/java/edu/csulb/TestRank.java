@@ -27,7 +27,7 @@ public class TestRank {
         String path = "/Users/berry/Desktop/CECS429/testCorpus2";
         DocumentCorpus corpusR = DirectoryCorpus.loadTextDirectory(Paths.get(path).toAbsolutePath());
         DiskPositionalIndex d = new DiskPositionalIndex(path);
-        PriorityQueue<Accumulator> res = Indexer.userRankedQueryInput(corpusR,d,query);
+        PriorityQueue<Accumulator> res = Indexer.rankedSearch(corpusR,d,query);
         //while(!res.isEmpty()){
             Accumulator currAcc = res.poll();
             String title = corpusR.getDocument(currAcc.getDocId()).getTitle();
@@ -66,7 +66,7 @@ public class TestRank {
         DocumentCorpus corpusR = DirectoryCorpus.loadTextDirectory(Paths.get(path).toAbsolutePath());
         DiskPositionalIndex d2 = new DiskPositionalIndex(path);
         String query="teams";
-        PriorityQueue<Accumulator> res = Indexer.userRankedQueryInput(corpusR,d2,query);
+        PriorityQueue<Accumulator> res = Indexer.rankedSearch(corpusR,d2,query);
         //while(!res.isEmpty()){
             assertTrue("Accumulator size > 0", res.size()>0);
             Accumulator currAcc = res.poll();

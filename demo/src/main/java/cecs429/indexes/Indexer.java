@@ -13,12 +13,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-  
+/**
+ * Class Indexer will Index a corpus and return it with methods
+ * @indexCorpus
+ * @indexDisCorpus
+ * Or do either a Boolean or Ranked Retrieval search with
+ * @boolSearch 
+ * @rankedSearch
+ * Web search will do either but will be called by App.java for web UI purposes
+ * @webSearch
+ */
 public class Indexer {
-    private static final int RANKED_RETURN = 10;//change
-    private double queryTime = 0.0; //timing purposes
-
-        //changed for inexact
+    private static final int RANKED_RETURN = 10;//change later
+        //change for inexact later, might stay on separate maybe
         public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean throughput){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
@@ -26,7 +33,7 @@ public class Indexer {
             String[] terms = query.split(" ");
             int docCount = 0;
             if (isBooleanQuery) {//process a boolean query
-                List<Posting> postings = search(query, corpus, index);//Run Boolean Search
+                List<Posting> postings = boolSearch(query, corpus, index);//Run Boolean Search
                 for(String term:terms){      
             for (Posting post : postings) {//include document titles for each returned posting
                     ArrayList<Integer> positions = new ArrayList<>();
@@ -53,7 +60,7 @@ public class Indexer {
                 return result;
                 }else{//Ranked Query
                     PriorityQueue<Accumulator> pq;
-                    pq = userRankedQueryInput(corpus, index, query);
+                    pq = rankedSearch(corpus, index, query);
                     int pqSize = pq.size();
                 while(!pq.isEmpty()){
                     Accumulator currAcc = pq.poll();
@@ -83,8 +90,12 @@ public class Indexer {
                     }
                     return result;
         }
-        //Boolean search
-        public static List<Posting> search(String queryi,DocumentCorpus corpus, Index index){
+        /**
+         * Bool Search will use a corpus,index, and query to do a boolean retrieval
+         * based on the disk index of corpus and query by parsing the query with boolean parser
+         * Then returns a List of Postings for the results
+         */
+        public static List<Posting> boolSearch(String queryi,DocumentCorpus corpus, Index index){
             List<Posting> postings = new ArrayList<>();
             BooleanQueryParser query = new BooleanQueryParser();  
             postings = query.parseQuery(queryi).getPostingsPositions(index);
@@ -100,7 +111,12 @@ public class Indexer {
         return postings;
             } 
         //ranked query
-        public static PriorityQueue<Accumulator> userRankedQueryInput(DocumentCorpus corpus, Index index, String queryInput) {
+        /**
+         * Ranked Search will use a corpus,index, and query to do a ranked retrieval
+         * based on the disk index of corpus and quer
+         * Then returns a Priority Queue of type Accumulator to be used for results
+         */
+        public static PriorityQueue<Accumulator> rankedSearch(DocumentCorpus corpus, Index index, String query) {
         System.out.println("RUNS");
         double n = corpus.getCorpusSize();
         List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
@@ -109,7 +125,7 @@ public class Indexer {
         HashMap<Posting, Double> hm = new HashMap<>();
         PriorityQueue<Accumulator> pq = new PriorityQueue<>(RANKED_RETURN);
         String stemmedTerm = "";
-        String[] terms = queryInput.split(" ");
+        String[] terms = query.split(" ");
         for (String term : terms) { // for each term in query
             term = term.toLowerCase();
             stemmedTerm = AdvancedTokenProcessor.stemToken(term);
@@ -154,43 +170,48 @@ public class Indexer {
             }
         return pq;
         }       
+        /**
+         * Makes a Positial Inverted Index for a disk index as we return that index
+         * @param corpus
+         * @param indexLocation
+         * @return
+         * @throws IOException
+         */
         
-        //create Positial Inverted Index for corpus when building to disk 
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
             PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
             AdvancedTokenProcessor processor = new AdvancedTokenProcessor();//create token processor
-            DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
-            ArrayList<Double> documentWeight = new ArrayList<>();
-            Iterable<Document> documents = corpus.getDocuments();  // Get all the documents in the corpus by calling GetDocuments().          
+            DiskIndexWriter diskIndexWriter = new DiskIndexWriter();//used to write to index
+            ArrayList<Double> documentWeight = new ArrayList<>();//used for doc weights
+            Iterable<Document> documents = corpus.getDocuments(); //get documents in corpus to loop through
             for (Document docs : documents) {//iterate through every valid document found in the corpus
                 int totalTerms = 0;
-                HashMap<String, Integer> termFrequency = new HashMap<>();//term frequency of every term in a document
-                // Tokenize the document's content by constructing an EnglishTokenStream around the document's content.
-                EnglishTokenStream stream = new EnglishTokenStream(docs.getContent());
-                Iterable<String> tokens = stream.getTokens();//convert read data into tokens
+                HashMap<String, Integer> termFrequency = new HashMap<>();//map term frequency of terms in a document
+                EnglishTokenStream stream = new EnglishTokenStream(docs.getContent());//tokenize with English token stream
+                Iterable<String> tokens = stream.getTokens();//convert stream to tokens
                 int wordPosition = 1;//maintain the position of the word throughout the document
                 // Iterate through the tokens in the document, processing them using a BasicTokenProcessor,
                 for (String token : tokens) {
-                    List<String> words = processor.processToken(token);//convert a token to indexable terms
-                    for (int i = 0; i < words.size(); i++) {//iterate through all unstemmed tokens
+                    List<String> words = processor.processToken(token);//token will be indexable
+                    for (int i = 0; i < words.size(); i++) {//get unstemmed tokens
                         words.set(i, AdvancedTokenProcessor.stemToken(words.get(i)));
-                        if (termFrequency.containsKey(words.get(i))) {//if term is duplicate
+                        if (termFrequency.containsKey(words.get(i))) {//if duplicate
                             int prevFrequency = termFrequency.get(words.get(i));
-                            termFrequency.put(words.get(i), prevFrequency + 1);//increment term frequency counter
+                            termFrequency.put(words.get(i), prevFrequency + 1);//increase counter
                         } else {
-                            termFrequency.put(words.get(i), 1);//add new term to frequency counter
+                            termFrequency.put(words.get(i), 1);//add new term to frequency map
                         }
                     }
-                    index.addTerm(words, docs.getId(), wordPosition);//add word data to index
+                    index.addTerm(words, docs.getId(), wordPosition);//addTerm to index
                     wordPosition++;//increment word position
                     totalTerms = words.size();
                     //System.out.println(totalTerms);
                 }            
-                double sumTermWeights = 0.0;//sum of term weights
-                ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//every term frequency in the document
+                double sumTermWeights = 0.0;//add all term weights
+                ArrayList<Integer> tf_d = new ArrayList<>(termFrequency.values());//term frequences in a document
                 //System.out.println("tf_d"+tf_d);
-                for (int i = 0; i < tf_d.size(); i++) {//iterate through all term frequencies
-                    double w_dt = 1 + Math.log(tf_d.get(i));//weight of specific term in a document
+                for (int i = 0; i < tf_d.size(); i++) {//loop term frequencies
+                    double w_dt = 1 + Math.log(tf_d.get(i));//term weight in a document
                     w_dt = Math.pow(w_dt, 2.0);
                     sumTermWeights += w_dt;//summation of w_dt^2
                     //System.out.println("sumTermWeights sqrt " + sumTermWeights);
@@ -199,24 +220,25 @@ public class Indexer {
                 double l_d = Math.sqrt(sumTermWeights);//square root normalized w_dt's
                 documentWeight.add(l_d);
             }
-            //write document weights to disk
-            diskIndexWriter.writeLD(documentWeight, indexLocation);
+            diskIndexWriter.writeLD(documentWeight, indexLocation); //write calculated LD after indexing
             return index;
         }
-
-        //Used to Index a corpus in Memory "Slow"
+        /**
+         *  Used to make a Positional Inverted Index of a corpus in Memory "Slow"
+         * @param corpus
+         * @return index
+         */
         public static Index indexCorpus(DocumentCorpus corpus) {
-            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();	
-            PositionalInvertedIndex  index = new PositionalInvertedIndex();
-            // Get all the documents in the corpus by calling GetDocuments().
-            Iterable<Document> documents = corpus.getDocuments();
-            List<String> wordList = new ArrayList<String>();
+            AdvancedTokenProcessor processor = new AdvancedTokenProcessor();//to process a token	
+            PositionalInvertedIndex  index = new PositionalInvertedIndex();//for indexing
+            Iterable<Document> documents = corpus.getDocuments();//get corpus documents to iterate
+            List<String> wordList = new ArrayList<String>();//words found
             int position = 0;
             int docCount = 0;
             for (Document d : documents) {
                 docCount++;
                 EnglishTokenStream stream = new EnglishTokenStream(d.getContent());
-                Iterable<String> tokens = stream.getTokens();//convert read data into tokens
+                Iterable<String> tokens = stream.getTokens();//read streams into tokens
                 for(String token : tokens){
                     //String term = processor.processToken(token); //get 1 token at a time
                     wordList = processor.processToken(token);
@@ -234,6 +256,9 @@ public class Indexer {
             System.out.println("Number of Documents: " + docCount);
             return index;
         }
+        /*
+         * build Index but using a timer to load and also for special query
+         */
         public static Index buildIndex(DocumentCorpus corpus, String path){
             DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
             long startTime = System.nanoTime();
@@ -251,7 +276,7 @@ public class Indexer {
             }
             return index;
         }
-        public String stemWord(String word){
+        public String stemWord(String word){//get the stem of a word
             ArrayList<String> stemmedWord = new AdvancedTokenProcessor().processToken(word);
             return stemmedWord.get(0);
         }
