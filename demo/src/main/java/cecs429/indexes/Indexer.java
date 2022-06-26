@@ -206,17 +206,13 @@ public class Indexer {
                 }
     
             }
-    
             double avgPrecision = ((double)1/relDocs.length) * relevantSum;
-    
             System.out.println();
-    
             long stopTime = System.nanoTime();
             queryRuntime = (double)(stopTime - startTime) / 1_000_000_000.0;
             setQueryTime(queryTime + queryRuntime);
             System.out.println("Query Time: " + queryRuntime + " seconds");
             System.out.println("Average Precision: " + avgPrecision + "\n");
-    
             return avgPrecision;
     
         }
