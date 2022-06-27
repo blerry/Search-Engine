@@ -7,7 +7,7 @@ import cecs429.indexes.DiskPositionalIndex;
 import cecs429.documents.DirectoryCorpus;
 
 import cecs429.indexes.Indexer;
-import cecs429.queries.MeanAverage;
+import cecs429.queries.CalculatePrecision;
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
@@ -70,7 +70,6 @@ public class App
         });
         // posts document contents as a div
         Spark.post("/ranked-search-test", (request, response) -> {
-
             String query = request.queryParams("query");
             indexer.setQueryTime(0.0);
             indexer.webSearch(query, corpus, index, false, true);
@@ -81,12 +80,11 @@ public class App
                     "<div style=\"font-size: 12px;\">Mean Response Time: " + meanResponseTime + " seconds</div>" +
                     "<div style=\"font-size: 12px;\">Throughput: " + throughput + " queries/second</div>" +
                     "<br>";
-
         });
         Spark.post("/document", (request, response) -> {
             String docid = request.queryParams("docId");//get doc id from web
             int id = Integer.parseInt(docid);
-            //corpus is index request directory ;
+            //corpus is index request directory
             corpus.getDocuments(); //this line is needed or else corpus has mDocuments = null ???
             Document doc = corpus.getDocument(id);
             Reader reader = doc.getContent();//get content
@@ -112,7 +110,7 @@ public class App
                 return "";
             }
              else if (squery.length() >= 5 && squery.substring(1, 5).equals("test")) {
-                MeanAverage.runMAP(dir, corpus, index, false, false);
+                CalculatePrecision.meanAveragePrecision(dir, corpus, index);
                 return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>";
              }
             else if (squery.length() >= 5 && squery.substring(1, 5).equals(":stem")) {
@@ -144,32 +142,5 @@ public class App
             }
         });
     }
-    private static long timeToBuildIndex(String dir, boolean isDiskIndex) throws IOException {
-
-        System.out.println("Starting to build index...");
-        //measure how long it takes to build the index
-        long startTime = System.nanoTime();
-
-        if (isDiskIndex) {//create index from disk
-            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
-            index = indexer.buildDiskPositionalIndex(dir);//builds positional index 
-        } else {//create in memory index
-            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
-            index = new DiskPositionalIndex(dir);
-            //index = Indexer.indexCorpus(corpus); //index the corpus with method
-            diskIndexWriter.writeIndex(index, dir);//calls the writer of index to disk
-        }
-
-       // long stopTime = System.nanoTime();
-        long endTime = System.nanoTime(); 
-        long totalTime = endTime - startTime;//Timer
-        //double indexSeconds = (double)(stopTime - startTime) / 1_000_000_000.0;
-        System.out.println("Done!\n");
-        System.out.println("Time to build index: " + totalTime/1000000000 + " seconds");
-        
-        return totalTime;
-
-    }
-
 }
 

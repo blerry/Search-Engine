@@ -16,7 +16,7 @@ import cecs429.indexes.DiskPositionalIndex;
 import cecs429.indexes.Index;
 import cecs429.queries.Accumulator;
 import cecs429.queries.BooleanQueryParser;
-import cecs429.queries.MeanAverage;
+import cecs429.queries.CalculatePrecision;
 import cecs429.queries.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
 import cecs429.indexes.Indexer;
@@ -104,7 +104,7 @@ public class Tester {
                             index = Indexer.buildIndex(corpusB,pathName);
                             break;
                         default:
-                            Indexer.search(query,corpusB,dIndex);
+                            Indexer.boolSearch(query,corpusB,dIndex);
                             System.out.println("Enter Document ID number to view contents or -1 to continue: ");
                             int docID = scan.nextInt();
                             scan.nextLine();
@@ -133,7 +133,7 @@ public class Tester {
 							        if(query.equals("q")) {
 								    return;
 							        }
-                                    PriorityQueue<Accumulator> res = Indexer.userRankedQueryInput(corpusR,d2,query);
+                                    PriorityQueue<Accumulator> res = Indexer.rankedSearch(corpusR,d2,query);
                                     int resSize = res.size();
                                     System.out.println("Res Size: " + resSize);
                                     while(!res.isEmpty()){
@@ -155,7 +155,7 @@ public class Tester {
                             DocumentCorpus cor = DirectoryCorpus.loadTextDirectory(Paths.get(path).toAbsolutePath());
                             cor.getDocuments();
                             DiskPositionalIndex disk = new DiskPositionalIndex(path);
-                            MeanAverage.runMAP(path, cor, disk, false, true);    
+                            CalculatePrecision.meanAveragePrecision(path, cor, disk);    
 						}
                      }
                 

@@ -13,7 +13,19 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
-  
+/**
+ * Indexer class will create an index for disk or memory
+ * @indexCorpus
+ * used to index a corpus in memory
+ * @indexDiskCorpus
+ * used to index a corpus for disk
+ * 
+ * Indexer can also can search with given string queries
+ * @rankedSearch
+ * Use ranked retrieval with accumulators for scoring
+ * @boolSearch
+ * Use boolean retrieval with boolean query parsing
+ */
 public class Indexer {
     private static final int RANKED_RETURN = 50;//change
     private static final double VOCAB_ELIMINATION_THRESHOLD = 2.5;//chosen number
@@ -36,7 +48,7 @@ public class Indexer {
             String[] terms = query.split(" ");
             int docCount = 0;
             if (isBooleanQuery) {//process a boolean query
-                List<Posting> postings = search(query, corpus, index);//Run Boolean Search
+                List<Posting> postings = boolSearch(query, corpus, index);//Run Boolean Search
                 for(String term:terms){      
             for (Posting post : postings) {//include document titles for each returned posting
                     ArrayList<Integer> positions = new ArrayList<>();
@@ -64,7 +76,7 @@ public class Indexer {
                 return result;
                 }else{//Ranked Query
                     PriorityQueue<Accumulator> pq;
-                    pq = userRankedQueryInput(corpus, index, query);
+                    pq = rankedSearch(corpus, index, query);
                     int pqSize = pq.size();
                 while(!pq.isEmpty()){
                     Accumulator currAcc = pq.poll();
@@ -97,11 +109,10 @@ public class Indexer {
                     setQueryTime(queryTime + queryRuntime);
                     System.out.println("Query Time: " + queryRuntime + " seconds\n");
                 }
-                    return result;
-                
+                    return result;  
         }
         //Boolean search
-        public static List<Posting> search(String queryi,DocumentCorpus corpus, Index index){
+        public static List<Posting> boolSearch(String queryi,DocumentCorpus corpus, Index index){
             List<Posting> postings = new ArrayList<>();
             BooleanQueryParser query = new BooleanQueryParser();  
             postings = query.parseQuery(queryi).getPostingsPositions(index);
@@ -117,7 +128,7 @@ public class Indexer {
         return postings;
             } 
         //ranked query
-        public static PriorityQueue<Accumulator> userRankedQueryInput(DocumentCorpus corpus, Index index, String queryInput) {
+        public static PriorityQueue<Accumulator> rankedSearch(DocumentCorpus corpus, Index index, String queryInput) {
         System.out.println("RUNS");
         double n = corpus.getCorpusSize();
         List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
@@ -183,7 +194,7 @@ public class Indexer {
             long startTime = System.nanoTime();
     
             PriorityQueue<Accumulator> pq;
-            pq = userRankedQueryInput(corpus, index, queryValue);
+            pq = rankedSearch(corpus, index, queryValue);
            
             System.out.println("Query: " + queryValue.substring(0, queryValue.length()-2));
             System.out.print("Relevant: ");
