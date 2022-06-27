@@ -99,23 +99,29 @@ public class DiskPositionalIndex implements Index{
         return -1;//in case not found
     }
     @Override
+    //get postings without positions
     public List<Posting> getPostings(String term){//ranked
         List<Posting> result = new ArrayList<>();
         String stringTerm = AdvancedTokenProcessor.stemToken(term);
-        if (getTermAddress(stringTerm) != -1) {//term doesn't exist
-            if (getTermPostings(getTermAddress(stringTerm), false) != null) {
-                result.addAll(getTermPostings(getTermAddress(stringTerm), false));
+        long termAddress = getTermAddress(stringTerm);
+        List<Posting> termPostings = getTermPostings(termAddress, false);
+        if (termAddress != -1) {// exist
+            if (termPostings != null) {
+                result.addAll(termPostings);
             }
         }
         return result;
     }
     @Override
+    //get postings but with positions
     public List<Posting> getPostingsPositions(String term){//boolean
         List<Posting> result = new ArrayList<>();
         String stringTerm = AdvancedTokenProcessor.stemToken(term);
-        if (getTermAddress(stringTerm) != -1) {//term doesn't exist
-            if (getTermPostings(getTermAddress(stringTerm), true) != null) {
-                result.addAll(getTermPostings(getTermAddress(stringTerm), true));
+        long termAddress = getTermAddress(stringTerm);
+        List<Posting> termPostings = getTermPostings(termAddress, true);
+        if (termAddress != -1) {//term doesn't exist
+            if (termPostings != null) {
+                result.addAll(termPostings);
             }
         }
         return result;
@@ -149,7 +155,7 @@ public class DiskPositionalIndex implements Index{
         return termFrequency;
 
     }
-    private int getDocumentFrequencyOfTerm(String term) {
+    public int getDocumentFrequencyOfTerm(String term) {
         int df_t = -1;
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
             if (getTermAddress(term) == -1) {
