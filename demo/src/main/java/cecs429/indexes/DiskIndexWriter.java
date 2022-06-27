@@ -13,9 +13,18 @@ import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
-
+/**
+ * Disk IndexWriter will write an index to disk at the corpusPath/index folder
+ * With the following files, postings.bin, docWeights.bin, index.db
+ * @param index
+ *  Includes the index that will need to be written for (positional inverted index)
+ */
 public class DiskIndexWriter {
-
+    /**
+     * Max address for index on disk is 8 bytes
+     * Each file 4 bytes in the format:
+     * term 1 frequency / firstDocumentID / total positions / 1stPosition / 2ndPosition /...
+     */
 	public ArrayList<Long> writeIndex(Index index, String path) throws IOException {
         File directory = new File(path + "/index");
         if (!directory.exists()) {
@@ -24,12 +33,9 @@ public class DiskIndexWriter {
         //create B+ tree for terms and addresses
         DB db = DBMaker.fileDB(path + "/index/index.db").make();
         BTreeMap<String, Long> bTreeMap = db.treeMap("map").keySerializer(Serializer.STRING).valueSerializer(Serializer.LONG).counterEnable().createOrOpen();
-        //making a postings binary file 
-        //It is an index on disk with a maximum address of 8-bytes = 64-bits
-        //Every file(4Bytes) Format: term 1 frequency / firstDocumentID / total positions / 1stPosition / 2ndPosition /...
-
+        //create a postings binary file 
         ArrayList<Long> wordAddresses = new ArrayList<>();
-        List<String> words = index.getVocabulary(); //Retrieve the sorted vocabulary list from the index
+        List<String> words = index.getVocabulary(); //get the sorted vocabulary list from the index
 
         try (DataOutputStream dout = new DataOutputStream(
                 new BufferedOutputStream(
@@ -80,7 +86,7 @@ public class DiskIndexWriter {
 
     }
 
-    public void writeLD(ArrayList<Double> documentWeights, String path) {
+    public void writeDocumentWeights(ArrayList<Double> documentWeights, String path) {
         File directory = new File(path + "/index");
         if (!directory.exists()) {
             directory.mkdirs();

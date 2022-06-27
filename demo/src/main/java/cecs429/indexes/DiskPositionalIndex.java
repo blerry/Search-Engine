@@ -1,26 +1,32 @@
 package cecs429.indexes;
 
+import cecs429.text.AdvancedTokenProcessor;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
-
-import java.util.ArrayList;
-
-import cecs429.text.AdvancedTokenProcessor;
-import cecs429.indexes.Index;
-import cecs429.indexes.Posting;
-
+/**
+ * Disk Positional Index will index a corpus from a disk read
+ * where the disk is located in a index folder of the path "path/index"
+ * Included are methods for retrieving term frequency and postings.
+ */
 public class DiskPositionalIndex implements Index{
         DB dIndex;
         String path;
         BTreeMap<String, Long> bTreeMap;
-        public DiskPositionalIndex(String dir) {
+    /**
+     * @param dir
+     * required the location of the corpus with index folder
+     */
+    public DiskPositionalIndex(String dir) {
             dIndex = null;
             bTreeMap = null;
             path = dir + "/index";
@@ -82,7 +88,7 @@ public class DiskPositionalIndex implements Index{
             return bTreeMap.get(term);
         }
     }
-    public double getLD(int docId) {
+    public double getDocumentWeight(int docId) {
         try (RandomAccessFile raf = new RandomAccessFile(path + "/docWeights.bin", "r")) {
             raf.seek(docId * 8);//double needs 8-byte offset
             //check if doc starts at 0
@@ -123,7 +129,7 @@ public class DiskPositionalIndex implements Index{
         }
         return vocab;
     }
-    public int getTF(String term) {
+    public int getTermFrequency(String term) {
         int termFrequency = -1;
 //double wdt = -1;
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
@@ -143,7 +149,7 @@ public class DiskPositionalIndex implements Index{
         return termFrequency;
 
     }
-    public int getDF_T(String term) {
+    public int getDocumentFrequencyOfTerm(String term) {
         int df_t = -1;
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
             if (getTermAddress(term) == -1) {

@@ -24,13 +24,13 @@ public interface Index {
 	/**
 	 * A (sorted) list of all terms in the index vocabulary.
 	 */
-	int getTF(String term);
+	int getTermFrequency(String term);
 	/**
 	 * Get Term frequency a term in disk.
 	 */
-	double getLD(int docId);
+	double getDocumentWeight(int docId);
 	/**
 	 * Get the length of the document accoridng to rank retrieval
 	 */
-	int getDF_T(String term);
+	int getDocumentFrequencyOfTerm(String term);
 }

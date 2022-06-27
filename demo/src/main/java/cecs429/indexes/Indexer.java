@@ -131,7 +131,7 @@ public class Indexer {
             term = term.toLowerCase();
             stemmedTerm = AdvancedTokenProcessor.stemToken(term);
             termLiterals.add(new TermLiteral(stemmedTerm));
-            int df_t = index.getDF_T(stemmedTerm);
+            int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
             double w_qt = Math.log(1.0 + (n/((double)df_t)));  // calcul;ate wqt = ln(1 + N/dft)
             System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
 ;           //not as accurate, but saves us from thousands of disk reads
@@ -163,7 +163,7 @@ public class Indexer {
                                         //});
             for (Accumulator acc : accumulators){
                 // only retain the a certain amount of the top k results
-                double value = acc.getA_d() / index.getLD(acc.getDocId());
+                double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
                 //System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
                 acc.setA_d(value);
                 if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
@@ -262,7 +262,7 @@ public class Indexer {
                 documentWeight.add(l_d);
             }
             //write document weights to disk
-            diskIndexWriter.writeLD(documentWeight, indexLocation);
+            diskIndexWriter.writeDocumentWeights(documentWeight, indexLocation);
             return index;
         }
 
