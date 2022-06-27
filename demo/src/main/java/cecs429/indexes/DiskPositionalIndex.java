@@ -19,9 +19,9 @@ import org.mapdb.Serializer;
  * Included are methods for retrieving term frequency and postings.
  */
 public class DiskPositionalIndex implements Index{
-        DB dIndex;
-        String path;
-        BTreeMap<String, Long> bTreeMap;
+        private DB dIndex;
+        private String path;
+        private BTreeMap<String, Long> bTreeMap;
     /**
      * @param dir
      * required the location of the corpus with index folder
@@ -81,7 +81,7 @@ public class DiskPositionalIndex implements Index{
         }
         return postings;
     }
-    public long getTermAddress(String term) {
+    private long getTermAddress(String term) {
         if (bTreeMap.get(term) == null) {
             return -1;
         } else {
@@ -149,7 +149,7 @@ public class DiskPositionalIndex implements Index{
         return termFrequency;
 
     }
-    public int getDocumentFrequencyOfTerm(String term) {
+    private int getDocumentFrequencyOfTerm(String term) {
         int df_t = -1;
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
             if (getTermAddress(term) == -1) {
