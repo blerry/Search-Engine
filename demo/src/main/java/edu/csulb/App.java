@@ -74,9 +74,10 @@ public class App
             indexer.setQueryTime(0.0);
             indexer.webSearch(query, corpus, index, false, true);
             double time = indexer.getQueryTime();
-            double meanResponseTime = time/indexer.getTEST_ITERATIONS();
+            int testIterations = indexer.getTEST_ITERATIONS();
+            double meanResponseTime = time/testIterations;
             double throughput = 1/meanResponseTime;
-            return "<div style=\"font-size: 12px;\">Total Time To Complete 30 iterations: " + time + " seconds</div>" +
+            return "<div style=\"font-size: 12px;\">Total Time To Complete "+ testIterations+ "iterations: " + time + " seconds</div>" +
                     "<div style=\"font-size: 12px;\">Mean Response Time: " + meanResponseTime + " seconds</div>" +
                     "<div style=\"font-size: 12px;\">Throughput: " + throughput + " queries/second</div>" +
                     "<br>";
@@ -110,7 +111,7 @@ public class App
                 return "";
             }
              else if (squery.length() >= 5 && squery.substring(1, 5).equals("test")) {
-                CalculatePrecision.meanAveragePrecision(dir, corpus, index);
+                double meanAvgPrecision = CalculatePrecision.meanAveragePrecision(dir, corpus, index);
                 return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>";
              }
             else if (squery.length() >= 5 && squery.substring(1, 5).equals(":stem")) {
