@@ -27,13 +27,18 @@ import java.util.PriorityQueue;
  * Use boolean retrieval with boolean query parsing
  */
 public class Indexer {
-    private static final int RANKED_RETURN = 10;//change later
+        private static final int RANKED_RETURN = 50;//change later
+        private static final double VOCAB_ELIMINATION_THRESHOLD = 2.5;// 3 because it is the best
+        private final int TEST_ITERATIONS = 30;
+        private double queryTime = 0.0;
         //change for inexact later, might stay on separate maybe
         public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean throughput){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
             System.out.println("Starting Query...");
+            double queryRuntime;
             String[] terms = query.split(" ");
+            long startTime = System.nanoTime();
             int docCount = 0;
             if (isBooleanQuery) {//process a boolean query
                 List<Posting> postings = boolSearch(query, corpus, index);//Run Boolean Search
@@ -96,9 +101,10 @@ public class Indexer {
                     queryRuntime = (double)(stopTime - startTime) / 1_000_000_000.0;
                     setQueryTime(queryTime + queryRuntime);
                     System.out.println("Query Time: " + queryRuntime + " seconds\n");
+                    return result;
                 }
-                    return result;  
-        }
+                    
+        
         //Boolean search
 
         public static List<Posting> boolSearch(String queryi,DocumentCorpus corpus, Index index){
@@ -118,7 +124,7 @@ public class Indexer {
             } 
         //ranked query
 
-        public static PriorityQueue<Accumulator> rankedSearch(DocumentCorpus corpus, Index index, String queryInput) {
+        public static PriorityQueue<Accumulator> rankedSearch(DocumentCorpus corpus, Index index, String query) {
         //System.out.println("RUNS");
         double n = corpus.getCorpusSize();
         List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
