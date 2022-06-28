@@ -20,17 +20,20 @@ public class CalculatePrecision {
     private static double queryTime = 0.0; //timing purposes
     //This calculates average precision
     public static double averagePrecision(DocumentCorpus corpus, Index index, String query, int[] relDocs) {
+        //query = "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft";
         double relevantSum = 0;
         int relevantIndex = 0;
         int totalRelevantDocs = 0;
         double queryRuntime;
         long startTime = System.nanoTime();
         System.out.println("Loading Query...");//calculate how long it takes to execute
+        String testQuery = "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft";
         PriorityQueue<Accumulator> pq = Indexer.rankedSearch(corpus, index, query);
         System.out.println("Query: " + query.substring(0, query.length()-2));
         while(!pq.isEmpty()){
             Accumulator currAcc = pq.poll();
             relevantIndex++;//increase @i
+            //System.out.println("K: " + relevantIndex);
             int docId = currAcc.getDocId() + 1;
             for (int i = 0; i < relDocs.length; i++) {
                 if (relDocs[i] == docId) {//match
