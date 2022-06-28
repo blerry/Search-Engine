@@ -32,7 +32,7 @@ public class Indexer {
         private final int TEST_ITERATIONS = 30;
         private double queryTime = 0.0;
         //change for inexact later, might stay on separate maybe
-        public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery, Boolean throughput){
+        public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery,Boolean testThroughput){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
             System.out.println("Starting Query...");
@@ -40,6 +40,11 @@ public class Indexer {
             String[] terms = query.split(" ");
             long startTime = System.nanoTime();
             int docCount = 0;
+            int testIterations = 1;
+            if(testThroughput == true) {
+                testIterations = TEST_ITERATIONS;
+            }
+            for(int iteration = 0; iteration < testIterations; iteration++) {//loop only for testing iterations, else just 1 iteration.
             if (isBooleanQuery) {//process a boolean query
                 List<Posting> postings = boolSearch(query, corpus, index);//Run Boolean Search
                 for(String term:terms){      
@@ -101,8 +106,9 @@ public class Indexer {
                     queryRuntime = (double)(stopTime - startTime) / 1_000_000_000.0;
                     setQueryTime(queryTime + queryRuntime);
                     System.out.println("Query Time: " + queryRuntime + " seconds\n");
-                    return result;
                 }
+            return result;
+        }
                     
         
         //Boolean search
@@ -312,6 +318,6 @@ public class Indexer {
         public int getTEST_ITERATIONS() {
             return TEST_ITERATIONS;
         }
-
     }
+
     
