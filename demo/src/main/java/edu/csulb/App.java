@@ -7,10 +7,14 @@ import cecs429.indexes.DiskPositionalIndex;
 import cecs429.documents.DirectoryCorpus;
 
 import cecs429.indexes.Indexer;
+
+import cecs429.queries.CalculatePrecision;
+
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.io.IOException;
@@ -68,10 +72,23 @@ public class App
             //return thestring;
         });
         // posts document contents as a div
+        Spark.post("/ranked-search-test", (request, response) -> {
+            String query = request.queryParams("query");
+            indexer.setQueryTime(0.0);
+            indexer.webSearch(query, corpus, index, false, true);
+            double time = indexer.getQueryTime();
+            int testIterations = indexer.getTEST_ITERATIONS();
+            double meanResponseTime = time/testIterations;
+            double throughput = 1/meanResponseTime;
+            return "<div style=\"font-size: 36px;\">Total Time: "+ testIterations+ "iterations: " + time + " seconds</div>" +
+                    "<div style=\"font-size: 36px;\">Mean Response Time: " + meanResponseTime + " seconds</div>" +
+                    "<div style=\"font-size: 36px;\">Throughput: " + throughput + " queries/second</div>" +
+                    "<br>";
+        });
         Spark.post("/document", (request, response) -> {
             String docid = request.queryParams("docId");//get doc id from web
             int id = Integer.parseInt(docid);
-            //corpus is index request directory ;
+            //corpus is index request directory
             corpus.getDocuments(); //this line is needed or else corpus has mDocuments = null ???
             Document doc = corpus.getDocument(id);
             Reader reader = doc.getContent();//get content
@@ -96,13 +113,18 @@ public class App
                 System.exit(-1);
                 return "";
             }
-             else if (squery.length() >= 5 && squery.substring(1, 5).equals("test")) {
-                //MeanAverage.runQueries(dir, corpus, index, false, false);
-                return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>";
+             else if (squery.length() >= 5 && squery.substring(0, 5).equals(":test")) {
+                ArrayList<String> queries= CalculatePrecision.getQueries(dir);
+                for(String q: queries){
+                    q = "<br>"+q+"</br>";
+                }
+                double meanAvgPrecision = CalculatePrecision.meanAveragePrecision(dir, corpus, index);
+                return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>"+
+                "<div style=\"font-size: 12px;\">"+queries+"</div>"+
+                        "</br><div style=\"font-size: 36px;\">"+"Mean Average Precision  "+meanAvgPrecision+"</div></br>";
              }
-            else if (squery.length() >= 5 && squery.substring(1, 5).equals(":stem")) {
-                stemmedTerm = indexer.stemWord(squery.substring(6));
-                //squeryValue = squeryValue.substring(6);
+            else if (squery.length() >= 5 && squery.substring(0, 5).equals(":stem")) {
+                stemmedTerm = indexer.stemWord(squery.substring(5));
                 System.out.printf("%s stemmed to: %s", "", stemmedTerm);
                 System.out.println();
                 return "</br><div style=\"font-size: 12px;\">"+ squery.substring(6) + " stemmed to: " + stemmedTerm + "</div></br>";
@@ -117,7 +139,7 @@ public class App
                 long totalTime = endTime - startTime;//Timer
                 return "<div style=\"color:white; font-size: 12px\">New Files Indexed From: " + dir + "</div> </br> <div style=\"font-size: 10px\">Time to Index:"+ totalTime +  " seconds</div>";
                 //print the first 1000 terms in the vocabulary
-            } else if (squery.length() == 6 && squery.substring(1, 6).equals(":vocab")) {
+            } else if (squery.length() == 6 && squery.substring(0, 6).equals(":vocab")) {
                 List<String> vocabList = index.getVocabulary();//gather vocab list from any index
                 List<String> subVocab = null;
                 if (vocabList.size() >= 1000) { subVocab = vocabList.subList(0, 999); }
@@ -129,32 +151,5 @@ public class App
             }
         });
     }
-    private static long timeToBuildIndex(String dir, boolean isDiskIndex) throws IOException {
-
-        System.out.println("Starting to build index...");
-        //measure how long it takes to build the index
-        long startTime = System.nanoTime();
-
-        if (isDiskIndex) {//create index from disk
-            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
-            index = indexer.buildDiskPositionalIndex(dir);//builds positional index 
-        } else {//create in memory index
-            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
-            index = new DiskPositionalIndex(dir);
-            //index = Indexer.indexCorpus(corpus); //index the corpus with method
-            diskIndexWriter.writeIndex(index, dir);//calls the writer of index to disk
-        }
-
-       // long stopTime = System.nanoTime();
-        long endTime = System.nanoTime(); 
-        long totalTime = endTime - startTime;//Timer
-        //double indexSeconds = (double)(stopTime - startTime) / 1_000_000_000.0;
-        System.out.println("Done!\n");
-        System.out.println("Time to build index: " + totalTime/1000000000 + " seconds");
-        
-        return totalTime;
-
-    }
-
 }
 

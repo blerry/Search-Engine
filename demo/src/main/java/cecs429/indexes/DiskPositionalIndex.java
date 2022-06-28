@@ -1,26 +1,32 @@
 package cecs429.indexes;
 
+import cecs429.text.AdvancedTokenProcessor;
+
 import java.io.IOException;
 import java.io.RandomAccessFile;
+
 import java.util.Iterator;
 import java.util.List;
+import java.util.ArrayList;
 
 import org.mapdb.BTreeMap;
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.Serializer;
-
-import java.util.ArrayList;
-
-import cecs429.text.AdvancedTokenProcessor;
-import cecs429.indexes.Index;
-import cecs429.indexes.Posting;
-
+/**
+ * Disk Positional Index will index a corpus from a disk read
+ * where the disk is located in a index folder of the path "path/index"
+ * Included are methods for retrieving term frequency and postings.
+ */
 public class DiskPositionalIndex implements Index{
-        DB dIndex;
-        String path;
-        BTreeMap<String, Long> bTreeMap;
-        public DiskPositionalIndex(String dir) {
+        private DB dIndex;
+        private String path;
+        private BTreeMap<String, Long> bTreeMap;
+    /**
+     * @param dir
+     * required the location of the corpus with index folder
+     */
+    public DiskPositionalIndex(String dir) {
             dIndex = null;
             bTreeMap = null;
             path = dir + "/index";
@@ -35,6 +41,9 @@ public class DiskPositionalIndex implements Index{
     public List<Posting> getTermPostings(long address, boolean withPositions) {
         List<Posting> postings = new ArrayList<>();
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
+            if(address==-1){
+                return postings;
+            }
             raf.seek(address);//go to term address
             int postingsSize = raf.readInt();//Dft 
             int termFrequency = raf.readInt();//needs this read
@@ -75,14 +84,14 @@ public class DiskPositionalIndex implements Index{
         }
         return postings;
     }
-    public long getTermAddress(String term) {
+    private long getTermAddress(String term) {
         if (bTreeMap.get(term) == null) {
             return -1;
         } else {
             return bTreeMap.get(term);
         }
     }
-    public double getLD(int docId) {
+    public double getDocumentWeight(int docId) {
         try (RandomAccessFile raf = new RandomAccessFile(path + "/docWeights.bin", "r")) {
             raf.seek(docId * 8);//double needs 8-byte offset
             //check if doc starts at 0
@@ -93,23 +102,29 @@ public class DiskPositionalIndex implements Index{
         return -1;//in case not found
     }
     @Override
+    //get postings without positions
     public List<Posting> getPostings(String term){//ranked
         List<Posting> result = new ArrayList<>();
         String stringTerm = AdvancedTokenProcessor.stemToken(term);
-        if (getTermAddress(stringTerm) != -1) {//term doesn't exist
-            if (getTermPostings(getTermAddress(stringTerm), false) != null) {
-                result.addAll(getTermPostings(getTermAddress(stringTerm), false));
+        long termAddress = getTermAddress(stringTerm);
+        List<Posting> termPostings = getTermPostings(termAddress, false);
+        if (termAddress != -1) {// exist
+            if (termPostings != null) {
+                result.addAll(termPostings);
             }
         }
         return result;
     }
     @Override
+    //get postings but with positions
     public List<Posting> getPostingsPositions(String term){//boolean
         List<Posting> result = new ArrayList<>();
         String stringTerm = AdvancedTokenProcessor.stemToken(term);
-        if (getTermAddress(stringTerm) != -1) {//term doesn't exist
-            if (getTermPostings(getTermAddress(stringTerm), true) != null) {
-                result.addAll(getTermPostings(getTermAddress(stringTerm), true));
+        long termAddress = getTermAddress(stringTerm);
+        List<Posting> termPostings = getTermPostings(termAddress, true);
+        if (termAddress != -1) {//term doesn't exist
+            if (termPostings != null) {
+                result.addAll(termPostings);
             }
         }
         return result;
@@ -123,7 +138,7 @@ public class DiskPositionalIndex implements Index{
         }
         return vocab;
     }
-    public int getTF(String term) {
+    public int getTermFrequency(String term) {
         int termFrequency = -1;
 //double wdt = -1;
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
@@ -143,7 +158,7 @@ public class DiskPositionalIndex implements Index{
         return termFrequency;
 
     }
-    public int getDF_T(String term) {
+    public int getDocumentFrequencyOfTerm(String term) {
         int df_t = -1;
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
             if (getTermAddress(term) == -1) {

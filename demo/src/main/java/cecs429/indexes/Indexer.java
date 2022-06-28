@@ -14,14 +14,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.PriorityQueue;
 /**
- * Class Indexer will Index a corpus and return it with methods
+ * Indexer class will create an index for disk or memory
  * @indexCorpus
- * @indexDisCorpus
- * Or do either a Boolean or Ranked Retrieval search with
- * @boolSearch 
+ * used to index a corpus in memory
+ * @indexDiskCorpus
+ * used to index a corpus for disk
+ * 
+ * Indexer can also can search with given string queries
  * @rankedSearch
- * Web search will do either but will be called by App.java for web UI purposes
- * @webSearch
+ * Use ranked retrieval with accumulators for scoring
+ * @boolSearch
+ * Use boolean retrieval with boolean query parsing
  */
 public class Indexer {
     private static final int RANKED_RETURN = 10;//change later
@@ -88,13 +91,16 @@ public class Indexer {
                         postingsRows.toString() +
                         "</table>";
                     }
-                    return result;
+
+                    long stopTime = System.nanoTime();
+                    queryRuntime = (double)(stopTime - startTime) / 1_000_000_000.0;
+                    setQueryTime(queryTime + queryRuntime);
+                    System.out.println("Query Time: " + queryRuntime + " seconds\n");
+                }
+                    return result;  
         }
-        /**
-         * Bool Search will use a corpus,index, and query to do a boolean retrieval
-         * based on the disk index of corpus and query by parsing the query with boolean parser
-         * Then returns a List of Postings for the results
-         */
+        //Boolean search
+
         public static List<Posting> boolSearch(String queryi,DocumentCorpus corpus, Index index){
             List<Posting> postings = new ArrayList<>();
             BooleanQueryParser query = new BooleanQueryParser();  
@@ -111,13 +117,9 @@ public class Indexer {
         return postings;
             } 
         //ranked query
-        /**
-         * Ranked Search will use a corpus,index, and query to do a ranked retrieval
-         * based on the disk index of corpus and quer
-         * Then returns a Priority Queue of type Accumulator to be used for results
-         */
-        public static PriorityQueue<Accumulator> rankedSearch(DocumentCorpus corpus, Index index, String query) {
-        System.out.println("RUNS");
+
+        public static PriorityQueue<Accumulator> rankedSearch(DocumentCorpus corpus, Index index, String queryInput) {
+        //System.out.println("RUNS");
         double n = corpus.getCorpusSize();
         List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
         int counter = 0;
@@ -130,9 +132,14 @@ public class Indexer {
             term = term.toLowerCase();
             stemmedTerm = AdvancedTokenProcessor.stemToken(term);
             termLiterals.add(new TermLiteral(stemmedTerm));
-            int df_t = index.getDF_T(stemmedTerm);
-            double w_qt = Math.log(1.0 + (n/((double)df_t)));  // calcul;ate wqt = ln(1 + N/dft)
-            System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
+            int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
+            double w_qt;
+            if(df_t == -1){
+                w_qt = 1;
+            }else{
+             w_qt = Math.log(1.0 + (n/((double)df_t)));
+              }  // calcul;ate wqt = ln(1 + N/dft)
+            //System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
 ;           //not as accurate, but saves us from thousands of disk reads
                     postings = termLiterals.get(counter).getPostings(index);
                     counter++;
@@ -158,7 +165,7 @@ public class Indexer {
                                         //});
             for (Accumulator acc : accumulators){
                 // only retain the a certain amount of the top k results
-                double value = acc.getA_d() / index.getLD(acc.getDocId());
+                double value = acc.getA_d() / index.getDocumentWeight(acc.getDocId());
                 //System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
                 acc.setA_d(value);
                 if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
@@ -170,6 +177,7 @@ public class Indexer {
             }
         return pq;
         }       
+
         /**
          * Makes a Positial Inverted Index for a disk index as we return that index
          * @param corpus
@@ -177,6 +185,7 @@ public class Indexer {
          * @return
          * @throws IOException
          */
+
         
         public static Index indexDiskCorpus(DocumentCorpus corpus,String indexLocation) throws IOException {
             PositionalInvertedIndex index = new PositionalInvertedIndex();//create positional index
@@ -220,7 +229,8 @@ public class Indexer {
                 double l_d = Math.sqrt(sumTermWeights);//square root normalized w_dt's
                 documentWeight.add(l_d);
             }
-            diskIndexWriter.writeLD(documentWeight, indexLocation); //write calculated LD after indexing
+            //write document weights to disk
+            diskIndexWriter.writeDocumentWeights(documentWeight, indexLocation);
             return index;
         }
         /**
@@ -283,5 +293,15 @@ public class Indexer {
         public DiskPositionalIndex buildDiskPositionalIndex(String dir) {
             return new DiskPositionalIndex(dir);
         }
+        public double getQueryTime() {
+            return queryTime;
+        }
+        public  void setQueryTime(double queryTime) {
+            this.queryTime = queryTime;
+        }
+        public int getTEST_ITERATIONS() {
+            return TEST_ITERATIONS;
+        }
+
     }
     
