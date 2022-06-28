@@ -143,8 +143,13 @@ public class Indexer {
             stemmedTerm = AdvancedTokenProcessor.stemToken(term);
             termLiterals.add(new TermLiteral(stemmedTerm));
             int df_t = index.getDocumentFrequencyOfTerm(stemmedTerm);
-            double w_qt = Math.log(1.0 + (n/((double)df_t)));  // calcul;ate wqt = ln(1 + N/dft)
-            System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
+            double w_qt;
+            if(df_t == -1){
+                w_qt = 1;
+            }else{
+             w_qt = Math.log(1.0 + (n/((double)df_t)));
+              }  // calcul;ate wqt = ln(1 + N/dft)
+            //System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
 ;           //not as accurate, but saves us from thousands of disk reads
                 if (w_qt < VOCAB_ELIMINATION_THRESHOLD) {//wqt is too small to be included in results
                     //skip this term

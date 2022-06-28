@@ -110,11 +110,12 @@ public class App
                 System.exit(-1);
                 return "";
             }
-             else if (squery.length() >= 5 && squery.substring(1, 5).equals("test")) {
+             else if (squery.length() >= 6 && squery.substring(1, 5).equals(":test")) {
                 double meanAvgPrecision = CalculatePrecision.meanAveragePrecision(dir, corpus, index);
-                return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>";
+                return "</br><div style=\"font-size: 12px;\">Running test queries</div></br>"+
+                        "</br><div style=\"font-size: 12px;\">"+"Mean Average Precision"+meanAvgPrecision+"</div></br>";
              }
-            else if (squery.length() >= 5 && squery.substring(1, 5).equals(":stem")) {
+            else if (squery.length() >= 6 && squery.substring(1, 5).equals(":stem")) {
                 stemmedTerm = indexer.stemWord(squery.substring(6));
                 //squeryValue = squeryValue.substring(6);
                 System.out.printf("%s stemmed to: %s", "", stemmedTerm);

@@ -41,6 +41,9 @@ public class DiskPositionalIndex implements Index{
     public List<Posting> getTermPostings(long address, boolean withPositions) {
         List<Posting> postings = new ArrayList<>();
         try (RandomAccessFile raf = new RandomAccessFile(path + "/postings.bin", "r")) {
+            if(address==-1){
+                return postings;
+            }
             raf.seek(address);//go to term address
             int postingsSize = raf.readInt();//Dft 
             int termFrequency = raf.readInt();//needs this read
