@@ -7,7 +7,9 @@ import cecs429.indexes.DiskPositionalIndex;
 import cecs429.documents.DirectoryCorpus;
 
 import cecs429.indexes.Indexer;
+
 import cecs429.queries.CalculatePrecision;
+
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;

@@ -1,7 +1,8 @@
 package cecs429.queries;
-
-//Adding a Class Accumlator because we need this when
-//dealing with the doc id and the type of Ad accumulator
+/*
+ * //Adding a Class Accumlator because we need this when
+ * dealing with the doc id and the type of Ad accumulator
+ */
 public class Accumulator implements Comparable<Accumulator> {
     private int docId;//carry the doc ID the accumulator corresponds to
     private double A_d;//value of 1 accumulator after wqtxwdt
@@ -22,6 +23,9 @@ public class Accumulator implements Comparable<Accumulator> {
         this.docId = docId;
     }
     @Override
+    /*
+     * Compare between accumulator values
+     */
     public int compareTo(Accumulator acc) {
         if(this.A_d < acc.getA_d()){
             return -1;

@@ -16,7 +16,9 @@ import cecs429.indexes.DiskPositionalIndex;
 import cecs429.indexes.Index;
 import cecs429.queries.Accumulator;
 import cecs429.queries.BooleanQueryParser;
+
 import cecs429.queries.CalculatePrecision;
+
 import cecs429.queries.QueryComponent;
 import cecs429.text.AdvancedTokenProcessor;
 import cecs429.indexes.Indexer;
@@ -155,6 +157,7 @@ public class Tester {
                             DocumentCorpus cor = DirectoryCorpus.loadTextDirectory(Paths.get(path).toAbsolutePath());
                             cor.getDocuments();
                             DiskPositionalIndex disk = new DiskPositionalIndex(path);
+
                             CalculatePrecision.meanAveragePrecision(path, cor, disk); 
                             return;   
 						}
