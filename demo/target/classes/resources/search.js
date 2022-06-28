@@ -24,7 +24,7 @@
                             console.log(result);
                         });   
                     } else{
-                        $.post("/ranked-search", {query: query}, function(result){
+                        $.post("/ranked-search-test", {query: query}, function(result){
                             $(result).prependTo($("#search-contents"));
                         });
                     }

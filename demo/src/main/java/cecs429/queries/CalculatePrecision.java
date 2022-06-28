@@ -65,7 +65,7 @@ public class CalculatePrecision {
         System.out.println("MAP: " + meanAvgPrecision);
         return meanAvgPrecision;
     }
-    private static ArrayList<String> getQueries(String path){
+    public static ArrayList<String> getQueries(String path){
         ArrayList<String> queries = new ArrayList<>();//a list of all queries to be ran
         try {
             File fileQueries = new File(path + "/relevance/queries");//open the quieries to run
