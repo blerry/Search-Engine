@@ -134,6 +134,7 @@ public class Indexer {
         PriorityQueue<Accumulator> pq = new PriorityQueue<>(RANKED_RETURN);
         String stemmedTerm = "";
         String[] terms = query.split(" ");
+        
         for (String term : terms) { // for each term in query
             term = term.toLowerCase();
             stemmedTerm = AdvancedTokenProcessor.stemToken(term);
@@ -146,7 +147,9 @@ public class Indexer {
              w_qt = Math.log(1.0 + (n/((double)df_t)));
               }  // calcul;ate wqt = ln(1 + N/dft)
             //System.out.println("w_qt = "+w_qt+" n: " + n + "/ "+ df_t);
-;           //not as accurate, but saves us from thousands of disk reads
+;           if (w_qt < VOCAB_ELIMINATION_THRESHOLD) {//w_qt < 2.5
+            //skip the term "eliminate vocab"
+            } else {
                     postings = termLiterals.get(counter).getPostings(index);
                     counter++;
                     //System.out.print("tf "+((double) index.getTermFrequency(stemmedTerm)) +"/" +"posting size "+ ((double) postings.size()));
@@ -175,14 +178,15 @@ public class Indexer {
                 //System.out.println("Score = " +value+ " Ad " + acc.getA_d() + "/" +" Ld "+index.getDocumentWeight(acc.getDocId() ));
                 acc.setA_d(value);
                 if(pq.size() < RANKED_RETURN || pq.peek().getA_d() < acc.getA_d()){
-                    if(pq.size() == RANKED_RETURN){
-                        pq.remove();
+                        if(pq.size() == RANKED_RETURN){
+                            pq.remove();
+                        }
+                        pq.add(acc);
                     }
-                    pq.add(acc);
                 }
             }
-        return pq;
-        }       
+            return pq;       
+        }
 
         /**
          * Makes a Positial Inverted Index for a disk index as we return that index

@@ -80,7 +80,7 @@ public class App
             int testIterations = indexer.getTEST_ITERATIONS();
             double meanResponseTime = time/testIterations;
             double throughput = 1/meanResponseTime;
-            return "<div style=\"font-size: 36px;\">Total Time: "+ testIterations+ "iterations: " + time + " seconds</div>" +
+            return "<div style=\"font-size: 36px;\">Total Time: "+ testIterations+ " iterations: " + time + " seconds</div>" +
                     "<div style=\"font-size: 36px;\">Mean Response Time: " + meanResponseTime + " seconds</div>" +
                     "<div style=\"font-size: 36px;\">Throughput: " + throughput + " queries/second</div>" +
                     "<br>";
