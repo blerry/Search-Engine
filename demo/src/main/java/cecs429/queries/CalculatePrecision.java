@@ -25,7 +25,7 @@ public class CalculatePrecision {
         int totalRelevantDocs = 0;
         double queryRuntime;
         long startTime = System.nanoTime();
-        System.out.println("Starting Query...");//calculate how long it takes to execute
+        System.out.println("Loading Query...");//calculate how long it takes to execute
         PriorityQueue<Accumulator> pq = Indexer.rankedSearch(corpus, index, query);
         System.out.println("Query: " + query.substring(0, query.length()-2));
         while(!pq.isEmpty()){
@@ -37,6 +37,7 @@ public class CalculatePrecision {
                     System.out.print(docId + ", ");
                     totalRelevantDocs++;
                     relevantSum += ((double) totalRelevantDocs / relevantIndex);
+                    //System.out.println("Relevant Sum" + relevantSum +"="+totalRelevantDocs+"/"+relevantIndex);
                     break;//loop
                 }
             }
@@ -52,6 +53,19 @@ public class CalculatePrecision {
     }
     //grab path, the corpus of collection, disk, check boolean from old rank search function, and check to test throughput
     public static double meanAveragePrecision(String path, DocumentCorpus corpus, Index index) {
+        ArrayList<String> queries = getQueries(path);//a list of all queries to be ran
+          
+        ArrayList<int[]> relDocs = getRelevantDocs(path);//relevant documents in a list
+        double sumAvgPrecision = 0;//initialze
+        for (int i = 0; i < queries.size(); i++) {//run the AP formula
+            sumAvgPrecision += averagePrecision(corpus, index, queries.get(i), relDocs.get(i));
+        }
+        //Now we run the MAP forumla with that already calculated sum of AP
+        double meanAvgPrecision = ((double)1/queries.size()) * sumAvgPrecision;
+        System.out.println("MAP: " + meanAvgPrecision);
+        return meanAvgPrecision;
+    }
+    private static ArrayList<String> getQueries(String path){
         ArrayList<String> queries = new ArrayList<>();//a list of all queries to be ran
         try {
             File fileQueries = new File(path + "/relevance/queries");//open the quieries to run
@@ -63,8 +77,11 @@ public class CalculatePrecision {
         } catch (FileNotFoundException e) {
             System.out.println("An error occurred.");
             e.printStackTrace();
-        }    
-        ArrayList<int[]> relDocs = new ArrayList<>();//relevant documents in a list
+        } 
+        return queries;
+    }
+    private static ArrayList<int[]> getRelevantDocs(String path){
+        ArrayList<int[]> relDocs=new ArrayList<>();
         try {
             File relevantDocs = new File(path + "/relevance/qrel");//get them from here
             Scanner scan = new Scanner(relevantDocs); 
@@ -82,13 +99,6 @@ public class CalculatePrecision {
             System.out.println("An error occurred.");
             e.printStackTrace();
         }
-        double sumAvgPrecision = 0;//initialze
-        for (int i = 0; i < queries.size(); i++) {//run the AP formula
-            sumAvgPrecision += averagePrecision(corpus, index, queries.get(i), relDocs.get(i));
-        }
-        //Now we run the MAP forumla with that already calculated sum of AP
-        double meanAvgPrecision = ((double)1/queries.size()) * sumAvgPrecision;
-        System.out.println("MAP: " + meanAvgPrecision);
-        return meanAvgPrecision;
+        return relDocs;
     }
 }

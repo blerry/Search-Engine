@@ -129,7 +129,7 @@ public class Indexer {
             } 
         //ranked query
         public static PriorityQueue<Accumulator> rankedSearch(DocumentCorpus corpus, Index index, String queryInput) {
-        System.out.println("RUNS");
+        //System.out.println("RUNS");
         double n = corpus.getCorpusSize();
         List<TermLiteral> termLiterals = new ArrayList<TermLiteral>();
         int counter = 0;
