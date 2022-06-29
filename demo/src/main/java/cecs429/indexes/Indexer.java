@@ -28,7 +28,7 @@ import java.util.PriorityQueue;
  */
 public class Indexer {
         private static final int RANKED_RETURN = 50;//change later
-        private static final double VOCAB_ELIMINATION_THRESHOLD = 2.5;// 3 because it is the best
+        private static final double VOCAB_ELIMINATION_THRESHOLD = 2.5;//2.5 preferred
         private final int TEST_ITERATIONS = 30;
         private double queryTime = 0.0;
         //change for inexact later, might stay on separate maybe
