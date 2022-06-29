@@ -31,7 +31,6 @@ public class Indexer {
         private static final double VOCAB_ELIMINATION_THRESHOLD = 2.5;//2.5 preferred
         private final int TEST_ITERATIONS = 30;
         private double queryTime = 0.0;
-        //change for inexact later, might stay on separate maybe
         public String webSearch(String query,DocumentCorpus corpus, Index index, Boolean isBooleanQuery,Boolean testThroughput){
             StringBuilder postingsRows = new StringBuilder();
             String result = "";
