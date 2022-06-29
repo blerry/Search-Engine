@@ -35,4 +35,23 @@ public class Accumulator implements Comparable<Accumulator> {
         }
         return 0;
     }
+    /*
+    public int hashCode(){
+        int hashcode = 0;
+        hashcode = docId*20;
+        String hs = String.valueOf(A_d);
+        hashcode += hs.hashCode();
+
+        return hashcode;
+    }
+     
+    public boolean equals(Object obj){
+        if (obj instanceof Accumulator) {
+           Accumulator acc = (Accumulator) obj;
+            return acc.equals(acc) && acc.A_d == this.A_d;
+        } else {
+            return false;
+        }
+    }
+    */
 }

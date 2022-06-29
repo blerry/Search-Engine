@@ -119,16 +119,19 @@ public class Tester {
                              case 2:
 						        System.out.println("Enter corpus path: ");
 						        //scan.nextLine();
-						        String pathNameR = scan.nextLine();	
+						        //String pathNameR = scan.nextLine();
+                                String pathNameR = "/Users/berry/Desktop/CECS429/relevance_cranfield";	
                                 //String pathNameR = "/Users/berry/Desktop/CECS429/MobyDick10Chapters";//REMOVE 154
                                 //String pathNameR = "/Users/berry/Desktop/CECS429/all-nps-sites-extracted";
 						        System.out.println(Paths.get(pathNameR).toAbsolutePath());
 						        DocumentCorpus corpusR = DirectoryCorpus.loadTextDirectory(Paths.get(pathNameR).toAbsolutePath());
 						        corpusR.getDocuments();
 						        DiskPositionalIndex d2 = new DiskPositionalIndex(pathNameR);
+                                
 						        while(true) {
 							        System.out.println("Enter search query: ");
-							        String query = scan.nextLine();
+                                    String query = "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft";
+							        //String query = scan.nextLine();
                                     //2String query = "whale";
                                     //String query = "whale";
                                     //String query = "camping in yosemite";
@@ -145,7 +148,7 @@ public class Tester {
                                         docId--;
                                         double value = currAcc.getA_d();
                                         System.out.println("Title: " + title.toString()+ " Doc ID: " + docId+ " Value: "+ value);
-                                        
+                                        return;
                                     }
 								    
 							}

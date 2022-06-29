@@ -11,6 +11,7 @@ import cecs429.text.EnglishTokenStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.PriorityQueue;
 /**
@@ -172,7 +173,7 @@ public class Indexer {
                             }
                         }
                     }
-            List<Accumulator> accumulators = new ArrayList<Accumulator>();
+            HashSet<Accumulator> accumulators = new HashSet<Accumulator>();
             hm.forEach((key,value) -> 
                                         //{if(!accumulators.contains(accumulators))){
                                         accumulators.add(new Accumulator(key.getDocumentId(),value)));
