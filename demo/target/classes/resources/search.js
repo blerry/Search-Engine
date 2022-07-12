@@ -18,7 +18,7 @@
                         console.log(result);
                      });
                     }
-                    if (document.getElementById("ranked-search").checked == true) {
+                    else if (document.getElementById("ranked-search").checked == true) {
                         $.post("/ranked-search", {query: query}, function(result){
                             $(result).prependTo($("#search-contents"));
                             console.log(result);

@@ -9,22 +9,20 @@ import java.util.Scanner;
 
 import org.junit.Test;
 
-import cecs429.documents.DirectoryCorpus;
-import cecs429.documents.DocumentCorpus;
-import cecs429.indexes.DiskIndexWriter;
-import cecs429.indexes.DiskPositionalIndex;
-import cecs429.indexes.Index;
-import cecs429.queries.Accumulator;
-import cecs429.queries.BooleanQueryParser;
-
-import cecs429.queries.CalculatePrecision;
-
-import cecs429.queries.QueryComponent;
-import cecs429.text.AdvancedTokenProcessor;
-import cecs429.indexes.Indexer;
+import modules.documents.DirectoryCorpus;
+import modules.documents.DocumentCorpus;
+import modules.indexes.DiskIndexWriter;
+import modules.indexes.DiskPositionalIndex;
+import modules.indexes.Index;
+import modules.indexes.Indexer;
+import modules.queries.Accumulator;
+import modules.queries.BooleanQueryParser;
+import modules.queries.CalculatePrecision;
+import modules.queries.QueryComponent;
+import modules.text.AdvancedTokenProcessor;
 
 public class Tester {
-    @Test
+    //@Test
     public static void main(String[] args) throws IOException {
         Index index;//Declared depending on choice
         /**************************************
@@ -120,7 +118,7 @@ public class Tester {
 						        System.out.println("Enter corpus path: ");
 						        //scan.nextLine();
 						        //String pathNameR = scan.nextLine();
-                                String pathNameR = "/Users/berry/Desktop/CECS429/relevance_cranfield";	
+                                String pathNameR = "/Users/berry/Desktop/moby";	
                                 //String pathNameR = "/Users/berry/Desktop/CECS429/MobyDick10Chapters";//REMOVE 154
                                 //String pathNameR = "/Users/berry/Desktop/CECS429/all-nps-sites-extracted";
 						        System.out.println(Paths.get(pathNameR).toAbsolutePath());
@@ -130,9 +128,9 @@ public class Tester {
                                 
 						        while(true) {
 							        System.out.println("Enter search query: ");
-                                    String query = "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft";
-							        //String query = scan.nextLine();
-                                    //2String query = "whale";
+                                    //String query = "what similarity laws must be obeyed when constructing aeroelastic models of heated high speed aircraft";
+							        String query = scan.nextLine();
+                                    //String query = "whale";
                                     //String query = "whale";
                                     //String query = "camping in yosemite";
 							        if(query.equals("q")) {

@@ -1,15 +1,5 @@
 package edu.csulb;
 
-import cecs429.documents.Document;
-import cecs429.documents.DocumentCorpus;
-import cecs429.indexes.DiskIndexWriter;
-import cecs429.indexes.DiskPositionalIndex;
-import cecs429.documents.DirectoryCorpus;
-
-import cecs429.indexes.Indexer;
-
-import cecs429.queries.CalculatePrecision;
-
 import spark.ModelAndView;
 import spark.Spark;
 import spark.template.thymeleaf.ThymeleafTemplateEngine;
@@ -17,6 +7,15 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import modules.documents.DirectoryCorpus;
+import modules.documents.Document;
+import modules.documents.DocumentCorpus;
+import modules.indexes.DiskIndexWriter;
+import modules.indexes.DiskPositionalIndex;
+import modules.indexes.Indexer;
+import modules.queries.CalculatePrecision;
+
 import java.io.IOException;
 import java.io.Reader;
 
@@ -36,10 +35,20 @@ public class App
     private static String dir = "";
     private static DocumentCorpus corpus = null;
     private static DiskIndexWriter diskIndexWriter = new DiskIndexWriter();
+    public static int getHerokuAssignedPort() {
+        ProcessBuilder processBuilder = new ProcessBuilder();
+        if (processBuilder.environment().get("PORT") != null) {
+            return Integer.parseInt(processBuilder.environment().get("PORT"));
+        }
+        return 4567; //return default port if heroku-port isn't set (i.e. on localhost)
+    }
     public static void main( String[] args )
     {
-        Spark.port(4000); //http://localhost:4000/
+        //Spark.port(4000); //http://localhost:4000
         Spark.staticFileLocation("resources"); //folder for web files
+        Spark.port(getHerokuAssignedPort());
+        
+        //Spark.get("/",(req,res)->{return ;});
         Spark.get("/", (req, res) -> { //path to http get request from
             HashMap<String, Object> model =  new HashMap<>(); //model for page
             return new ThymeleafTemplateEngine().render(new ModelAndView(model, "index"));//get index.html
@@ -56,6 +65,16 @@ public class App
             long endTime = System.nanoTime(); 
             long totalTime = endTime - startTime;//Timer
             return "<div style=\"font-size: 12px; margin-left:25rem;\">Files Indexed From: " + dir + " </br> Time Indexed: " + totalTime / 1000000000 +  " seconds</div></br>";
+        });
+        Spark.post("/build", (request, response) -> {//same / path
+            dir = request.queryParams("directory"); //value from post
+            System.out.println(dir); 
+            corpus = DirectoryCorpus.loadTextDirectory(Paths.get(dir).toAbsolutePath());//load text corpus "files"
+            long startTime = System.nanoTime();
+            Indexer.buildIndex(corpus,dir); //index the corpus with method
+            long endTime = System.nanoTime(); 
+            long totalTime = endTime - startTime;//Timer
+            return "<div style=\"font-size: 12px; margin-left:25rem;\">1. Put the same path in input field. 2. Press Query this Time</div></br>";
         });
         //path /search to differ from / post path
         Spark.post("/search", (request, response) -> {

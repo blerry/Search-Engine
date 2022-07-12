@@ -7,15 +7,20 @@ console.log("RUNNING MAIN"); //check if script running
     document.getElementById("loadingText").style.display = "";       //show loading since we are indexing
     if(directory == "") { //cannot be empty query
         alert("Directory cannot be empty"); 
+    }
+    else if(directory =="example"){
+        $.post("/build", {directory: directory}, function(result){ //post to server the directory
+            $(result).prependTo($("#maindiv")); //show results
+        });
+        document.getElementById("loadingText").style.display = "none";   
         } else {
-                document.getElementById("submitButton").style.display = "none"; //hide elements
-                document.getElementById("dir").style.display = "none";
-                $.post("/", {directory: directory}, function(result){ //post to server the directory
+                $.post("/build", {directory: directory}, function(result){ //post to server the directory
                     $(result).prependTo($("#maindiv")); //show results
-                    document.getElementById("loadingText").style.display = "none";
-                    document.getElementById("searchDiv").style.display="";
-                    document.getElementById("search-contents").style.display="none";
+                    // document.getElementById("loadingText").style.display = "none";
+                    // document.getElementById("searchDiv").style.display="";
+                    // document.getElementById("search-contents").style.display="none";
                 });
+                document.getElementById("loadingText").style.display = "none";
                 /*
                 var httpRequest = new XMLHttpRequest()
                 httpRequest.onreadystatechange = function (result) {
